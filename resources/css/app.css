@@ -1,0 +1,302 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Playfair Display', ui-serif, Georgia, serif;
+    --color-brand: #073e34;
+    --color-deep-teal: #00271f;
+    --color-dark-green: #00271f;
+    --color-mint: #f5f3ef;
+    --color-gold: #d5b469;
+    --color-ivory: #fdfbf7;
+}
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply bg-ivory font-sans text-[#1b1c1a] antialiased;
+    }
+
+    summary::-webkit-details-marker {
+        display: none;
+    }
+}
+
+@layer components {
+    .container-page {
+        @apply mx-auto w-full max-w-[1280px] px-5 sm:px-8 lg:px-12;
+    }
+
+    .button-primary {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand px-5 py-3 text-sm font-bold text-white shadow-[0_8px_20px_-8px_rgba(7,62,52,0.38)] transition hover:-translate-y-0.5 hover:bg-[#002f28] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand;
+    }
+
+    .button-secondary {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg border border-[#00271f]/20 bg-white px-5 py-3 text-sm font-bold text-dark-green transition hover:border-brand hover:bg-[#f5f3ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand;
+    }
+
+    .button-gold {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg bg-[#ffdf9a] px-5 py-3 text-sm font-bold text-[#251a00] shadow-[0_8px_20px_-8px_rgba(37,26,0,0.35)] transition hover:-translate-y-0.5 hover:bg-[#e5c276] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d5b469];
+    }
+
+    .field-label {
+        @apply mb-1.5 block text-xs font-bold tracking-wide text-[#404946];
+    }
+
+    .field-control {
+        @apply block w-full rounded-lg border border-[#e5e0d6] bg-[#fdfbf7] px-3.5 py-3 text-sm text-[#1b1c1a] outline-none transition placeholder:text-slate-400 focus:border-brand focus:bg-white focus:ring-4 focus:ring-[#baedde]/50;
+    }
+
+    .panel {
+        @apply rounded-xl border border-[#ebe5d9] bg-white shadow-[0_8px_24px_-12px_rgba(16,42,60,0.12)];
+    }
+
+    .section-eyebrow {
+        @apply text-[11px] font-bold uppercase tracking-[0.14em] text-[#8b671c];
+    }
+
+    .page-heading {
+        @apply font-display text-4xl leading-tight text-dark-green sm:text-5xl;
+    }
+
+    .no-scrollbar {
+        scrollbar-width: none;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .hero-slide {
+        opacity: 0;
+        transition: opacity 700ms ease;
+    }
+
+    .hero-slide.is-active {
+        opacity: 1;
+    }
+
+    .hero-content {
+        position: absolute;
+        visibility: hidden;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 600ms ease 100ms, transform 600ms ease 100ms, visibility 0s linear 700ms;
+    }
+
+    .hero-content.is-active {
+        position: relative;
+        visibility: visible;
+        opacity: 1;
+        transform: translateY(0);
+        transition-delay: 180ms;
+    }
+
+    .hero-indicator {
+        @apply h-1.5 w-5 rounded-full bg-white/35 transition-all focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ffdf9a];
+    }
+
+    .hero-indicator.is-active {
+        @apply w-10 bg-[#ffdf9a];
+    }
+
+    .hero-control,
+    .carousel-control {
+        @apply grid size-9 place-items-center rounded-full border border-white/35 bg-white/10 text-white backdrop-blur transition hover:bg-white hover:text-dark-green focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffdf9a];
+    }
+
+    .carousel-control {
+        @apply border-[#d9d0c3] bg-white text-dark-green hover:bg-dark-green hover:text-[#ffdf9a] focus-visible:outline-dark-green;
+    }
+
+    .logo-marquee {
+        @apply overflow-hidden;
+    }
+
+    .logo-marquee__track {
+        display: flex;
+        width: max-content;
+        animation: marquee-left 32s linear infinite;
+    }
+
+    .logo-marquee:hover .logo-marquee__track,
+    .logo-marquee:focus-within .logo-marquee__track {
+        animation-play-state: paused;
+    }
+
+    .logo-marquee__item {
+        display: grid;
+        width: 12rem;
+        height: 2.5rem;
+        place-items: center;
+        padding-inline: 1.25rem;
+    }
+
+    .logo-marquee__item img {
+        max-width: 100%;
+        max-height: 2.25rem;
+        object-fit: contain;
+        filter: grayscale(1);
+        opacity: 0.72;
+    }
+
+    .gallery-row {
+        overflow: hidden;
+    }
+
+    .gallery-row__track {
+        display: flex;
+        width: max-content;
+        gap: 0.75rem;
+        padding-inline: 0.75rem;
+        animation: gallery-right 35s linear infinite;
+    }
+
+    .gallery-row--left .gallery-row__track {
+        animation-name: gallery-left;
+        animation-duration: 42s;
+    }
+
+    .gallery-row:nth-child(3) .gallery-row__track {
+        animation-duration: 28s;
+    }
+
+    .gallery-row:hover .gallery-row__track,
+    .gallery-row:focus-within .gallery-row__track,
+    .gallery-row.is-paused .gallery-row__track {
+        animation-play-state: paused;
+    }
+
+    .gallery-row__image {
+        @apply h-28 w-44 shrink-0 overflow-hidden rounded-xl bg-[#e8e4dc] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dark-green sm:h-36 sm:w-56;
+    }
+
+    .gallery-row__image img {
+        @apply size-full object-cover transition duration-500 hover:scale-105;
+    }
+
+    .gallery-lightbox,
+    .video-dialog {
+        width: min(92vw, 68rem);
+        max-width: none;
+        padding: 0;
+        border: 0;
+        background: transparent;
+    }
+
+    .gallery-lightbox::backdrop,
+    .video-dialog::backdrop {
+        background: rgb(0 22 18 / 0.92);
+    }
+
+    .gallery-lightbox figure {
+        display: grid;
+        max-height: 86vh;
+        gap: 0.75rem;
+        place-items: center;
+        margin: 0;
+    }
+
+    .gallery-lightbox figure img {
+        max-width: 100%;
+        max-height: 76vh;
+        border-radius: 1rem;
+        object-fit: contain;
+    }
+
+    .gallery-lightbox figcaption {
+        color: rgb(236 248 242 / 0.86);
+        font-size: 0.8125rem;
+        text-align: center;
+    }
+
+    .gallery-lightbox__close,
+    .gallery-lightbox__nav,
+    .video-dialog__close {
+        @apply absolute z-10 grid size-11 place-items-center rounded-full border border-white/25 bg-[#00271f]/85 text-white transition hover:bg-white hover:text-dark-green focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffdf9a];
+    }
+
+    .gallery-lightbox__close,
+    .video-dialog__close {
+        top: 0.75rem;
+        right: 0.75rem;
+    }
+
+    .gallery-lightbox__nav {
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .gallery-lightbox__nav--previous {
+        left: 0.75rem;
+    }
+
+    .gallery-lightbox__nav--next {
+        right: 0.75rem;
+    }
+
+    .video-dialog {
+        position: relative;
+        overflow: hidden;
+        border-radius: 1rem;
+        background: #00271f;
+    }
+
+    .video-dialog__frame {
+        aspect-ratio: 16 / 9;
+    }
+
+    .video-dialog__frame iframe,
+    .video-dialog__frame video {
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+}
+
+@keyframes marquee-left {
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+@keyframes gallery-left {
+    from {
+        transform: translateX(-50%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes gallery-right {
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+
+    .hero-content {
+        transform: none;
+    }
+
+    .logo-marquee__track,
+    .gallery-row__track {
+        animation: none !important;
+    }
+}
