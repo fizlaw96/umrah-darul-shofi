@@ -3,66 +3,50 @@
 use App\Models\Package;
 use App\Models\PackageCategory;
 use App\Models\PackageDeparture;
-use App\Models\WebsiteSetting;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 uses(LazilyRefreshDatabase::class);
 
-it('loads the homepage with published featured packages', function () {
-    $package = Package::factory()->published()->create(['is_featured' => true]);
-
+it('renders the Darul Shofi homepage with its standalone assets', function () {
     $this->get(route('home'))
         ->assertOk()
-        ->assertSee($package->title);
+        ->assertViewIs('darul-shofi.home')
+        ->assertSee('darul-shofi/css/site.css', false)
+        ->assertSee('darul-shofi/js/site.js', false);
 });
 
-it('only shows published packages in the homepage experience', function () {
-    $publishedPackage = Package::factory()->published()->create([
-        'is_featured' => true,
-        'title' => 'Pakej Hero Diterbitkan',
-    ]);
-    $draftPackage = Package::factory()->create([
-        'is_featured' => true,
-        'title' => 'Pakej Hero Draf',
-    ]);
-
+it('renders the mobile menu, cinematic package carousel, and gallery lightbox', function () {
     $this->get(route('home'))
         ->assertOk()
-        ->assertSee($publishedPackage->title)
-        ->assertSee(route('packages.show', $publishedPackage))
-        ->assertDontSee($draftPackage->title);
+        ->assertSee('data-mobile-menu-toggle', false)
+        ->assertSee('data-hero-carousel', false)
+        ->assertSee('data-hero-video', false)
+        ->assertSee('data-hero-slide', false)
+        ->assertSee('mixkit-mecca-clock-tower-and-the-kaaba-at-night-42405-large.mp4', false)
+        ->assertSee('Pakej Ekonomi')
+        ->assertSee('Pakej Premium')
+        ->assertSee('Pakej Ramadan')
+        ->assertSee('Lihat Pakej')
+        ->assertDontSee('data-hero-slider', false)
+        ->assertDontSee('data-hero-prev', false)
+        ->assertSee('id="darul-gallery-lightbox"', false);
 });
 
-it('renders gallery media only when it is configured by the agency', function () {
-    WebsiteSetting::query()->create([
-        'key' => 'homepage_gallery_images',
-        'value' => 'https://images.example.test/thumb.jpg | https://images.example.test/full.jpg | Jemaah di Masjidil Haram',
-        'group' => 'homepage',
-    ]);
-
+it('falls back to the contact section when WhatsApp is not configured', function () {
     $this->get(route('home'))
         ->assertOk()
-        ->assertSee('Galeri Perjalanan')
-        ->assertSee('https://images.example.test/thumb.jpg', false)
-        ->assertSee('https://images.example.test/full.jpg', false)
-        ->assertSee('Jemaah di Masjidil Haram');
+        ->assertSee('Sila hubungi kami')
+        ->assertDontSee('https://wa.me/', false);
 });
 
-it('includes the selected package name in a WhatsApp enquiry link', function () {
-    WebsiteSetting::query()->create([
-        'key' => 'contact_whatsapp',
-        'value' => '0123456789',
-        'group' => 'contact',
-    ]);
-    $package = Package::factory()->published()->create([
-        'is_featured' => true,
-        'title' => 'Umrah Keluarga Pilihan',
-    ]);
-    $expectedUrl = 'https://wa.me/60123456789?text='.rawurlencode('Assalamualaikum, saya ingin bertanya tentang pakej '.$package->title.'.');
+it('uses the configured Darul Shofi WhatsApp number', function () {
+    config()->set('darul_shofi.whatsapp_number', '60 12-345 6789');
+    config()->set('darul_shofi.whatsapp_display', '+60 12-345 6789');
 
     $this->get(route('home'))
         ->assertOk()
-        ->assertSee($expectedUrl, false);
+        ->assertSee('https://wa.me/60123456789?text=', false)
+        ->assertSee('Hotline WhatsApp: +60 12-345 6789');
 });
 
 it('shows published packages and hides drafts from the catalogue', function () {

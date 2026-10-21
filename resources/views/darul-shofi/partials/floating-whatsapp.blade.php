@@ -1,0 +1,13 @@
+{{-- Based on supplied Stitch HTML: partials/floating-whatsapp.blade.php --}}
+<div class="fixed bottom-6 right-6 z-50 flex items-center group">
+<!-- Tooltip -->
+<div class="hidden sm:block mr-3 px-3.5 py-1.5 rounded-full bg-white text-brand-emerald text-xs font-semibold shadow-lg border border-brand-gold/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+      Perlukan Bantuan? WhatsApp Kami
+    </div>
+<!-- Floating Circular Button with Pulse -->
+<a aria-label="Hubungi kami melalui WhatsApp" class="relative w-14 h-14 rounded-full bg-[#25D366] text-white flex items-center justify-center text-2xl shadow-xl hover:scale-110 transition-transform duration-200" href="{{ $whatsappLink('Salam Darul Shofi, saya ingin bertanya tentang Pakej Umrah 1447H.') }}" rel="noopener noreferrer" target="_blank">
+<span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-brand-gold border-2 border-white animate-ping"></span>
+<span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-brand-gold border-2 border-white"></span>
+<i class="fa-brands fa-whatsapp"></i>
+</a>
+</div>
