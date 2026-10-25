@@ -1,86 +1,125 @@
-{{-- Based on supplied Stitch HTML: partials/footer.blade.php --}}
-<footer class="bg-brand-emerald-dark text-white border-t border-brand-emerald-light/30 pt-16 pb-12" id="hubungi">
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-white/10">
-<!-- Brand & Mission Column -->
-<div class="lg:col-span-4 space-y-4">
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 rounded-xl bg-brand-emerald border border-brand-gold/40 flex items-center justify-center text-brand-gold-light shadow-md">
-<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" viewbox="0 0 24 24">
-<path d="M12 2C8 2 4 6 4 11v9h16v-9c0-5-4-9-8-9z"></path>
-<path d="M9 20v-7a3 3 0 0 1 6 0v7"></path>
-</svg>
-</div>
-<div>
-<span class="text-xl font-serif-luxury font-bold tracking-wider text-white uppercase">DARUL SHOFI</span>
-<p class="text-[9px] tracking-widest uppercase font-semibold text-brand-gold-light">Travel &amp; Tours Sdn Bhd</p>
-</div>
-</div>
-<p class="text-xs text-gray-300 font-light leading-relaxed max-w-sm">
-            Perjalanan ibadah yang lebih mudah, teratur, dan penuh keberkatan bersama bimbingan mutawwif berpengalaman Darul Shofi. Dilesenkan di bawah Kementerian Pelancongan, Seni dan Budaya (MOTAC).
-          </p>
-<div class="flex items-center gap-3 pt-2">
-<a aria-label="Facebook" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 flex items-center justify-center text-xs text-brand-gold transition" href="#hubungi"><i class="fa-brands fa-facebook-f"></i></a>
-<a aria-label="Instagram" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 flex items-center justify-center text-xs text-brand-gold transition" href="#hubungi"><i class="fa-brands fa-instagram"></i></a>
-<a aria-label="TikTok" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 flex items-center justify-center text-xs text-brand-gold transition" href="#hubungi"><i class="fa-brands fa-tiktok"></i></a>
-<a aria-label="YouTube" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 flex items-center justify-center text-xs text-brand-gold transition" href="#hubungi"><i class="fa-brands fa-youtube"></i></a>
-</div>
-</div>
-<!-- Quick Links: Pakej Utama -->
-<div class="lg:col-span-2 space-y-3">
-<h4 class="text-xs uppercase font-bold tracking-wider text-brand-gold-light">Pakej Pilihan</h4>
-<ul class="space-y-2 text-xs text-gray-300 font-light">
-<li><a class="hover:text-brand-gold transition" href="#pakej">Pakej Ekonomi</a></li>
-<li><a class="hover:text-brand-gold transition" href="#pakej">Pakej Premium Safwah</a></li>
-<li><a class="hover:text-brand-gold transition" href="#pakej">Pakej Ramadan 1447H</a></li>
-<li><a class="hover:text-brand-gold transition" href="#pakej">Pakej Keluarga Selesa</a></li>
-<li><a class="hover:text-brand-gold transition" href="#haji">Pakej Haji Bersasar</a></li>
-<li><a class="hover:text-brand-gold transition" href="#ziarah">Pakej Umrah Ziarah</a></li>
-</ul>
-</div>
-<!-- Quick Links: Maklumat & Panduan -->
-<div class="lg:col-span-3 space-y-3">
-<h4 class="text-xs uppercase font-bold tracking-wider text-brand-gold-light">Maklumat &amp; Panduan</h4>
-<ul class="space-y-2 text-xs text-gray-300 font-light">
-<li><a class="hover:text-brand-gold transition" href="#tentang">Tentang Darul Shofi</a></li>
-<li><a class="hover:text-brand-gold transition" href="#panduan">Panduan Manasik Umrah</a></li>
-<li><a class="hover:text-brand-gold transition" href="#galeri">Galeri Jemaah</a></li>
-<li><a class="hover:text-brand-gold transition" href="#hubungi">Soalan Lazim (FAQ)</a></li>
-<li><a class="hover:text-brand-gold transition" href="#hubungi">Syarat &amp; Pembatalan</a></li>
-<li><a class="hover:text-brand-gold transition" href="#hubungi">Perlindungan Takaful</a></li>
-</ul>
-</div>
-<!-- Contact & Operations Column -->
-<div class="lg:col-span-3 space-y-3">
-<h4 class="text-xs uppercase font-bold tracking-wider text-brand-gold-light">Hubungi Kami</h4>
-<div class="space-y-2.5 text-xs text-gray-300 font-light">
-<div class="flex items-start gap-2.5">
-<i class="fa-brands fa-whatsapp text-brand-gold text-sm mt-0.5"></i>
-<span>Hotline WhatsApp: {{ config('darul_shofi.whatsapp_display') ?: 'Sila hubungi kami' }}</span>
-</div>
-<div class="flex items-start gap-2.5">
-<i class="fa-regular fa-envelope text-brand-gold text-xs mt-0.5"></i>
-<span>info@darulshofi.com</span>
-</div>
-<div class="flex items-start gap-2.5">
-<i class="fa-solid fa-location-dot text-brand-gold text-xs mt-0.5"></i>
-<span>Tingkat 5, Menara Darul Shofi, Jalan Ampang, 50450 Kuala Lumpur, Malaysia</span>
-</div>
-<div class="flex items-start gap-2.5">
-<i class="fa-regular fa-clock text-brand-gold text-xs mt-0.5"></i>
-<span>Isnin – Jumaat: 9:00 pagi – 6:00 petang<br/>Sabtu: 9:00 pagi – 1:00 tengah hari</span>
-</div>
-</div>
-</div>
-</div>
-<!-- Copyright Sub-footer -->
-<div class="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 font-light gap-3">
-<p>© 2026 Darul Shofi Travel &amp; Tours Sdn Bhd (KPK/LN: 9876). Hak cipta terpelihara.</p>
-<div class="flex items-center gap-6">
-<a class="hover:text-brand-gold transition" href="#hubungi">Dasar Privasi</a>
-<span>·</span>
-<a class="hover:text-brand-gold transition" href="#hubungi">Terma &amp; Syarat</a>
-</div>
-</div>
-</div>
+@php
+    $publicAddress = $siteSettings['public_contact_address'] ?: $siteSettings['office_address'];
+    $publicAddressLines = preg_split('/\R/', $publicAddress ?: '');
+    $darulSoffiLogoUrl = $siteSettings['footer_logo_url']
+        ?: asset('darul-shofi/images/branding/darul-soffi-logo.jpg');
+@endphp
+
+<footer class="ds-global-footer {{ $footerClass ?? '' }}" id="hubungi">
+    <div class="ds-global-footer__inner">
+        <div class="ds-global-footer__top">
+            <section class="ds-global-footer__brand" aria-label="{{ $siteSettings['company_name'] }}">
+                <a class="ds-global-footer__company-logo" href="{{ route('home') }}" aria-label="{{ $siteSettings['company_name'] }}">
+                    @if (filled($siteSettings['company_logo_url']))
+                        <img src="{{ $siteSettings['company_logo_url'] }}" alt="Logo {{ $siteSettings['company_name'] }}">
+                    @else
+                        <svg aria-hidden="true" focusable="false" viewBox="0 0 48 48">
+                            <path d="M29.5 7.5a16.5 16.5 0 1 0 10.9 27.1A15.5 15.5 0 1 1 29.5 7.5Z" fill="currentColor"/>
+                            <path d="m33.5 12.5.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2Z" fill="currentColor"/>
+                        </svg>
+                    @endif
+                </a>
+
+                <h2>{{ $siteSettings['company_name'] }}</h2>
+                <p class="ds-global-footer__tagline">{{ $siteSettings['company_tagline'] }}</p>
+                <span class="ds-global-footer__accent" aria-hidden="true"></span>
+                <p class="ds-global-footer__mission">Kami komited membimbing perjalanan ibadah anda ke Tanah Suci dengan pakej yang terjamin, selesa dan bermakna.</p>
+
+                <svg class="ds-global-footer__mosque" aria-hidden="true" focusable="false" viewBox="0 0 560 170" preserveAspectRatio="xMinYMax meet">
+                    <path d="M0 147h560v23H0zM30 147V92h10v-18h5v18h10v55zm6-60h13l-6.5-13zM76 147v-39h11v-15h6v15h11v39zm8-44h12l-6-12zM142 147v-57h17v-11h7v11h17v57zm11-62h19l-9.5-18zM199 147v-29c0-29 18-52 43-61v-8l6-7 6 7v8c25 9 43 32 43 61v29zm14-32h70c-4-23-20-40-35-46-15 6-31 23-35 46zm87 32v-50h11V76h5v21h11v50zm6-55h13l-6.5-13zM353 147v-42h13V89h6v16h13v42zm8-47h16l-8-15zM425 147v-31h11v-15h6v15h11v31zm8-36h12l-6-12zM492 147V93h10V76h5v17h10v54zm6-60h13l-6.5-13z" fill="currentColor"/>
+                </svg>
+            </section>
+
+            <section class="ds-global-footer__column ds-global-footer__column--links">
+                <div class="ds-global-footer__heading">
+                    <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24">
+                        <path d="m12 2.5 8.5 4.9v9.8L12 22l-8.5-4.8V7.4L12 2.5Z"/>
+                        <path d="m3.5 7.4 8.5 4.9 8.5-4.9M12 12.3V22"/>
+                    </svg>
+                    <h3>Kategori Pakej</h3>
+                </div>
+                <ul>
+                    @forelse ($footerCategories as $category)
+                        <li><a href="{{ route('packages.index', ['category' => $category->slug]) }}">{{ $category->name }}</a></li>
+                    @empty
+                        <li><a href="{{ route('packages.index') }}">Lihat semua pakej</a></li>
+                    @endforelse
+                </ul>
+            </section>
+
+            <section class="ds-global-footer__column ds-global-footer__column--links">
+                <div class="ds-global-footer__heading">
+                    <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24">
+                        <rect x="5" y="2.5" width="14" height="19" rx="2"/>
+                        <path d="M8.5 7.5h7M8.5 12h7M8.5 16.5h4.5"/>
+                    </svg>
+                    <h3>Maklumat &amp; Panduan</h3>
+                </div>
+                <ul>
+                    <li><a href="{{ route('faq') }}">Soalan Lazim</a></li>
+                    <li><a href="{{ route('mutawifs.index') }}">Mutawif</a></li>
+                    <li><a href="{{ route('about') }}">Tentang Kami</a></li>
+                    <li><a href="{{ route('terms') }}">Terma &amp; Syarat</a></li>
+                </ul>
+            </section>
+
+            <section class="ds-global-footer__column ds-global-footer__column--contact">
+                <div class="ds-global-footer__heading">
+                    <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24">
+                        <path d="M6.8 3.5h2.8l1.4 4.2-1.8 1.7a15.8 15.8 0 0 0 5.4 5.4l1.7-1.8 4.2 1.4v2.8c0 1.2-1 2.2-2.2 2.2C10.7 19.4 4.6 13.3 4.6 5.7c0-1.2 1-2.2 2.2-2.2Z"/>
+                    </svg>
+                    <h3>Hubungi Kami</h3>
+                </div>
+
+                <div class="ds-global-footer__contact-card">
+                    <div class="ds-global-footer__darul-logo">
+                        <img src="{{ $darulSoffiLogoUrl }}" alt="Logo Pusat Pendidikan dan Bimbingan Darul Soffi">
+                    </div>
+
+                    @if (filled($publicAddress))
+                        <p class="ds-global-footer__address">
+                            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24">
+                                <path d="M12 21s7-6.2 7-12A7 7 0 1 0 5 9c0 5.8 7 12 7 12Z"/>
+                                <circle cx="12" cy="9" r="2.25"/>
+                            </svg>
+                            <span class="ds-global-footer__address-copy">
+                                @foreach ($publicAddressLines as $addressLine)
+                                    <span @class(['ds-global-footer__address-title' => $loop->first])>{{ $addressLine }}</span>
+                                @endforeach
+                            </span>
+                        </p>
+                    @endif
+
+                    @if (filled($siteSettings['map_url']))
+                        <a class="ds-global-footer__map-link" href="{{ $siteSettings['map_url'] }}" target="_blank" rel="noopener noreferrer">
+                            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24">
+                                <path d="M14 4h6v6M20 4l-9 9"/>
+                                <path d="M20 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h4"/>
+                            </svg>
+                            <span>Buka dalam Google Maps</span>
+                        </a>
+                    @endif
+
+                    <p class="ds-global-footer__notice">Butiran rasmi agensi akan dikemas kini di sini.</p>
+                </div>
+            </section>
+        </div>
+
+        <div class="ds-global-footer__bottom">
+            <div class="ds-global-footer__copyright">
+                <p>© {{ now()->year }} {{ rtrim($siteSettings['company_legal_name'], '.') }}.</p>
+                <p>Hak cipta terpelihara.</p>
+            </div>
+
+            <div class="ds-global-footer__credentials">
+                <p>Lesen MOTAC: {{ $siteSettings['motac_license_number'] }}</p>
+                <p>Website dihasilkan oleh <a href="https://ibpro.my" target="_blank" rel="noopener noreferrer">ibpro</a></p>
+            </div>
+
+            <nav class="ds-global-footer__legal-links" aria-label="Pautan undang-undang">
+                <a href="{{ $siteSettings['privacy_url'] ?: route('terms') }}">Dasar Privasi</a>
+                <a href="{{ route('terms') }}">Terma &amp; Syarat</a>
+            </nav>
+        </div>
+    </div>
 </footer>

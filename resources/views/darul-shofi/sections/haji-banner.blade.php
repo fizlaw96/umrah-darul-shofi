@@ -1,27 +1,39 @@
-{{-- Based on supplied Stitch HTML: sections/haji-banner.blade.php --}}
-<section class="relative py-16 lg:py-20 overflow-hidden bg-brand-emerald text-white" data-purpose="haji-campaign" id="haji">
-<!-- Islamic Pattern Backdrop -->
-<div class="absolute inset-0 bg-arabesque-gold opacity-30"></div>
-<div class="absolute -right-20 -bottom-20 w-96 h-96 rounded-full bg-brand-gold/10 blur-3xl pointer-events-none"></div>
-<div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-<div class="bg-gradient-to-r from-brand-emerald-dark to-brand-emerald-light/90 border border-brand-gold/40 rounded-3xl p-8 lg:p-12 shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-8">
-<div class="max-w-2xl text-center lg:text-left">
-<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-gold/20 text-brand-gold-light text-xs font-semibold uppercase tracking-wider mb-4 border border-brand-gold/30">
-<i class="fa-solid fa-star text-[10px]"></i> Pakej Khas 1447H / 2026M
-          </div>
-<h3 class="text-2xl sm:text-4xl font-serif-luxury font-bold mb-3 leading-tight">
-            Pendaftaran Pakej Haji 1447H / 2026M Kini Dibuka
-          </h3>
-<p class="text-sm sm:text-base text-gray-200 font-light leading-relaxed">
-            Daftar minat awal untuk slot kuota terhad, taklimat persediaan manasik haji bersijil, serta bimbingan intensif bersama pembimbing haji bertauliah dari Darul Shofi.
-          </p>
-</div>
-<div class="shrink-0 flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
-<a class="w-full sm:w-auto px-8 py-4 rounded-full bg-brand-gold text-brand-emerald-dark font-bold text-sm tracking-wide shadow-gold-glow hover:bg-brand-gold-light transition duration-200 flex items-center justify-center gap-2" href="{{ $whatsappLink('Salam, saya ingin memohon maklumat Pakej Haji 1447H') }}" rel="noopener noreferrer" target="_blank">
-<span>Mohon Maklumat Haji</span>
-<i class="fa-solid fa-arrow-right text-xs"></i>
-</a>
-</div>
-</div>
-</div>
+<section class="ds-testimonials" id="testimoni">
+    <div class="ds-testimonials__inner">
+        <div class="ds-testimonials__heading">
+            <span>Suara Jemaah</span>
+            <h2>Pengalaman Jemaah Bersama Kami</h2>
+        </div>
+
+        @if ($testimonials->isNotEmpty())
+            <div class="ds-testimonials__list">
+                @foreach ($testimonials as $testimonial)
+                    <article class="ds-testimonial-card" data-testimonial-card>
+                        <span class="ds-testimonial-card__quote" aria-hidden="true">“</span>
+                        <p class="ds-testimonial-card__review">{{ $testimonial->review }}</p>
+                        <footer class="ds-testimonial-card__footer">
+                            <div class="ds-testimonial-card__person">
+                                @if ($testimonial->photoUrl())
+                                    <img class="ds-testimonial-card__photo" src="{{ $testimonial->photoUrl() }}" alt="Foto {{ $testimonial->reviewer_name }}" loading="lazy">
+                                @else
+                                    <span class="ds-testimonial-card__photo-fallback" aria-hidden="true">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($testimonial->reviewer_name, 0, 1)) }}</span>
+                                @endif
+                                <div class="ds-testimonial-card__identity">
+                                    <h3>{{ $testimonial->reviewer_name }}</h3>
+                                    @if ($testimonial->package)
+                                        <p>{{ $testimonial->package->title }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                            <p class="ds-testimonial-card__rating" aria-label="{{ $testimonial->rating }} daripada 5 bintang">
+                                {{ str_repeat('★', $testimonial->rating) }}{{ str_repeat('☆', 5 - $testimonial->rating) }}
+                            </p>
+                        </footer>
+                    </article>
+                @endforeach
+            </div>
+        @else
+            <p class="ds-testimonials__empty">Testimoni akan dipaparkan selepas disemak dan diterbitkan oleh pihak agensi.</p>
+        @endif
+    </div>
 </section>

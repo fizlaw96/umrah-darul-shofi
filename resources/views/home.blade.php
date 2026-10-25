@@ -1,6 +1,6 @@
 <x-layouts.app title="Pakej Umrah untuk perjalanan yang lebih tenang">
     @php
-        $companyName = $homepageSettings->get('company_name') ?: 'Darul Shofi';
+        $companyName = $homepageSettings->get('company_name') ?: 'SalamHaji Travel & Tours';
         $companyIntro = $homepageSettings->get('homepage_company_intro') ?: $homepageSettings->get('company_tagline');
         $packageHeading = $homepageSettings->get('homepage_package_heading') ?: 'Pakej Umrah pilihan';
         $campaignTitle = $homepageSettings->get('homepage_campaign_title');
@@ -57,7 +57,6 @@
                                 <x-whats-app-link
                                     :number="$whatsappNumber"
                                     :message="'Assalamualaikum, saya ingin bertanya tentang pakej '.$package->title.'.'"
-                                    :fallback="route('contact.create', ['package_id' => $package->id])"
                                     class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur transition hover:bg-white hover:text-dark-green"
                                 >
                                     Tanya di WhatsApp
@@ -71,7 +70,7 @@
                     <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-[#ffdf9a]">{{ $companyName }}</p>
                     <h1 class="mt-4 font-display text-5xl leading-[.96] tracking-[-0.045em] sm:text-7xl">Perjalanan suci bermula dengan persediaan yang baik.</h1>
                     <p class="mt-5 max-w-xl text-sm leading-7 text-emerald-50/85">Pakej yang telah diterbitkan akan dipaparkan di sini oleh pihak agensi.</p>
-                    <a href="{{ route('contact.create') }}" class="button-gold mt-8 !rounded-full">Hantar Pertanyaan <span class="material-symbols-outlined text-[17px]">arrow_forward</span></a>
+                    <a href="{{ route('packages.index') }}" class="button-gold mt-8 !rounded-full">Lihat Pakej <span class="material-symbols-outlined text-[17px]">arrow_forward</span></a>
                 </div>
             @endif
         </div>
@@ -267,7 +266,7 @@
     @endif
 
     <section id="whatsapp-cta" class="bg-[#003d32] py-14 text-white sm:py-18">
-        <div class="container-page"><div class="relative overflow-hidden rounded-2xl border border-[#ffdf9a]/20 bg-[#00271f] px-7 py-10 sm:px-10 sm:py-12"><div class="absolute -right-20 -top-20 size-72 rounded-full border border-[#ffdf9a]/15"></div><div class="relative flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between"><div class="max-w-2xl"><p class="text-[10px] font-bold uppercase tracking-[.14em] text-[#ffdf9a]">Kami sedia membantu</p><h2 class="mt-2 font-display text-4xl leading-tight sm:text-5xl">Sedia untuk memulakan perjalanan Umrah?</h2></div>@if (filled($whatsappNumber))<x-whats-app-link :number="$whatsappNumber" message="Assalamualaikum, saya ingin bertanya tentang pakej Umrah." :fallback="route('contact.create')" class="button-gold shrink-0 !rounded-full !px-5">Hantar Pertanyaan <span class="material-symbols-outlined text-[17px]">arrow_forward</span></x-whats-app-link>@else<a href="{{ route('contact.create') }}" class="button-gold shrink-0 !rounded-full !px-5">Hantar Pertanyaan <span class="material-symbols-outlined text-[17px]">arrow_forward</span></a>@endif</div></div></div>
+        <div class="container-page"><div class="relative overflow-hidden rounded-2xl border border-[#ffdf9a]/20 bg-[#00271f] px-7 py-10 sm:px-10 sm:py-12"><div class="absolute -right-20 -top-20 size-72 rounded-full border border-[#ffdf9a]/15"></div><div class="relative flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between"><div class="max-w-2xl"><p class="text-[10px] font-bold uppercase tracking-[.14em] text-[#ffdf9a]">Kami sedia membantu</p><h2 class="mt-2 font-display text-4xl leading-tight sm:text-5xl">Sedia untuk memulakan perjalanan Umrah?</h2></div>@if (filled($whatsappNumber))<x-whats-app-link :number="$whatsappNumber" message="Assalamualaikum, saya ingin bertanya tentang pakej Umrah." class="button-gold shrink-0 !rounded-full !px-5">WhatsApp Kami <span class="material-symbols-outlined text-[17px]">arrow_forward</span></x-whats-app-link>@else<a href="{{ route('packages.index') }}" class="button-gold shrink-0 !rounded-full !px-5">Lihat Pakej <span class="material-symbols-outlined text-[17px]">arrow_forward</span></a>@endif</div></div></div>
     </section>
 
     @if (filled($videoUrl))

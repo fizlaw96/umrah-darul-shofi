@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\FaqRequest;
 use App\Models\Faq;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class FaqController extends Controller
@@ -16,7 +18,7 @@ class FaqController extends Controller
     public function index(): View
     {
         return view('admin.faqs.index', [
-            'faqs' => Faq::query()->orderBy('category')->orderBy('sort_order')->paginate(20),
+            'faqs' => Faq::query()->orderBy('sort_order')->latest('id')->paginate(20),
         ]);
     }
 
@@ -25,7 +27,7 @@ class FaqController extends Controller
      */
     public function create(): View
     {
-        return view('admin.faqs.create', ['faq' => new Faq]);
+        return view('admin.faqs.create', $this->formViewData(new Faq));
     }
 
     /**
@@ -33,10 +35,25 @@ class FaqController extends Controller
      */
     public function store(FaqRequest $request): RedirectResponse
     {
-        Faq::query()->create([
-            ...$request->safe()->except('is_published'),
+        $values = [
+            ...$request->safe()->except(['is_published', 'placement']),
             'is_published' => $request->boolean('is_published'),
-        ]);
+        ];
+        $placement = $request->validated('placement', 'top');
+
+        DB::transaction(function () use ($placement, $values): void {
+            if ($placement === 'bottom') {
+                $sortOrder = (int) Faq::query()->max('sort_order') + 1;
+            } else {
+                Faq::query()->increment('sort_order');
+                $sortOrder = 1;
+            }
+
+            Faq::query()->create([
+                ...$values,
+                'sort_order' => $sortOrder,
+            ]);
+        });
 
         return redirect()->route('admin.faqs.index')->with('success', 'Soalan lazim berjaya ditambah.');
     }
@@ -54,7 +71,7 @@ class FaqController extends Controller
      */
     public function edit(Faq $faq): View
     {
-        return view('admin.faqs.edit', compact('faq'));
+        return view('admin.faqs.edit', $this->formViewData($faq));
     }
 
     /**
@@ -62,12 +79,57 @@ class FaqController extends Controller
      */
     public function update(FaqRequest $request, Faq $faq): RedirectResponse
     {
-        $faq->update([
-            ...$request->safe()->except('is_published'),
+        $values = [
+            ...$request->safe()->except(['is_published', 'placement']),
             'is_published' => $request->boolean('is_published'),
-        ]);
+        ];
+        $placement = $request->validated('placement', 'keep');
+
+        DB::transaction(function () use ($faq, $placement, $values): void {
+            $sortOrder = $faq->sort_order;
+
+            if ($placement === 'top' && $faq->sort_order > 1) {
+                Faq::query()
+                    ->whereKeyNot($faq->id)
+                    ->where('sort_order', '<', $faq->sort_order)
+                    ->increment('sort_order');
+
+                $sortOrder = 1;
+            } elseif ($placement === 'bottom') {
+                $maximumSortOrder = (int) Faq::query()->max('sort_order');
+
+                if ($faq->sort_order < $maximumSortOrder) {
+                    Faq::query()
+                        ->whereKeyNot($faq->id)
+                        ->where('sort_order', '>', $faq->sort_order)
+                        ->decrement('sort_order');
+
+                    $sortOrder = $maximumSortOrder;
+                }
+            }
+
+            $faq->update([
+                ...$values,
+                'sort_order' => $sortOrder,
+            ]);
+        });
 
         return back()->with('success', 'Soalan lazim berjaya dikemas kini.');
+    }
+
+    /**
+     * @return array{faq: Faq, categories: Collection<int, string>}
+     */
+    private function formViewData(Faq $faq): array
+    {
+        return [
+            'faq' => $faq,
+            'categories' => Faq::query()
+                ->select('category')
+                ->distinct()
+                ->orderBy('category')
+                ->pluck('category'),
+        ];
     }
 
     /**

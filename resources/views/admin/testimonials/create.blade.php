@@ -1,0 +1,1 @@
+<x-layouts.admin heading="Tambah Testimoni"><section class="flex items-center justify-between"><h1 class="text-3xl font-bold text-[#00251e]">Tambah Testimoni</h1><a class="admin-button-secondary" href="{{ route('admin.testimonials.index') }}">Kembali</a></section>@include('admin.testimonials._form')</x-layouts.admin>

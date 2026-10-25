@@ -1,0 +1,20 @@
+<x-layouts.admin heading="Kategori Pakej">
+    <section class="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+        <div><p class="text-[10px] font-bold uppercase tracking-[0.16em] text-[#006b57]">Pakej</p><h1 class="mt-1 text-3xl font-bold tracking-[-0.045em] text-[#00251e]">Kategori Pakej &amp; Hero</h1><p class="mt-2 max-w-2xl text-sm leading-6 text-[#69746f]">Setiap kategori mempunyai satu slaid hero. Tajuk, subtajuk, pautan dan nama butang diambil terus daripada kategori; visual diurus pada halaman edit kategori.</p></div>
+    </section>
+
+    <section class="admin-card mt-7 p-6 sm:p-7">
+        <h2 class="text-lg font-bold text-[#00251e]">Tambah kategori</h2>
+        <form action="{{ route('admin.package-categories.store') }}" method="POST" class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">@csrf
+            <label><span class="admin-label">Nama</span><input data-category-name class="admin-field" name="name" value="{{ old('name') }}" required></label>
+            <label><span class="admin-label">Slug</span><input data-category-slug-preview class="admin-field cursor-not-allowed text-[#718078]" value="{{ old('slug') }}" placeholder="Dijana daripada nama" readonly></label>
+            <div class="flex flex-wrap items-end gap-4 pb-3"><label class="flex items-center gap-2 text-sm font-semibold text-[#163a30]"><input class="size-4 accent-[#006b57]" type="checkbox" name="is_active" value="1" @checked(old('is_active', true))>Aktif</label><label class="flex items-center gap-2 text-sm font-semibold text-[#163a30]"><input class="size-4 accent-[#006b57]" type="checkbox" name="show_on_homepage" value="1" @checked(old('show_on_homepage', true))>Homepage</label></div>
+            <label class="md:col-span-2 xl:col-span-3"><span class="admin-label">Subtajuk / tahun <span class="font-medium text-[#8a958f]">Pilihan</span></span><input class="admin-field" name="description" value="{{ old('description') }}" maxlength="255"></label>
+            <div class="flex items-end"><button class="admin-button-primary" type="submit">Tambah Kategori</button></div>
+        </form>
+    </section>
+
+    <section class="admin-card mt-7 overflow-hidden">
+        <div class="overflow-x-auto"><table class="w-full min-w-[760px] text-left"><thead class="bg-[#e9f7ed] text-[10px] font-bold uppercase tracking-[.12em] text-[#65716b]"><tr><th class="px-6 py-4">Kategori</th><th class="px-4 py-4">Slug</th><th class="px-4 py-4">Pakej</th><th class="px-4 py-4">Paparan</th><th class="px-6 py-4 text-right">Tindakan</th></tr></thead><tbody class="divide-y divide-[#e8eee9]">@forelse ($categories as $packageCategory)<tr><td class="px-6 py-4"><p class="font-bold text-[#00251e]">{{ $packageCategory->name }}</p><p class="mt-1 text-xs text-[#718078]">Susunan {{ $packageCategory->sort_order }}</p></td><td class="px-4 py-4 text-sm text-[#506058]">{{ $packageCategory->slug }}</td><td class="px-4 py-4 text-sm text-[#506058]">{{ $packageCategory->packages_count }}</td><td class="px-4 py-4"><span class="rounded-full px-2.5 py-1 text-[10px] font-bold {{ $packageCategory->is_active ? 'bg-[#dcf7ed] text-[#006b57]' : 'bg-[#f2f4f2] text-[#66736c]' }}">{{ $packageCategory->is_active ? 'Aktif' : 'Tidak aktif' }}</span>@if ($packageCategory->show_on_homepage)<span class="ml-2 text-[10px] font-bold text-[#8a671d]">Homepage</span>@endif</td><td class="px-6 py-4 text-right"><a class="admin-button-secondary !px-3" href="{{ route('admin.package-categories.edit', $packageCategory) }}">Edit kategori &amp; visual</a></td></tr>@empty<tr><td colspan="5" class="px-6 py-12 text-center text-sm text-[#69746f]">Belum ada kategori.</td></tr>@endforelse</tbody></table></div>
+    </section>
+</x-layouts.admin>

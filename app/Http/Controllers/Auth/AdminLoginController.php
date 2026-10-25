@@ -12,8 +12,12 @@ use Illuminate\View\View;
 
 class AdminLoginController extends Controller
 {
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
+        if (Auth::check() && auth()->user()?->isStaff()) {
+            return redirect()->route('admin.dashboard');
+        }
+
         return view('auth.admin-login');
     }
 

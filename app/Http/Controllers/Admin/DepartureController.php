@@ -18,8 +18,13 @@ class DepartureController extends Controller
      */
     public function index(Request $request): View
     {
+        $selectedPackageId = $request->integer('package_id') ?: null;
+
         $departures = PackageDeparture::query()
             ->with('package')
+            ->when($selectedPackageId, function ($query) use ($selectedPackageId): void {
+                $query->where('package_id', $selectedPackageId);
+            })
             ->when($request->filled('status'), function ($query) use ($request): void {
                 $query->where('status', $request->string('status')->toString());
             })
@@ -30,6 +35,7 @@ class DepartureController extends Controller
         return view('admin.departures.index', [
             'departures' => $departures,
             'packages' => Package::query()->orderBy('title')->get(['id', 'title']),
+            'selectedPackageId' => $selectedPackageId,
         ]);
     }
 

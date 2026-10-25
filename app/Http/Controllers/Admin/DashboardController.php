@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Booking;
-use App\Models\Enquiry;
 use App\Models\Package;
 use App\Models\PackageDeparture;
 use Illuminate\View\View;
@@ -13,18 +11,29 @@ class DashboardController extends Controller
 {
     public function __invoke(): View
     {
+        $today = now('Asia/Kuala_Lumpur')->startOfDay();
+        $publishedPackages = Package::query()->where('status', 'published')->count();
+
         return view('admin.dashboard', [
-            'activePackages' => Package::query()->published()->count(),
-            'upcomingDepartures' => PackageDeparture::query()
+            'packageCount' => Package::query()->count(),
+            'publishedPackageCount' => $publishedPackages,
+            'draftPackageCount' => Package::query()->where('status', 'draft')->count(),
+            'upcomingDepartureCount' => PackageDeparture::query()
                 ->where('status', 'open')
-                ->whereDate('departure_date', '>=', today())
+                ->whereDate('departure_date', '>=', $today)
                 ->count(),
-            'totalBookings' => Booking::query()->count(),
-            'pendingBookings' => Booking::query()->whereIn('status', ['pending', 'reviewing'])->count(),
-            'confirmedBookings' => Booking::query()->where('status', 'confirmed')->count(),
-            'totalEnquiries' => Enquiry::query()->count(),
-            'recentBookings' => Booking::query()->with('departure.package')->latest()->take(5)->get(),
-            'recentEnquiries' => Enquiry::query()->with('package')->latest()->take(5)->get(),
+            'recentPackages' => Package::query()
+                ->with('category')
+                ->withMin([
+                    'departures as next_departure_date' => fn ($query) => $query
+                        ->where('status', 'open')
+                        ->whereDate('departure_date', '>=', $today),
+                ], 'departure_date')
+                ->withCasts(['next_departure_date' => 'date'])
+                ->latest('updated_at')
+                ->orderByDesc('id')
+                ->paginate(10)
+                ->withQueryString(),
         ]);
     }
 }

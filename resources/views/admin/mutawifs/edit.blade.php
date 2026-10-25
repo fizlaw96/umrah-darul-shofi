@@ -1,0 +1,1 @@
+<x-layouts.admin heading="Edit Mutawif"><section class="flex items-center justify-between"><h1 class="text-3xl font-bold text-[#00251e]">Edit Mutawif</h1><a class="admin-button-secondary" href="{{ route('admin.mutawifs.index') }}">Kembali</a></section>@include('admin.mutawifs._form')</x-layouts.admin>

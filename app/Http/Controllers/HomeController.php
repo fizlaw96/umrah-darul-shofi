@@ -2,12 +2,61 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Faq;
+use App\Models\HeroSlide;
+use App\Models\MediaItem;
+use App\Models\PackageCategory;
+use App\Models\Testimonial;
 use Illuminate\View\View;
 
 class HomeController extends Controller
 {
     public function __invoke(): View
     {
-        return view('darul-shofi.home');
+        return view('darul-shofi.home', [
+            'heroSlides' => HeroSlide::query()
+                ->published()
+                ->with(['category', 'package'])
+                ->orderBy('sort_order')
+                ->get(),
+            'homepageCategories' => PackageCategory::query()
+                ->active()
+                ->visibleOnHomepage()
+                ->whereHas('packages', fn ($query) => $query->publiclyVisible()->visibleOnHomepage())
+                ->with(['packages' => fn ($query) => $query
+                    ->publiclyVisible()
+                    ->visibleOnHomepage()
+                    ->with('category')
+                    ->withVisibleDepartures()
+                    ->orderByDesc('is_featured')
+                    ->orderBy('display_order')
+                    ->latest('published_at')
+                    ->limit(8)])
+                ->orderBy('sort_order')
+                ->limit(4)
+                ->get(),
+            'testimonials' => Testimonial::query()
+                ->published()
+                ->with('package')
+                ->orderBy('sort_order')
+                ->latest('id')
+                ->limit(3)
+                ->get(),
+            'homeFaqs' => Faq::query()->published()->orderBy('sort_order')->limit(8)->get(),
+            'aboutMedia' => MediaItem::query()
+                ->published()
+                ->forSection(MediaItem::AboutSection)
+                ->orderBy('sort_order')
+                ->latest('id')
+                ->take(MediaItem::sectionLimit(MediaItem::AboutSection))
+                ->get(),
+            'galleryMedia' => MediaItem::query()
+                ->published()
+                ->forSection(MediaItem::GallerySection)
+                ->orderBy('sort_order')
+                ->latest('id')
+                ->take(MediaItem::sectionLimit(MediaItem::GallerySection))
+                ->get(),
+        ]);
     }
 }

@@ -1,6 +1,3 @@
-<div>
-    <!-- No surplus words or unnecessary actions. - Marcus Aurelius -->
-</div>
 @props([
     'number' => null,
     'message' => '',
@@ -16,7 +13,7 @@
 
     $whatsAppUrl = filled($phoneNumber)
         ? 'https://wa.me/'.$phoneNumber.'?text='.rawurlencode($message)
-        : ($fallback ?: route('contact.create'));
+        : ($fallback ?: '#hubungi');
 @endphp
 
 <a

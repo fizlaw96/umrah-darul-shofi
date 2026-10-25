@@ -2141,7 +2141,8 @@ body { font-family:'Plus Jakarta Sans',Arial,sans-serif; background:#FAF8F5; col
 .ds-cinematic-hero__badge {backdrop-filter:blur(8px);background:rgba(15,56,44,.6);border:1px solid rgba(197,160,89,.8);border-radius:999px;color:#E7C875;font-size:clamp(.61rem,1.2vw,.75rem);font-weight:700;letter-spacing:.16em;line-height:1.25;margin:0;padding:.7rem 1rem;text-transform:uppercase;}
 .ds-cinematic-hero__headline {font-family:'Plus Jakarta Sans',Arial,sans-serif;font-size:clamp(3rem,8.4vw,8rem);font-weight:700;letter-spacing:-.065em;line-height:.88;margin:0;text-shadow:0 4px 24px rgba(0,0,0,.4);text-transform:uppercase;}
 .ds-cinematic-hero__headline-line {display:block;}
-.ds-cinematic-hero__headline-line--accent {color:#E7C875;font-size:.78em;letter-spacing:-.075em;margin-top:.16em;}
+.ds-cinematic-hero__headline-line--accent {color:#E7C875;font-size:clamp(1.8rem,3.35vw,3.2rem);letter-spacing:-.075em;margin-top:.16em;word-spacing:.15em;}
+.ds-cinematic-hero__word {display:inline-block;white-space:nowrap;}
 .ds-cinematic-hero__price {color:#FFFFFF;font-size:clamp(.9rem,1.65vw,1.1rem);font-weight:500;letter-spacing:.12em;margin:0;text-transform:uppercase;}
 .ds-cinematic-hero__price strong {color:#E7C875;font-weight:700;}
 .ds-cinematic-hero__cta {align-items:center;background:linear-gradient(135deg,#E7C875,#C5A059);border:1px solid rgba(255,255,255,.18);border-radius:.75rem;box-shadow:0 12px 28px rgba(0,0,0,.27),0 0 0 rgba(231,200,117,0);color:#06231A;display:inline-flex;font-size:.75rem;font-weight:800;gap:.75rem;letter-spacing:.13em;margin-top:.55rem;min-height:3.25rem;padding:.9rem 1.35rem;text-decoration:none;text-transform:uppercase;transition:box-shadow .28s ease,transform .28s ease;}
@@ -2154,6 +2155,7 @@ body { font-family:'Plus Jakarta Sans',Arial,sans-serif; background:#FAF8F5; col
 .ds-package-card[data-selected="true"] {outline:2px solid rgba(197,160,89,.45);outline-offset:2px;}
 .ds-secondary-card[data-selected="true"] {outline:2px solid rgba(197,160,89,.5);outline-offset:2px;}
 .ds-airline-logo {display:block;flex:none;height:1.5rem;object-fit:contain;width:2.25rem;}
+.ds-airline-partners {padding-block:2rem;}
 .ds-gallery-open {appearance:none;display:block;text-align:inherit;transition:transform .25s ease,filter .25s ease;}
 .ds-gallery-open:hover {filter:brightness(1.07);transform:translateY(-2px);}
 .ds-gallery-open:focus-visible,button:focus-visible,a:focus-visible {outline:3px solid #C5A059;outline-offset:3px;}
@@ -2172,4 +2174,110 @@ body { font-family:'Plus Jakarta Sans',Arial,sans-serif; background:#FAF8F5; col
 .ds-lightbox-step--next {right:.25rem;top:50%;transform:translateY(-50%);}
 @media(max-width:640px){.ds-lightbox-inner {padding:2.5rem 2.6rem 1rem;}.ds-lightbox-close{top:0;right:0;}.ds-lightbox-step--prev{left:0;}.ds-lightbox-step--next{right:0;}}
 @media(max-width:640px){header > .max-w-7xl > .flex{gap:.5rem;}header > .max-w-7xl > .flex > .flex{gap:.5rem;}header > .max-w-7xl > .flex > .flex > a{padding-inline:.75rem;}}
+
+/* Shared public-header sizing; this landing page ships its own compiled stylesheet. */
+.ds-site-brand-logo{height:3.5rem;width:7.5rem;}
+.ds-site-brand-logo img{height:100%;max-width:100%;object-fit:contain;width:100%;}
+.ds-site-tagline{max-width:17rem;}
+.ds-site-desktop-nav,.ds-site-desktop-cta{display:none;}
+.ds-site-menu-toggle{display:inline-flex;}
+@media(min-width:1280px){.ds-site-desktop-nav{display:flex;}.ds-site-desktop-cta{display:inline-flex;}.ds-site-menu-toggle{display:none;}}
+@media(max-width:640px){.ds-site-brand-logo{height:3rem;width:5.75rem;}.ds-site-tagline{max-width:12rem;}.ds-site-header-inner{gap:.5rem;}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important;}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}.ds-reveal{opacity:1;transform:none;}.ds-cinematic-hero__video{display:none;}}
+
+/* Homepage package catalogue: fixed card proportions and alternating category sections. */
+.ds-package-overview{background:#fff;border-block:1px solid #ECE7E0;padding:2.5rem 0;}
+.ds-package-overview__inner,.ds-package-category-section__inner,.ds-media-section__inner{margin:0 auto;max-width:80rem;padding-inline:1rem;}
+.ds-package-overview__eyebrow,.ds-media-section__heading>span{color:#A8833B;font-size:.72rem;font-weight:800;letter-spacing:.14em;margin:0;text-transform:uppercase;}
+.ds-package-overview__description{color:#62706B;font-size:.95rem;line-height:1.6;margin:.45rem 0 0;}
+.ds-package-category-section{padding:3.75rem 0;}
+.ds-package-category-section--cream{background:#FAF8F5;}
+.ds-package-category-section--white{background:#fff;}
+.ds-package-category-section__header{align-items:flex-start;display:flex;gap:1rem;justify-content:space-between;margin-bottom:1.6rem;}
+.ds-package-category-section__title{color:#0F382C;font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(2rem,4vw,2.7rem);font-weight:700;line-height:1;margin:0;}
+.ds-package-category-section__description{color:#62706B;font-size:.9rem;line-height:1.55;margin:.5rem 0 0;max-width:36rem;}
+.ds-package-category-section__actions{align-items:center;display:flex;flex:none;gap:.5rem;}
+.ds-package-scroll-button{align-items:center;border:1px solid rgba(197,160,89,.52);border-radius:999px;color:#0F382C;cursor:pointer;display:inline-flex;height:2.35rem;justify-content:center;transition:background-color .2s,color .2s;width:2.35rem;}
+.ds-package-scroll-button:hover{background:#0F382C;color:#fff;}
+.ds-package-category-section__all{align-items:center;background:#0F382C;border-radius:999px;color:#fff;display:inline-flex;font-size:.8rem;font-weight:700;gap:.55rem;margin-left:.35rem;padding:.72rem 1rem;text-decoration:none;transition:background-color .2s,transform .2s;white-space:nowrap;}
+.ds-package-category-section__all:hover{background:#184E3F;transform:translateY(-1px);}
+.ds-package-category-scroller{display:flex;gap:1.25rem;overflow-x:auto;padding:0 .1rem .75rem;scroll-snap-type:x mandatory;scrollbar-color:#C5A059 transparent;scrollbar-width:thin;}
+.ds-home-package-card{background:#fff;border:1px solid #E7E2D9;border-radius:1rem;box-shadow:0 5px 18px rgba(10,38,29,.07);display:flex;flex:0 0 min(19rem,82vw);flex-direction:column;max-width:19rem;overflow:hidden;scroll-snap-align:start;transition:box-shadow .25s,transform .25s;}
+.ds-home-package-card:hover{box-shadow:0 14px 30px rgba(10,38,29,.13);transform:translateY(-3px);}
+.ds-home-package-card__poster{background:#0F382C;display:block;height:11.5rem;overflow:hidden;}
+.ds-home-package-card__poster img{height:100%;object-fit:cover;transition:transform .45s ease;width:100%;}
+.ds-home-package-card:hover .ds-home-package-card__poster img{transform:scale(1.045);}
+.ds-home-package-card__poster[data-portrait]{height:auto;aspect-ratio:3/4;}
+.ds-home-package-card__poster[data-portrait] [data-package-image]{object-fit:contain;}
+.ds-home-package-card:hover .ds-home-package-card__poster[data-portrait] [data-package-image]{transform:none;}
+.ds-home-package-card__empty-poster{align-items:center;color:#DFBD69;display:flex;font-size:2rem;height:100%;justify-content:center;}
+.ds-home-package-card__body{display:flex;flex:1;flex-direction:column;padding:1rem;}
+.ds-home-package-card__title{color:#1A2421;font-family:'Plus Jakarta Sans',Arial,sans-serif;font-size:1.125rem;font-weight:700;letter-spacing:-.025em;line-height:1.3;margin:0;}
+.ds-home-package-card__title a{text-decoration:none;}
+.ds-home-package-card__description{color:#62706B;display:-webkit-box;font-size:.74rem;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-height:1.45;margin:.48rem 0 0;min-height:2.15rem;overflow:hidden;}
+.ds-home-package-card__details{border-block:1px solid #F0ECE4;color:#5C6461;font-size:.72rem;line-height:1.45;margin-top:.85rem;padding:.72rem 0;}
+.ds-home-package-card__details p{margin:.22rem 0;}
+.ds-home-package-card__details i{color:#A8833B;margin-right:.42rem;width:.85rem;}
+.ds-home-package-card__footer{align-items:flex-end;display:flex;justify-content:space-between;margin-top:auto;padding-top:.85rem;}
+.ds-home-package-card__footer p{color:#6B7280;font-size:.58rem;font-weight:800;letter-spacing:.1em;margin:0;text-transform:uppercase;}
+.ds-home-package-card__footer strong{color:#0F382C;display:block;font-family:'Plus Jakarta Sans',Arial,sans-serif;font-size:1.25rem;font-variant-numeric:tabular-nums;font-weight:800;letter-spacing:-.035em;line-height:1.2;margin-top:.18rem;}
+.ds-home-package-card__footer a{background:#0F382C;border-radius:999px;color:#fff;font-size:.7rem;font-weight:700;padding:.56rem .82rem;text-decoration:none;}
+
+/* The four About images are kept proportional even though this page uses a standalone stylesheet. */
+.ds-about-photo{background:#E9EEE9;border:1px solid rgba(197,160,89,.2);border-radius:1rem;box-shadow:0 5px 18px rgba(10,38,29,.08);overflow:hidden;position:relative;}
+.ds-about-photo--portrait{aspect-ratio:4 / 5;}
+.ds-about-photo--square{aspect-ratio:1;}
+.ds-about-photo--offset{transform:translateY(2rem);}
+.ds-about-photo__image{display:block;height:100%;inset:0;object-fit:cover;position:absolute;transition:transform .5s;width:100%;}
+.ds-about-photo:hover .ds-about-photo__image{transform:scale(1.045);}
+.ds-about-photo__placeholder{align-items:center;color:#718078;display:flex;font-size:.75rem;font-weight:600;height:100%;justify-content:center;padding:1rem;text-align:center;}
+
+/* The guide video and social channels intentionally use two columns, then one social service per row. */
+.ds-media-section{background:#fff;border-top:1px solid #ECE7E0;padding:4.5rem 0;}
+.ds-media-section__heading{margin-bottom:2rem;}
+.ds-media-section__heading h2{color:#0F382C;font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(2rem,4vw,2.5rem);font-weight:700;line-height:1.1;margin:.55rem 0 0;}
+.ds-media-section__layout{display:grid;gap:1.5rem;}
+.ds-featured-video{align-items:center;background:#06231A;border-radius:1.25rem;color:#fff;display:flex;justify-content:center;min-height:19rem;overflow:hidden;position:relative;text-align:center;text-decoration:none;}
+.ds-featured-video__frame{border:0;height:100%;inset:0;object-fit:cover;position:absolute;width:100%;z-index:1;}
+.ds-featured-video--empty{background:#FAF8F5;border:1px dashed rgba(197,160,89,.6);color:#62706B;padding:2rem;}
+.ds-featured-video--empty i{color:#C5A059;font-size:2rem;}
+.ds-featured-video--empty p{font-size:.86rem;line-height:1.55;margin:1rem auto 0;max-width:18rem;}
+.ds-social-panel{background:#FAF8F5;border:1px solid rgba(197,160,89,.24);border-radius:1.25rem;padding:1.5rem;}
+.ds-social-panel h3{color:#0F382C;font-family:'Cormorant Garamond',Georgia,serif;font-size:1.7rem;font-weight:700;margin:0;}
+.ds-social-panel>p{color:#62706B;font-size:.82rem;line-height:1.55;margin:.45rem 0 0;}
+.ds-social-list{display:grid;gap:.65rem;margin-top:1.25rem;}
+.ds-social-row{align-items:center;background:#fff;border:1px solid rgba(197,160,89,.22);border-radius:.75rem;color:#0F382C;display:flex;gap:.85rem;min-height:3.15rem;padding:.65rem .85rem;text-decoration:none;transition:border-color .2s,transform .2s;}
+.ds-social-row:hover{border-color:#C5A059;transform:translateX(2px);}
+.ds-social-row>i{color:#A8833B;font-size:1.1rem;width:1.2rem;}
+.ds-social-row>span:not(.sr-only){font-size:.82rem;font-weight:700;}
+.ds-social-row b{font-size:.9rem;margin-left:auto;}
+.ds-social-row--empty{justify-content:center;opacity:.68;}
+.ds-social-row--empty>i{margin:0;}
+@media(min-width:640px){.ds-package-overview__inner,.ds-package-category-section__inner,.ds-media-section__inner{padding-inline:1.5rem;}.ds-home-package-card{flex-basis:19rem;}.ds-home-package-card__poster{height:12rem;}}
+@media(min-width:1024px){.ds-package-overview__inner,.ds-package-category-section__inner,.ds-media-section__inner{padding-inline:2rem;}.ds-media-section__layout{grid-template-columns:minmax(0,1.4fr) minmax(19rem,1fr);}.ds-featured-video{min-height:24rem;}}
+@media(max-width:640px){.ds-package-overview{padding:2rem 0;}.ds-package-category-section{padding:2.75rem 0;}.ds-package-category-section__header{gap:.75rem;}.ds-package-category-section__actions{gap:.35rem;}.ds-package-scroll-button{height:2rem;width:2rem;}.ds-package-category-section__all{font-size:.68rem;margin-left:0;padding:.6rem .72rem;}.ds-package-category-section__all i{display:none;}.ds-home-package-card{flex-basis:76vw;}.ds-home-package-card__poster{height:10.5rem;}.ds-media-section{padding:3.25rem 0;}.ds-featured-video{min-height:15rem;}.ds-social-panel{padding:1.25rem;}}
+
+/* Compact homepage testimonials: three cards in a single desktop row. */
+.ds-testimonials{background:linear-gradient(155deg,#FFFDFB 0%,#FFF5EC 45%,#D8501F 100%);padding:4rem 0;}
+.ds-testimonials__inner{margin:0 auto;max-width:80rem;padding-inline:1rem;}
+.ds-testimonials__heading{margin:0 auto 1.75rem;max-width:38rem;text-align:center;}
+.ds-testimonials__heading>span{color:#A04A2B;font-size:.7rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;}
+.ds-testimonials__heading h2{color:#0F382C;font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(2rem,3.8vw,2.7rem);font-weight:700;line-height:1.02;margin:.45rem 0 0;}
+.ds-testimonials__list{display:grid;gap:1rem;grid-template-columns:repeat(3,minmax(0,1fr));}
+.ds-testimonial-card{background:rgba(255,255,255,.96);border:1px solid rgba(255,255,255,.76);border-radius:1.1rem;box-shadow:0 13px 26px rgba(87,34,17,.15);display:flex;flex-direction:column;min-height:13.75rem;padding:1.35rem 1.5rem;}
+.ds-testimonial-card__quote{color:#D8501F;font-family:Georgia,serif;font-size:3rem;font-weight:700;height:2.2rem;line-height:1;}
+.ds-testimonial-card__review{color:#27342F;display:-webkit-box;font-size:.86rem;line-height:1.55;margin:.65rem 0 0;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:4;}
+.ds-testimonial-card__footer{align-items:center;display:flex;gap:.75rem;justify-content:space-between;margin-top:auto;padding-top:1rem;}
+.ds-testimonial-card__person{align-items:center;display:flex;gap:.65rem;min-width:0;}
+.ds-testimonial-card__photo,.ds-testimonial-card__photo-fallback{border:2px solid #F4D4C3;border-radius:50%;flex:0 0 auto;height:2.8rem;width:2.8rem;}
+.ds-testimonial-card__photo{display:block;object-fit:cover;}
+.ds-testimonial-card__photo-fallback{align-items:center;background:#FCE9DD;color:#A04A2B;display:flex;font-size:.85rem;font-weight:800;justify-content:center;}
+.ds-testimonial-card__identity{min-width:0;}
+.ds-testimonial-card__footer h3{color:#0F382C;font-size:.78rem;font-weight:800;line-height:1.3;margin:0;}
+.ds-testimonial-card__footer p{color:#77817C;font-size:.65rem;line-height:1.4;margin:.18rem 0 0;}
+.ds-testimonial-card__identity p{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ds-testimonial-card__footer .ds-testimonial-card__rating{color:#B47725;flex:0 0 auto;font-size:.82rem;font-weight:700;letter-spacing:.04em;margin:0;white-space:nowrap;}
+.ds-testimonials__empty{color:#31433D;font-size:.9rem;line-height:1.6;margin:0 auto;max-width:34rem;text-align:center;}
+@media(min-width:640px){.ds-testimonials__inner{padding-inline:1.5rem;}}
+@media(max-width:899px){.ds-testimonials{padding:3.5rem 0;}.ds-testimonials__list{display:flex;overflow-x:auto;padding:.1rem .1rem .8rem;scroll-snap-type:x mandatory;scrollbar-color:#A04A2B transparent;scrollbar-width:thin;}.ds-testimonial-card{flex:0 0 min(19rem,84vw);scroll-snap-align:start;}}
+@media(max-width:639px){.ds-testimonials{padding:3rem 0;}.ds-testimonials__inner{padding-inline:1.25rem;}.ds-testimonials__heading{margin-bottom:1.35rem;}.ds-testimonial-card{min-height:12.75rem;padding:1.2rem 1.25rem;}}

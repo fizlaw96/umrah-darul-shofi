@@ -1,0 +1,4 @@
+<x-layouts.app title="Terma & Syarat">
+    <section class="bg-mint py-14 sm:py-20"><div class="container-page"><p class="text-sm font-extrabold uppercase tracking-[.18em] text-brand">Maklumat</p><h1 class="mt-2 font-['DM_Serif_Display'] text-5xl text-dark-green sm:text-6xl">Terma &amp; Syarat</h1></div></section>
+    <section class="container-page py-12 sm:py-16"><article class="panel mx-auto max-w-4xl p-7 sm:p-10">@if (filled($termsContent))<div class="whitespace-pre-line text-sm leading-8 text-slate-700">{{ $termsContent }}</div>@else<h2 class="font-display text-3xl text-dark-green">Kandungan sedang disediakan</h2><p class="mt-4 text-sm leading-7 text-slate-600">Terma dan syarat rasmi belum dibekalkan atau diluluskan untuk paparan awam. Halaman ini ialah ruang untuk kandungan yang akan disahkan oleh pihak berkuasa syarikat.</p>@endif</article></section>
+</x-layouts.app>

@@ -32,17 +32,13 @@ class CreateBooking
                 ->findOrFail($attributes['package_departure_id']);
 
             $travellersCount = $attributes['adults'] + ($attributes['children'] ?? 0);
-            $confirmedTravellers = $departure->bookings()
-                ->where('status', Booking::ConfirmedStatus)
-                ->sum('travellers_count');
-
             if ($departure->package_id !== $attributes['package_id'] || $departure->status !== 'open') {
                 throw ValidationException::withMessages([
                     'package_departure_id' => 'Tarikh berlepas ini tidak lagi dibuka untuk permohonan.',
                 ]);
             }
 
-            if ($confirmedTravellers + $travellersCount > $departure->capacity) {
+            if ($departure->availableSeats() < $travellersCount) {
                 throw ValidationException::withMessages([
                     'package_departure_id' => 'Maaf, baki tempat untuk tarikh ini tidak mencukupi.',
                 ]);

@@ -3,6 +3,7 @@
 use App\Models\Booking;
 use App\Models\Package;
 use App\Models\PackageDeparture;
+use App\Models\PackageParticipant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Str;
@@ -45,6 +46,18 @@ it('prevents staff from confirming a booking beyond departure capacity', functio
     $package = Package::factory()->published()->create();
     $departure = PackageDeparture::factory()->for($package)->create(['capacity' => 1]);
     createPendingBooking($package, $departure, ['status' => 'confirmed']);
+    $pendingBooking = createPendingBooking($package, $departure);
+
+    $this->actingAs($staff)
+        ->put(route('admin.bookings.update', $pendingBooking), ['status' => 'confirmed'])
+        ->assertSessionHasErrors('status');
+});
+
+it('prevents staff from confirming a booking when added participants fill the departure capacity', function () {
+    $staff = User::factory()->staff()->create();
+    $package = Package::factory()->published()->create();
+    $departure = PackageDeparture::factory()->for($package)->create(['capacity' => 1]);
+    PackageParticipant::factory()->for($package)->for($departure, 'departure')->create();
     $pendingBooking = createPendingBooking($package, $departure);
 
     $this->actingAs($staff)

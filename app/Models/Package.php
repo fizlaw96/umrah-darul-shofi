@@ -15,23 +15,42 @@ use Illuminate\Support\Str;
 #[Fillable([
     'package_category_id',
     'title',
+    'code',
     'slug',
     'short_description',
     'description',
     'cover_image',
     'starting_price_sen',
+    'room_prices',
     'duration_days',
     'duration_nights',
+    'season_label',
+    'departure_airport',
+    'arrival_airport',
+    'airline',
+    'proposed_departure_date',
     'makkah_nights',
     'madinah_nights',
+    'makkah_hotel',
+    'makkah_hotel_rating',
+    'madinah_hotel',
+    'madinah_hotel_rating',
+    'walking_distance',
     'hotel_information',
     'flight_information',
+    'flight_options',
+    'hotel_options',
+    'ziarah_places',
+    'gifts',
+    'highlights',
+    'itinerary_pdf',
     'inclusions',
     'exclusions',
+    'service_options',
     'is_featured',
+    'show_on_homepage',
+    'display_order',
     'status',
-    'seo_title',
-    'seo_description',
     'published_at',
 ])]
 class Package extends Model
@@ -64,12 +83,43 @@ class Package extends Model
         return $this->hasMany(Booking::class);
     }
 
+    public function participants(): HasMany
+    {
+        return $this->hasMany(PackageParticipant::class);
+    }
+
     public function scopePublished(Builder $query): Builder
     {
         return $query
             ->where('status', 'published')
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now());
+    }
+
+    public function scopeVisibleOnHomepage(Builder $query): Builder
+    {
+        return $query->where('show_on_homepage', true);
+    }
+
+    public function scopePubliclyVisible(Builder $query): Builder
+    {
+        return $query
+            ->published()
+            ->whereHas('category', fn (Builder $categoryQuery) => $categoryQuery->active())
+            ->where(function (Builder $packageQuery): void {
+                $packageQuery
+                    ->doesntHave('departures')
+                    ->orWhereHas('departures', fn (Builder $departureQuery) => $departureQuery->visibleForPromotion());
+            });
+    }
+
+    public function scopeWithVisibleDepartures(Builder $query): Builder
+    {
+        return $query->with([
+            'departures' => fn (HasMany $departureQuery) => $departureQuery
+                ->visibleForPromotion()
+                ->orderBy('departure_date'),
+        ]);
     }
 
     public function getRouteKeyName(): string
@@ -90,17 +140,92 @@ class Package extends Model
         return Storage::disk('public')->url($this->cover_image);
     }
 
+    public function travelImageUrl(string $path): string
+    {
+        if (Str::startsWith($path, ['http://', 'https://'])) {
+            return $path;
+        }
+
+        return Storage::disk('public')->url($path);
+    }
+
+    public function itineraryPdfUrl(): ?string
+    {
+        if (blank($this->itinerary_pdf)) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($this->itinerary_pdf);
+    }
+
     public function formattedStartingPrice(): string
     {
         return 'RM '.number_format($this->starting_price_sen / 100, 2);
     }
 
+    public function automaticSeoTitle(): string
+    {
+        $duration = filled($this->duration_days) && filled($this->duration_nights)
+            ? "Umrah {$this->duration_days} Hari {$this->duration_nights} Malam"
+            : 'Pakej Umrah';
+
+        return Str::limit("{$this->title} | {$duration}", 60);
+    }
+
+    public function automaticSeoDescription(): string
+    {
+        $packageDetails = array_filter([
+            filled($this->duration_days) && filled($this->duration_nights)
+                ? "Pakej Umrah {$this->duration_days} Hari {$this->duration_nights} Malam"
+                : 'Pakej Umrah',
+            filled($this->departure_airport) ? "berlepas dari {$this->departure_airport}" : null,
+            filled($this->airline) ? "dengan {$this->airline}" : null,
+            $this->starting_price_sen > 0 ? "harga bermula {$this->formattedStartingPrice()} seorang" : null,
+        ]);
+        $shortDescription = Str::squish(strip_tags((string) $this->short_description));
+
+        return Str::limit(
+            Str::squish(implode(' ', [
+                "{$this->title}.",
+                implode(', ', $packageDetails).'.',
+                $shortDescription,
+            ])),
+            160,
+        );
+    }
+
+    public static function sanitizeDescription(string $description): string
+    {
+        $allowedTags = '<p><br><strong><b><em><i><ul><ol><li>';
+        $description = strip_tags($description, $allowedTags);
+
+        return trim((string) preg_replace(
+            '/<(p|br|strong|b|em|i|ul|ol|li)\\b[^>]*>/i',
+            '<$1>',
+            $description,
+        ));
+    }
+
+    public function descriptionForDisplay(): string
+    {
+        return static::sanitizeDescription($this->description);
+    }
+
     protected function casts(): array
     {
         return [
+            'room_prices' => 'array',
+            'flight_options' => 'array',
+            'hotel_options' => 'array',
+            'ziarah_places' => 'array',
+            'gifts' => 'array',
+            'highlights' => 'array',
             'inclusions' => 'array',
             'exclusions' => 'array',
+            'service_options' => 'array',
             'is_featured' => 'boolean',
+            'show_on_homepage' => 'boolean',
+            'proposed_departure_date' => 'date',
             'published_at' => 'datetime',
         ];
     }

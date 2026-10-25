@@ -101,11 +101,8 @@ class BookingController extends Controller
 
             if ($newStatus === Booking::ConfirmedStatus) {
                 $departure = PackageDeparture::query()->lockForUpdate()->findOrFail($lockedBooking->package_departure_id);
-                $confirmedTravellers = $departure->bookings()
-                    ->where('status', Booking::ConfirmedStatus)
-                    ->sum('travellers_count');
 
-                if ($confirmedTravellers + $lockedBooking->travellers_count > $departure->capacity) {
+                if ($departure->availableSeats() < $lockedBooking->travellers_count) {
                     throw ValidationException::withMessages([
                         'status' => 'Tempahan ini tidak boleh disahkan kerana kapasiti berlepas telah penuh.',
                     ]);
