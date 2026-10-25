@@ -17,6 +17,8 @@ class Testimonial extends Model
     /** @use HasFactory<TestimonialFactory> */
     use HasFactory;
 
+    public const MaximumPublished = 3;
+
     public function package(): BelongsTo
     {
         return $this->belongsTo(Package::class);

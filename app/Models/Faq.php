@@ -14,6 +14,14 @@ class Faq extends Model
     /** @use HasFactory<FaqFactory> */
     use HasFactory;
 
+    public const DefaultCategories = [
+        'Umum',
+        'Pertanyaan',
+        'Pakej',
+        'Persediaan',
+        'Tempahan',
+    ];
+
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('is_published', true);

@@ -26,7 +26,6 @@ class FaqRequest extends FormRequest
             'category' => ['required', 'string', 'max:255'],
             'question' => ['required', 'string', 'max:255'],
             'answer' => ['required', 'string', 'max:5000'],
-            'placement' => ['nullable', 'in:top,bottom,keep'],
             'is_published' => ['nullable', 'boolean'],
         ];
     }

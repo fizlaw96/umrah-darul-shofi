@@ -160,7 +160,7 @@ it('rejects a hero video longer than ten seconds', function () {
     $this->assertDatabaseMissing('hero_slides', ['package_category_id' => $category->id]);
 });
 
-it('automatically orders new mutawif, testimonial, and FAQ content', function () {
+it('automatically orders new mutawif and testimonial content while adding FAQ content', function () {
     $staff = User::factory()->staff()->create();
     $package = Package::factory()->create();
     Storage::fake('public');
@@ -201,22 +201,21 @@ it('automatically orders new mutawif, testimonial, and FAQ content', function ()
     $firstFaq = Faq::query()->where('question', 'Soalan pertama?')->firstOrFail();
     $secondFaq = Faq::query()->where('question', 'Soalan kedua?')->firstOrFail();
 
-    expect($firstFaq->sort_order)->toBe(2)
-        ->and($secondFaq->sort_order)->toBe(1);
+    expect($firstFaq->sort_order)->toBe(0)
+        ->and($secondFaq->sort_order)->toBe(0);
 
     $this->put(route('admin.faqs.update', $firstFaq), [
         'category' => $firstFaq->category,
         'question' => $firstFaq->question,
         'answer' => $firstFaq->answer,
-        'placement' => 'top',
         'is_published' => true,
     ])->assertRedirect();
 
-    expect($firstFaq->fresh()->sort_order)->toBe(1)
-        ->and($secondFaq->fresh()->sort_order)->toBe(2);
+    expect($firstFaq->fresh()->sort_order)->toBe(0)
+        ->and($secondFaq->fresh()->sort_order)->toBe(0);
 });
 
-it('lets staff place FAQ content at the bottom', function () {
+it('ignores legacy FAQ placement input', function () {
     $staff = User::factory()->staff()->create();
     $firstFaq = Faq::factory()->create(['sort_order' => 1]);
     $secondFaq = Faq::factory()->create(['sort_order' => 2]);
@@ -233,7 +232,7 @@ it('lets staff place FAQ content at the bottom', function () {
 
     $thirdFaq = Faq::query()->where('question', 'Bolehkah saya menukar tarikh?')->firstOrFail();
 
-    expect($thirdFaq->sort_order)->toBe(3);
+    expect($thirdFaq->sort_order)->toBe(0);
 
     $this->put(route('admin.faqs.update', $firstFaq), [
         'category' => $firstFaq->category,
@@ -243,26 +242,23 @@ it('lets staff place FAQ content at the bottom', function () {
         'is_published' => true,
     ])->assertRedirect();
 
-    expect($firstFaq->fresh()->sort_order)->toBe(3)
-        ->and($secondFaq->fresh()->sort_order)->toBe(1)
-        ->and($thirdFaq->fresh()->sort_order)->toBe(2);
+    expect($firstFaq->fresh()->sort_order)->toBe(1)
+        ->and($secondFaq->fresh()->sort_order)->toBe(2)
+        ->and($thirdFaq->fresh()->sort_order)->toBe(0);
 });
 
-it('rejects an invalid FAQ placement', function () {
+it('does not render a FAQ placement control', function () {
     $staff = User::factory()->staff()->create();
 
     $this->actingAs($staff)
-        ->post(route('admin.faqs.store'), [
-            'category' => 'Umum',
-            'question' => 'Apakah dokumen diperlukan?',
-            'answer' => 'Pasport dan dokumen sokongan yang berkaitan.',
-            'placement' => 'tengah',
-        ])
-        ->assertSessionHasErrors('placement');
-
-    $this->assertDatabaseMissing('faqs', [
-        'question' => 'Apakah dokumen diperlukan?',
-    ]);
+        ->get(route('admin.faqs.create'))
+        ->assertOk()
+        ->assertSee('<select class="field-control" name="category" required>', false)
+        ->assertSee('value="Pakej"', false)
+        ->assertSee('value="Persediaan"', false)
+        ->assertSee('value="Tempahan"', false)
+        ->assertDontSee('name="placement"', false)
+        ->assertDontSee('Susunan paparan');
 });
 
 it('renders the FAQ edit form for staff', function () {
@@ -275,13 +271,11 @@ it('renders the FAQ edit form for staff', function () {
         ->assertOk()
         ->assertSee('id="delete-faq"', false)
         ->assertSee(route('admin.faqs.destroy', $faq), false)
-        ->assertSee('list="faq-categories"', false)
-        ->assertSee('<option value="Pembayaran"></option>', false)
-        ->assertSee('Kekalkan susunan semasa')
-        ->assertSee('Letak soalan ini paling atas')
-        ->assertSee('Letak soalan ini paling bawah')
+        ->assertSee('value="Pembayaran"', false)
         ->assertSee('Kembali')
-        ->assertDontSee('name="sort_order"', false);
+        ->assertDontSee('name="sort_order"', false)
+        ->assertDontSee('name="placement"', false)
+        ->assertDontSee('Susunan paparan');
 });
 
 it('renders FAQ management with an edit icon', function () {
@@ -328,6 +322,76 @@ it('lets staff create a testimonial without a pilgrim photo', function () {
         'photo' => null,
         'is_published' => true,
     ]);
+});
+
+it('unpublishes the oldest testimonial when staff publishes a fourth testimonial', function () {
+    $staff = User::factory()->staff()->create();
+    $package = Package::factory()->create();
+    $oldestTestimonial = Testimonial::factory()->for($package)->create([
+        'is_published' => true,
+        'created_at' => now()->subMinutes(3),
+    ]);
+    $secondTestimonial = Testimonial::factory()->for($package)->create([
+        'is_published' => true,
+        'created_at' => now()->subMinutes(2),
+    ]);
+    $thirdTestimonial = Testimonial::factory()->for($package)->create([
+        'is_published' => true,
+        'created_at' => now()->subMinute(),
+    ]);
+
+    $this->actingAs($staff)
+        ->post(route('admin.testimonials.store'), [
+            'package_id' => $package->id,
+            'reviewer_name' => 'Jemaah Baharu',
+            'rating' => 5,
+            'review' => 'Pengalaman ibadah yang sangat memuaskan.',
+            'is_published' => true,
+        ])
+        ->assertRedirect(route('admin.testimonials.index'));
+
+    $newTestimonial = Testimonial::query()->where('reviewer_name', 'Jemaah Baharu')->firstOrFail();
+
+    expect($oldestTestimonial->fresh()->is_published)->toBeFalse()
+        ->and($secondTestimonial->fresh()->is_published)->toBeTrue()
+        ->and($thirdTestimonial->fresh()->is_published)->toBeTrue()
+        ->and($newTestimonial->is_published)->toBeTrue()
+        ->and(Testimonial::query()->published()->count())->toBe(3);
+});
+
+it('keeps the selected testimonial published when it replaces the oldest testimonial', function () {
+    $staff = User::factory()->staff()->create();
+    $package = Package::factory()->create();
+    $oldestTestimonial = Testimonial::factory()->for($package)->create([
+        'is_published' => true,
+        'created_at' => now()->subMinutes(3),
+    ]);
+    Testimonial::factory()->for($package)->create([
+        'is_published' => true,
+        'created_at' => now()->subMinutes(2),
+    ]);
+    Testimonial::factory()->for($package)->create([
+        'is_published' => true,
+        'created_at' => now()->subMinute(),
+    ]);
+    $draftTestimonial = Testimonial::factory()->for($package)->create([
+        'is_published' => false,
+        'created_at' => now()->subMinutes(4),
+    ]);
+
+    $this->actingAs($staff)
+        ->put(route('admin.testimonials.update', $draftTestimonial), [
+            'package_id' => $package->id,
+            'reviewer_name' => $draftTestimonial->reviewer_name,
+            'rating' => $draftTestimonial->rating,
+            'review' => $draftTestimonial->review,
+            'is_published' => true,
+        ])
+        ->assertRedirect(route('admin.testimonials.index'));
+
+    expect($oldestTestimonial->fresh()->is_published)->toBeFalse()
+        ->and($draftTestimonial->fresh()->is_published)->toBeTrue()
+        ->and(Testimonial::query()->published()->count())->toBe(3);
 });
 
 it('keeps the featured video and official social profiles in their own management module', function () {

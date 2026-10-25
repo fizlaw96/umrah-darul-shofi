@@ -40,9 +40,9 @@ class HomeController extends Controller
                 ->with('package')
                 ->orderBy('sort_order')
                 ->latest('id')
-                ->limit(3)
+                ->limit(Testimonial::MaximumPublished)
                 ->get(),
-            'homeFaqs' => Faq::query()->published()->orderBy('sort_order')->limit(8)->get(),
+            'homeFaqs' => Faq::query()->published()->latest('id')->limit(5)->get(),
             'aboutMedia' => MediaItem::query()
                 ->published()
                 ->forSection(MediaItem::AboutSection)

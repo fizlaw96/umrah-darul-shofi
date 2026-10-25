@@ -17,7 +17,7 @@ class PageController extends Controller
     public function faq(): View
     {
         return view('faq', [
-            'faqs' => Faq::query()->published()->orderBy('sort_order')->latest('id')->get()->groupBy('category'),
+            'faqs' => Faq::query()->published()->latest('id')->get()->groupBy('category'),
         ]);
     }
 

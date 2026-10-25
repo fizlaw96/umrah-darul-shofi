@@ -8,6 +8,7 @@ use App\Models\Package;
 use App\Models\Testimonial;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -83,12 +84,41 @@ class TestimonialController extends Controller
             $values['photo'] = $request->file('photo')->store('testimonials', 'public');
         }
 
-        $testimonial->fill($values);
-        $testimonial->save();
+        DB::transaction(function () use ($testimonial, $values): void {
+            $testimonial->fill($values);
+            $testimonial->save();
+
+            if ($testimonial->is_published) {
+                $this->unpublishOldestExcessTestimonials($testimonial);
+            }
+        });
 
         if ($oldPhoto !== $testimonial->photo) {
             $this->deletePhoto($oldPhoto);
         }
+    }
+
+    private function unpublishOldestExcessTestimonials(Testimonial $testimonial): void
+    {
+        $publishedOtherTestimonials = Testimonial::query()
+            ->published()
+            ->whereKeyNot($testimonial);
+
+        $numberToUnpublish = $publishedOtherTestimonials->count() - (Testimonial::MaximumPublished - 1);
+
+        if ($numberToUnpublish <= 0) {
+            return;
+        }
+
+        $testimonialIds = $publishedOtherTestimonials
+            ->oldest()
+            ->oldest('id')
+            ->limit($numberToUnpublish)
+            ->pluck('id');
+
+        Testimonial::query()
+            ->whereKey($testimonialIds)
+            ->update(['is_published' => false]);
     }
 
     private function deletePhoto(?string $path): void
