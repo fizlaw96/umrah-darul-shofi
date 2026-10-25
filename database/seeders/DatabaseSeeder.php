@@ -14,14 +14,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        if (! app()->environment('production')) {
-            $this->call([
-                AdminUserSeeder::class,
-                DemoContentSeeder::class,
-                PackageServiceOptionSeeder::class,
-                HeroSlideSeeder::class,
-                MediaItemSeeder::class,
-            ]);
-        }
+        $this->call(AdminUserSeeder::class);
     }
 }

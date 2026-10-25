@@ -492,6 +492,20 @@ it('uses automatic filters in the package list without a filter button', functio
         ->assertDontSee('Pratonton');
 });
 
+it('renders package actions without pricing and accommodation columns', function () {
+    $staff = User::factory()->staff()->create();
+    $package = Package::factory()->create();
+
+    $this->actingAs($staff)
+        ->get(route('admin.packages.index'))
+        ->assertOk()
+        ->assertSee($package->title)
+        ->assertSee(route('admin.packages.destroy', $package), false)
+        ->assertSee('aria-label="Arkibkan '.$package->title.'"', false)
+        ->assertDontSee('Harga Bermula')
+        ->assertDontSee('Tempoh &amp; Hotel', false);
+});
+
 it('archives and restores package records without deleting them', function () {
     $staff = User::factory()->staff()->create();
     $otherStaff = User::factory()->superAdmin()->create();

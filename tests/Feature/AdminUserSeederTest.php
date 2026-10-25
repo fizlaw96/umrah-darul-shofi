@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use Database\Seeders\AdminUserSeeder;
+use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 
@@ -25,4 +26,13 @@ it('seeds a verified super administrator without resetting an existing password'
     $this->seed(AdminUserSeeder::class);
 
     expect(User::query()->where('email', 'pentadbir@example.test')->sole()->password)->toBe($passwordHash);
+});
+
+it('uses only the administrator seeder by default', function () {
+    config()->set('admin_seeder.email', 'admin@example.test');
+
+    $this->seed(DatabaseSeeder::class);
+
+    expect(User::query()->count())->toBe(1)
+        ->and(User::query()->sole()->email)->toBe('admin@example.test');
 });
