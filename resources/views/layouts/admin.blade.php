@@ -83,7 +83,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2.5"><span class="grid size-9 place-items-center rounded-full bg-[#002f28] text-white"><span class="material-symbols-outlined text-[19px]">person</span></span><span class="hidden leading-4 sm:block"><span class="block text-xs font-bold text-[#153a30]">{{ $user?->name }}</span><span class="block text-[10px] font-medium text-[#69746f]">{{ $user?->role === 'super_admin' ? 'Admin Utama' : 'Pentadbir' }}</span></span></div>
+                    <a href="{{ route('admin.profile.edit') }}" class="flex items-center gap-2.5 rounded-lg px-1.5 py-1 transition hover:bg-[#e9f7ed] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#006b57]" aria-label="Buka profil saya"><span class="grid size-9 place-items-center rounded-full bg-[#002f28] text-white"><span class="material-symbols-outlined text-[19px]">person</span></span><span class="hidden leading-4 sm:block"><span class="block text-xs font-bold text-[#153a30]">{{ $user?->name }}</span><span class="block text-[10px] font-medium text-[#69746f]">{{ $user?->role === 'super_admin' ? 'Admin Utama' : 'Pentadbir' }}</span></span></a>
                 </div>
             </header>
 

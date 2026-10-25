@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\PackageCategoryController;
 use App\Http\Controllers\Admin\PackageController as AdminPackageController;
 use App\Http\Controllers\Admin\PackageNotificationController;
 use App\Http\Controllers\Admin\PackageParticipantController;
+use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Auth\AdminLoginController;
@@ -73,6 +74,8 @@ Route::post('/admin/logout', [AdminLoginController::class, 'destroy'])->middlewa
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:access-admin'])->group(function (): void {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/profil', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profil', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/notifications/{notification}', [PackageNotificationController::class, 'show'])->name('package-notifications.show');
     Route::post('/packages/bulk', [AdminPackageController::class, 'bulk'])->name('packages.bulk');
     Route::post('/packages/{package}/autosave', [AdminPackageController::class, 'autosave'])->name('packages.autosave');

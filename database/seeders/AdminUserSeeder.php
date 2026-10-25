@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use LogicException;
 
 class AdminUserSeeder extends Seeder
 {
@@ -29,16 +28,6 @@ class AdminUserSeeder extends Seeder
 
     private function password(): string
     {
-        $configuredPassword = config('admin_seeder.password');
-
-        if (filled($configuredPassword)) {
-            return (string) $configuredPassword;
-        }
-
-        if (app()->isProduction()) {
-            throw new LogicException('ADMIN_SEEDER_PASSWORD mesti ditetapkan sebelum menjalankan AdminUserSeeder dalam produksi.');
-        }
-
         return 'password';
     }
 }

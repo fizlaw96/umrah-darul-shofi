@@ -10,7 +10,6 @@ uses(LazilyRefreshDatabase::class);
 it('seeds a verified super administrator without resetting an existing password', function () {
     config()->set('admin_seeder.name', 'Pentadbir Ujian');
     config()->set('admin_seeder.email', 'pentadbir@example.test');
-    config()->set('admin_seeder.password', 'kata-laluan-ujian');
 
     $this->seed(AdminUserSeeder::class);
 
@@ -19,7 +18,7 @@ it('seeds a verified super administrator without resetting an existing password'
     expect($administrator->name)->toBe('Pentadbir Ujian')
         ->and($administrator->role)->toBe('super_admin')
         ->and($administrator->email_verified_at)->not->toBeNull()
-        ->and(Hash::check('kata-laluan-ujian', $administrator->password))->toBeTrue();
+        ->and(Hash::check('password', $administrator->password))->toBeTrue();
 
     $passwordHash = $administrator->password;
 
