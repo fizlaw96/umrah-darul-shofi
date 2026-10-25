@@ -1,10 +1,7 @@
 <?php
 
-use App\Http\Controllers\Admin\ArticleController as AdminArticleController;
-use App\Http\Controllers\Admin\BookingController as AdminBookingController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DepartureController as AdminDepartureController;
-use App\Http\Controllers\Admin\EnquiryController as AdminEnquiryController;
 use App\Http\Controllers\Admin\FaqController as AdminFaqController;
 use App\Http\Controllers\Admin\HeroSlideController;
 use App\Http\Controllers\Admin\MediaController;
@@ -36,8 +33,8 @@ Route::get('/pakej-umrah', [PackageController::class, 'index'])->name('packages.
 Route::get('/pakej-umrah/{package:slug}', [PackageController::class, 'show'])->name('packages.show');
 
 Route::get('/tempahan/{package:slug}', [BookingController::class, 'create'])->name('bookings.create');
-Route::post('/tempahan', [BookingController::class, 'store'])->middleware('throttle:enquiry')->name('bookings.store');
-Route::get('/tempahan/sah/{booking:reference}', [BookingController::class, 'confirmation'])->name('bookings.confirmation');
+Route::post('/tempahan', [BookingController::class, 'store'])->middleware('throttle:booking')->name('bookings.store');
+Route::get('/tempahan/sah/{booking}', [BookingController::class, 'confirmation'])->name('bookings.confirmation');
 
 Route::get('/tentang-kami', [PageController::class, 'about'])->name('about');
 Route::get('/soalan-lazim', [PageController::class, 'faq'])->name('faq');
@@ -96,9 +93,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:access-admin'])
     Route::resource('testimonials', TestimonialController::class);
     Route::resource('mutawifs', AdminMutawifController::class);
     Route::resource('departures', AdminDepartureController::class);
-    Route::resource('bookings', AdminBookingController::class)->except(['store']);
-    Route::resource('enquiries', AdminEnquiryController::class)->except(['store']);
-    Route::resource('articles', AdminArticleController::class);
     Route::resource('faqs', AdminFaqController::class);
     Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');

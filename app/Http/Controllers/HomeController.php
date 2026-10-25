@@ -22,7 +22,6 @@ class HomeController extends Controller
             'homepageCategories' => PackageCategory::query()
                 ->active()
                 ->visibleOnHomepage()
-                ->whereHas('packages', fn ($query) => $query->publiclyVisible()->visibleOnHomepage())
                 ->with(['packages' => fn ($query) => $query
                     ->publiclyVisible()
                     ->visibleOnHomepage()

@@ -41,7 +41,7 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(3)->by(strtolower($request->input('email', '')).'|'.$request->ip());
         });
 
-        RateLimiter::for('enquiry', function (Request $request): Limit {
+        RateLimiter::for('booking', function (Request $request): Limit {
             return Limit::perMinute(5)->by($request->ip());
         });
 
@@ -52,7 +52,7 @@ class AppServiceProvider extends ServiceProvider
             ]);
         });
 
-        view()->composer(['layouts.app', 'layouts.admin', 'darul-shofi.layout', 'darul-shofi.home', 'auth.admin-login'], function (View $view): void {
+        view()->composer(['layouts.app', 'layouts.admin', 'darul-shofi.layout', 'darul-shofi.home', 'darul-shofi.about', 'auth.admin-login'], function (View $view): void {
             $defaults = WebsiteSetting::siteDefaults();
 
             $settings = WebsiteSetting::query()

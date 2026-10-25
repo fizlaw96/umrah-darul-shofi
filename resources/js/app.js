@@ -2323,6 +2323,50 @@ const initializeNotificationMenus = () => {
     });
 };
 
+const initializeLogoPreviews = () => {
+    document.querySelectorAll('[data-logo-field]').forEach((field) => {
+        const input = field.querySelector('[data-logo-input]');
+        const removeInput = field.querySelector('[data-logo-remove-input]');
+        const preview = field.querySelector('[data-logo-preview]');
+        const previewImage = field.querySelector('[data-logo-preview-image]');
+        const removeButton = field.querySelector('[data-logo-remove]');
+        const status = field.querySelector('[data-logo-status]');
+        const logoLabel = field.dataset.logoLabel ?? 'Logo';
+
+        if (
+            !(input instanceof HTMLInputElement)
+            || !(removeInput instanceof HTMLInputElement)
+            || !(preview instanceof HTMLElement)
+            || !(previewImage instanceof HTMLImageElement)
+            || !(removeButton instanceof HTMLButtonElement)
+            || !(status instanceof HTMLElement)
+        ) {
+            return;
+        }
+
+        input.addEventListener('change', () => {
+            const [file] = input.files ?? [];
+
+            if (!file) {
+                return;
+            }
+
+            previewImage.src = URL.createObjectURL(file);
+            previewImage.alt = `Pratonton ${logoLabel.toLocaleLowerCase()}`;
+            preview.classList.remove('hidden');
+            removeInput.value = '';
+            status.textContent = `Pratonton ${file.name}. Simpan tetapan untuk menggunakan ${logoLabel.toLocaleLowerCase()} baharu.`;
+        });
+
+        removeButton.addEventListener('click', () => {
+            input.value = '';
+            preview.classList.add('hidden');
+            removeInput.value = '1';
+            status.textContent = `${logoLabel} akan dikeluarkan apabila tetapan disimpan.`;
+        });
+    });
+};
+
 initializeAdminNavigation();
 initializePasswordToggles();
 initializeBulkSelection();
@@ -2338,3 +2382,4 @@ initializeFeaturedVideoSource();
 initializeCategoryHeroMedia();
 initializeCategorySlugPreviews();
 initializeNotificationMenus();
+initializeLogoPreviews();

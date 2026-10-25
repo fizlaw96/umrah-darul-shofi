@@ -24,7 +24,7 @@ class WebsiteSetting extends Model
             'company_name' => 'SalamHaji Travel & Tours',
             'company_legal_name' => 'SALAM HAJI TRAVEL & TOURS SDN. BHD.',
             'company_tagline' => 'Salam Haji Umrahku & Hajimu Yang Teristimewa',
-            'company_logo_url' => '',
+            'company_logo_url' => asset('darul-shofi/images/branding/salam-haji-logo.png'),
             'company_logo_path' => '',
             'company_favicon_url' => asset('darul-shofi/images/branding/salam-haji-logo.png'),
             'company_favicon_path' => '',
@@ -83,6 +83,10 @@ class WebsiteSetting extends Model
 
         if (Str::startsWith($path, ['http://', 'https://'])) {
             return $path;
+        }
+
+        if (! Storage::disk('public')->exists($path)) {
+            return null;
         }
 
         return Storage::disk('public')->url($path);

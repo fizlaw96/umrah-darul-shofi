@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Booking;
 use App\Models\Package;
 use App\Models\PackageCategory;
 use App\Models\PackageDeparture;
@@ -260,14 +259,9 @@ it('subtracts added participants from the available seats for their departure', 
     PackageParticipant::factory()->for($package)->for($firstDeparture, 'departure')->count(2)->create();
     PackageParticipant::factory()->for($package)->for($secondDeparture, 'departure')->create();
     PackageParticipant::factory()->for($package)->create();
-    Booking::factory()->for($package)->for($firstDeparture, 'departure')->create([
-        'status' => Booking::ConfirmedStatus,
-        'travellers_count' => 3,
-    ]);
-
     $this->get(route('packages.show', $package))
         ->assertOk()
-        ->assertSee('4 tempat')
+        ->assertSee('7 tempat')
         ->assertSee('8 tempat');
 });
 

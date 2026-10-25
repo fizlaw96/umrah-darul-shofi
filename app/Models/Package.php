@@ -78,11 +78,6 @@ class Package extends Model
         return $this->hasMany(PackageItinerary::class)->orderBy('day_number');
     }
 
-    public function bookings(): HasMany
-    {
-        return $this->hasMany(Booking::class);
-    }
-
     public function participants(): HasMany
     {
         return $this->hasMany(PackageParticipant::class);

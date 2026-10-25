@@ -26,3 +26,28 @@ it('uses visible package categories as the hero fallback and limits the homepage
         ->assertSee('id="pakej-kategori-4"', false)
         ->assertDontSee('id="pakej-kategori-5"', false);
 });
+
+it('shows an active homepage category even when it has no packages', function () {
+    PackageCategory::factory()->create([
+        'name' => 'Pakej Menanti',
+        'slug' => 'pakej-menanti',
+        'description' => 'Pakej baharu akan diumumkan.',
+        'sort_order' => 1,
+        'is_active' => true,
+        'show_on_homepage' => true,
+    ]);
+
+    PackageCategory::factory()->create([
+        'name' => 'Kategori Tersembunyi',
+        'slug' => 'kategori-tersembunyi',
+        'sort_order' => 2,
+        'is_active' => true,
+        'show_on_homepage' => false,
+    ]);
+
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertSee('id="pakej-pakej-menanti"', false)
+        ->assertSee('Pakej bagi kategori ini akan dikemas kini tidak lama lagi.')
+        ->assertDontSee('id="pakej-kategori-tersembunyi"', false);
+});

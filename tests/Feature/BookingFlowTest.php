@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Booking;
 use App\Models\Package;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
@@ -21,5 +20,4 @@ it('does not create a booking from a legacy booking submission', function () {
         ->assertRedirect(route('packages.show', $package))
         ->assertSessionHas('success');
 
-    expect(Booking::query()->count())->toBe(0);
 });

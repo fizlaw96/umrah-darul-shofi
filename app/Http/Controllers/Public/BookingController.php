@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
-use App\Models\Booking;
 use App\Models\Package;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -36,7 +35,7 @@ class BookingController extends Controller
             ->with('success', 'Tempahan dalam talian tidak disediakan. Sila pilih pakej untuk melihat maklumat lanjut.');
     }
 
-    public function confirmation(Booking $booking): RedirectResponse
+    public function confirmation(string $bookingReference): RedirectResponse
     {
         return redirect()
             ->route('packages.index')

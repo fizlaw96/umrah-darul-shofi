@@ -28,7 +28,8 @@ class SettingsController extends Controller
             'settings' => $settings,
             'companyLogoUrl' => WebsiteSetting::publicUrl($settings['company_logo_path'] ?? null)
                 ?? ($settings['company_logo_url'] ?? null),
-            'footerLogoUrl' => WebsiteSetting::publicUrl($settings['footer_logo_path'] ?? null),
+            'footerLogoUrl' => WebsiteSetting::publicUrl($settings['footer_logo_path'] ?? null)
+                ?? asset('darul-shofi/images/branding/darul-soffi-logo.jpg'),
         ]);
     }
 

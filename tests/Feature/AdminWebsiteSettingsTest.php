@@ -77,6 +77,32 @@ it('stores an uploaded company logo and uses it on the public website', function
         ->assertSee($appleTouchIconPath);
 });
 
+it('accepts a high-resolution company logo and prepares a smaller display asset', function () {
+    Storage::fake('public');
+
+    $staff = User::factory()->staff()->create();
+    $uploadedLogo = imagecreatetruecolor(2049, 100);
+    $white = imagecolorallocate($uploadedLogo, 255, 255, 255);
+    $emerald = imagecolorallocate($uploadedLogo, 0, 84, 65);
+    imagefill($uploadedLogo, 0, 0, $white);
+    imagefilledrectangle($uploadedLogo, 900, 20, 1150, 80, $emerald);
+    ob_start();
+    imagepng($uploadedLogo);
+    $logoContents = ob_get_clean();
+    imagedestroy($uploadedLogo);
+
+    $this->actingAs($staff)
+        ->put(route('admin.settings.update'), [
+            'tab' => 'identity',
+            'company_name' => 'SalamHaji Travel & Tours',
+            'company_logo' => UploadedFile::fake()->createWithContent('salam-haji-logo.png', $logoContents),
+        ])
+        ->assertRedirect(route('admin.settings.edit', ['tab' => 'identity']))
+        ->assertSessionHasNoErrors('company_logo');
+
+    Storage::disk('public')->assertExists(WebsiteSetting::getValue('company_logo_path'));
+});
+
 it('deletes every generated logo asset when the company logo is removed', function () {
     Storage::fake('public');
 
@@ -107,6 +133,19 @@ it('deletes every generated logo asset when the company logo is removed', functi
     }
 });
 
+it('uses the bundled Darul Soffi logo when no valid custom footer logo exists', function () {
+    Storage::fake('public');
+
+    $staff = User::factory()->staff()->create();
+    WebsiteSetting::setValue('footer_logo_path', 'branding/missing-footer-logo.jpg', 'identity');
+
+    $this->actingAs($staff)
+        ->get(route('admin.settings.edit'))
+        ->assertOk()
+        ->assertSee(asset('darul-shofi/images/branding/darul-soffi-logo.jpg'), false)
+        ->assertDontSee('/storage/branding/missing-footer-logo.jpg', false);
+});
+
 it('renders the grouped website settings form', function () {
     $staff = User::factory()->staff()->create();
 
@@ -114,5 +153,17 @@ it('renders the grouped website settings form', function () {
         ->get(route('admin.settings.edit', ['tab' => 'contact']))
         ->assertOk()
         ->assertSee('Hubungan, alamat &amp; lesen', false)
-        ->assertSee('Kandungan homepage');
+        ->assertSee('Kandungan homepage')
+        ->assertSee('data-logo-remove', false)
+        ->assertDontSee('type="checkbox" name="remove_company_logo"', false)
+        ->assertDontSee('type="checkbox" name="remove_footer_logo"', false);
+});
+
+it('defaults the About CTA URL to the About page', function () {
+    $staff = User::factory()->staff()->create();
+
+    $this->actingAs($staff)
+        ->get(route('admin.settings.edit', ['tab' => 'homepage']))
+        ->assertOk()
+        ->assertSee('name="about_cta_url" value="'.route('about').'"', false);
 });

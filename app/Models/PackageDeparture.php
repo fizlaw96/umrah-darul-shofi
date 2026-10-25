@@ -29,11 +29,6 @@ class PackageDeparture extends Model
         return $this->belongsTo(Package::class);
     }
 
-    public function bookings(): HasMany
-    {
-        return $this->hasMany(Booking::class);
-    }
-
     public function participants(): HasMany
     {
         return $this->hasMany(PackageParticipant::class);
@@ -47,14 +42,6 @@ class PackageDeparture extends Model
 
     public function availableSeats(): int
     {
-        $confirmedTravellers = $this->getAttribute('confirmed_travellers_count');
-
-        if ($confirmedTravellers === null) {
-            $confirmedTravellers = $this->bookings()
-                ->where('status', 'confirmed')
-                ->sum('travellers_count');
-        }
-
         $participants = $this->getAttribute('participants_count');
 
         if ($participants === null) {
@@ -67,7 +54,7 @@ class PackageDeparture extends Model
             $unassignedParticipants = $this->unassignedPackageParticipants()->count();
         }
 
-        return max(0, (int) $this->capacity - (int) $confirmedTravellers - (int) $participants - (int) $unassignedParticipants);
+        return max(0, (int) $this->capacity - (int) $participants - (int) $unassignedParticipants);
     }
 
     public static function promotionCutoffDate(): string

@@ -992,13 +992,11 @@ class PackageController extends Controller
                 ]);
             }
 
-            $confirmedTravellers = $departure->bookings()
-                ->where('status', 'confirmed')
-                ->sum('travellers_count');
+            $participantCount = $departure->participants()->count();
 
-            if ($departureValues['capacity'] === null || $departureValues['capacity'] < $confirmedTravellers) {
+            if ($departureValues['capacity'] === null || $departureValues['capacity'] < $participantCount) {
                 throw ValidationException::withMessages([
-                    'departure_rows' => 'Kapasiti tidak boleh lebih rendah daripada jemaah yang telah disahkan.',
+                    'departure_rows' => 'Kapasiti tidak boleh lebih rendah daripada peserta yang telah direkodkan.',
                 ]);
             }
 

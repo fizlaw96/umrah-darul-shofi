@@ -116,9 +116,6 @@ class PackageController extends Controller
             'itineraries',
             'departures' => fn ($query) => $query
                 ->visibleForPromotion()
-                ->withSum([
-                    'bookings as confirmed_travellers_count' => fn ($bookingQuery) => $bookingQuery->where('status', 'confirmed'),
-                ], 'travellers_count')
                 ->withCount(['participants', 'unassignedPackageParticipants'])
                 ->orderBy('departure_date'),
         ]);

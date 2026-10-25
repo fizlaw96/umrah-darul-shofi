@@ -83,9 +83,9 @@ class DepartureController extends Controller
     {
         $this->ensureCapacityIsValid($departure, $request->integer('capacity'));
 
-        if ($departure->bookings()->exists() && $departure->package_id !== $request->integer('package_id')) {
+        if ($departure->participants()->exists() && $departure->package_id !== $request->integer('package_id')) {
             throw ValidationException::withMessages([
-                'package_id' => 'Pakej tidak boleh ditukar selepas terdapat rekod tempahan.',
+                'package_id' => 'Pakej tidak boleh ditukar selepas terdapat rekod peserta.',
             ]);
         }
 
@@ -122,13 +122,11 @@ class DepartureController extends Controller
 
     private function ensureCapacityIsValid(PackageDeparture $departure, int $capacity): void
     {
-        $confirmedTravellers = $departure->bookings()
-            ->where('status', 'confirmed')
-            ->sum('travellers_count');
+        $participantCount = $departure->participants()->count();
 
-        if ($capacity < $confirmedTravellers) {
+        if ($capacity < $participantCount) {
             throw ValidationException::withMessages([
-                'capacity' => 'Kapasiti tidak boleh lebih rendah daripada jemaah yang telah disahkan.',
+                'capacity' => 'Kapasiti tidak boleh lebih rendah daripada peserta yang telah direkodkan.',
             ]);
         }
     }

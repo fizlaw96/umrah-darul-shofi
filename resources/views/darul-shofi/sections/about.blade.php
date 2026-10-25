@@ -1,6 +1,7 @@
 @php
     $aboutItems = $aboutMedia->values();
     $aboutCtaUrl = $siteSettings['about_cta_url'] ?: route('about');
+    $aboutHeadingTag = $aboutHeadingTag ?? 'h2';
 @endphp
 
 <section class="bg-[#FAF8F5] py-20 lg:py-28" id="tentang">
@@ -21,9 +22,9 @@
 
         <div class="lg:col-span-6">
             <span class="mb-3 inline-block text-xs font-bold uppercase tracking-widest text-brand-gold-dark">{{ $siteSettings['about_eyebrow'] ?: 'Bersama Menuju Baitullah' }}</span>
-            <h2 class="font-serif-luxury text-4xl font-bold leading-tight text-brand-emerald sm:text-5xl" data-reveal>{{ $siteSettings['about_heading'] ?: 'Perjalanan suci, amanah kami' }}</h2>
+            <{{ $aboutHeadingTag }} class="font-serif-luxury text-4xl font-bold leading-tight text-brand-emerald sm:text-5xl" data-reveal>{{ $siteSettings['about_heading'] ?: 'Perjalanan suci, amanah kami' }}</{{ $aboutHeadingTag }}>
             <div class="mt-6 whitespace-pre-line text-base font-light leading-relaxed text-gray-700">{{ $siteSettings['about_description'] ?: $siteSettings['homepage_company_intro'] ?: 'Kandungan pengenalan SalamHaji boleh dikemas kini oleh pentadbir.' }}</div>
-            <a class="mt-8 inline-flex items-center gap-3 rounded-full bg-brand-emerald px-7 py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-brand-emerald-dark" href="{{ $aboutCtaUrl }}">
+            <a data-about-cta class="mt-8 inline-flex items-center gap-3 rounded-full bg-brand-emerald px-7 py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-brand-emerald-dark" href="{{ $aboutCtaUrl }}">
                 <span>{{ $siteSettings['about_cta_label'] ?: 'Kenali Kami Lebih Dekat' }}</span>
                 <i class="fa-solid fa-arrow-right text-xs text-brand-gold"></i>
             </a>

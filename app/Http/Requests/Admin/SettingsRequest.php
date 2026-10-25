@@ -31,7 +31,6 @@ class SettingsRequest extends FormRequest
                 'image',
                 'mimes:jpg,jpeg,png,webp',
                 'max:2048',
-                Rule::dimensions()->maxWidth(2048)->maxHeight(2048),
             ],
             'remove_company_logo' => ['nullable', 'boolean'],
             'footer_logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
