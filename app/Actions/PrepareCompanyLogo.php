@@ -11,6 +11,8 @@ use Throwable;
 
 class PrepareCompanyLogo
 {
+    private const MAXIMUM_SOURCE_DIMENSION = 2048;
+
     /**
      * @return array{company_logo_path: string, company_favicon_path: string, company_apple_touch_icon_path: string}
      */
@@ -29,6 +31,7 @@ class PrepareCompanyLogo
         $appleTouchIcon = null;
 
         try {
+            $source = $this->resizeForProcessing($source);
             $this->removeUniformBackground($source);
             $croppedLogo = $this->cropToVisibleArea($source);
             $mainLogo = $this->resizeWithin($croppedLogo, 512);
@@ -224,6 +227,19 @@ class PrepareCompanyLogo
             max(1, (int) round($width * $scale)),
             max(1, (int) round($height * $scale)),
         );
+    }
+
+    private function resizeForProcessing(GdImage $image): GdImage
+    {
+        if (max(imagesx($image), imagesy($image)) <= self::MAXIMUM_SOURCE_DIMENSION) {
+            return $image;
+        }
+
+        $resizedImage = $this->resizeWithin($image, self::MAXIMUM_SOURCE_DIMENSION);
+
+        imagedestroy($image);
+
+        return $resizedImage;
     }
 
     private function createSquareIcon(GdImage $image, int $size): GdImage

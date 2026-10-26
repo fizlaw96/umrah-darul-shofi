@@ -20,7 +20,8 @@
                         <img data-logo-preview-image class="h-full max-w-56 object-contain" src="{{ $companyLogoUrl }}" alt="Logo utama semasa">
                         <button type="button" data-logo-remove class="absolute right-1 top-1 grid size-7 place-items-center rounded-full bg-white/95 text-[#b33129] shadow transition hover:bg-[#fff0ef]" aria-label="Keluarkan logo utama"><span class="material-symbols-outlined text-[17px]">close</span></button>
                     </div>
-                    <p data-logo-status class="mt-2 text-xs leading-5 text-[#718078]">JPEG, PNG atau WebP, maksimum 2MB. Pilih fail baharu untuk menggantikan logo ini.</p>
+                    <p data-logo-status class="mt-2 text-xs leading-5 text-[#718078]">Pilih fail baharu untuk menggantikan logo ini.</p>
+                    <p class="mt-1 text-xs leading-5 text-[#718078]">JPEG, PNG atau WebP sehingga 8MB dan maksimum 4,096 × 4,096 piksel. PNG atau WebP berlatar lutsinar disarankan. Sistem akan kemaskan logo untuk homepage (maksimum 512px), favicon (64px) dan ikon telefon Apple (180px).</p>
                 </div>
                 <div data-logo-field data-logo-label="Logo footer">
                     <span class="admin-label">Logo footer / Darul Soffi <span class="font-medium text-[#8a958f]">Pilihan</span></span>
@@ -30,7 +31,8 @@
                         <img data-logo-preview-image class="h-full max-w-56 object-contain" src="{{ $footerLogoUrl }}" alt="Logo footer semasa">
                         <button type="button" data-logo-remove class="absolute right-1 top-1 grid size-7 place-items-center rounded-full bg-white/95 text-[#b33129] shadow transition hover:bg-[#fff0ef]" aria-label="Keluarkan logo footer"><span class="material-symbols-outlined text-[17px]">close</span></button>
                     </div>
-                    <p data-logo-status class="mt-2 text-xs leading-5 text-[#718078]">JPEG, PNG atau WebP, maksimum 2MB. Pilih fail baharu untuk menggantikan logo ini.</p>
+                    <p data-logo-status class="mt-2 text-xs leading-5 text-[#718078]">Pilih fail baharu untuk menggantikan logo ini.</p>
+                    <p class="mt-1 text-xs leading-5 text-[#718078]">JPEG, PNG atau WebP sehingga 2MB. Gunakan imej sekurang-kurangnya 400px lebar untuk hasil yang jelas. Logo ini digunakan pada footer sahaja; logo utama di sebelah akan menentukan homepage dan favicon.</p>
                 </div>
             </div>
         </section>

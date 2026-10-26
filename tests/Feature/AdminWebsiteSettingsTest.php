@@ -77,30 +77,79 @@ it('stores an uploaded company logo and uses it on the public website', function
         ->assertSee($appleTouchIconPath);
 });
 
-it('accepts a high-resolution company logo and prepares a smaller display asset', function () {
+it('accepts an 8MB company logo and prepares smaller display assets', function () {
     Storage::fake('public');
 
     $staff = User::factory()->staff()->create();
-    $uploadedLogo = imagecreatetruecolor(2049, 100);
+    $uploadedLogo = imagecreatetruecolor(3000, 300);
     $white = imagecolorallocate($uploadedLogo, 255, 255, 255);
     $emerald = imagecolorallocate($uploadedLogo, 0, 84, 65);
     imagefill($uploadedLogo, 0, 0, $white);
-    imagefilledrectangle($uploadedLogo, 900, 20, 1150, 80, $emerald);
+    imagefilledrectangle($uploadedLogo, 800, 60, 2200, 240, $emerald);
     ob_start();
     imagepng($uploadedLogo);
     $logoContents = ob_get_clean();
     imagedestroy($uploadedLogo);
 
+    $uploadedFile = UploadedFile::fake()
+        ->createWithContent('salam-haji-logo.png', $logoContents)
+        ->size(8192);
+
     $this->actingAs($staff)
         ->put(route('admin.settings.update'), [
             'tab' => 'identity',
             'company_name' => 'SalamHaji Travel & Tours',
-            'company_logo' => UploadedFile::fake()->createWithContent('salam-haji-logo.png', $logoContents),
+            'company_logo' => $uploadedFile,
         ])
         ->assertRedirect(route('admin.settings.edit', ['tab' => 'identity']))
         ->assertSessionHasNoErrors('company_logo');
 
-    Storage::disk('public')->assertExists(WebsiteSetting::getValue('company_logo_path'));
+    $logoPath = WebsiteSetting::getValue('company_logo_path');
+    Storage::disk('public')->assertExists($logoPath);
+
+    $processedLogo = imagecreatefromstring(Storage::disk('public')->get($logoPath));
+
+    expect(max(imagesx($processedLogo), imagesy($processedLogo)))->toBe(512);
+
+    imagedestroy($processedLogo);
+});
+
+it('rejects a company logo that exceeds the supported dimensions', function () {
+    $staff = User::factory()->staff()->create();
+
+    $this->actingAs($staff)
+        ->from(route('admin.settings.edit', ['tab' => 'identity']))
+        ->put(route('admin.settings.update'), [
+            'tab' => 'identity',
+            'company_name' => 'SalamHaji Travel & Tours',
+            'company_logo' => UploadedFile::fake()->image('oversized-logo.png', 4097, 100),
+        ])
+        ->assertRedirect(route('admin.settings.edit', ['tab' => 'identity']))
+        ->assertSessionHasErrors([
+            'company_logo' => 'Logo utama tidak boleh melebihi 4,096 × 4,096 piksel.',
+        ]);
+
+    expect(WebsiteSetting::getValue('company_logo_path'))->toBeNull();
+});
+
+it('explains when a company logo exceeds the upload size limit', function () {
+    $staff = User::factory()->staff()->create();
+
+    $this->actingAs($staff)
+        ->from(route('admin.settings.edit', ['tab' => 'identity']))
+        ->put(route('admin.settings.update'), [
+            'tab' => 'identity',
+            'company_name' => 'SalamHaji Travel & Tours',
+            'company_logo' => UploadedFile::fake()
+                ->image('large-logo.png', 100, 100)
+                ->size(8193),
+        ])
+        ->assertRedirect(route('admin.settings.edit', ['tab' => 'identity']))
+        ->assertSessionHasErrors([
+            'company_logo' => 'Logo utama mesti tidak melebihi 8 MB.',
+        ]);
+
+    expect(WebsiteSetting::getValue('company_logo_path'))->toBeNull();
 });
 
 it('deletes every generated logo asset when the company logo is removed', function () {
@@ -156,7 +205,10 @@ it('renders the grouped website settings form', function () {
         ->assertSee('Kandungan homepage')
         ->assertSee('data-logo-remove', false)
         ->assertDontSee('type="checkbox" name="remove_company_logo"', false)
-        ->assertDontSee('type="checkbox" name="remove_footer_logo"', false);
+        ->assertDontSee('type="checkbox" name="remove_footer_logo"', false)
+        ->assertSee('sehingga 8MB dan maksimum 4,096 × 4,096 piksel', false)
+        ->assertSee('favicon (64px) dan ikon telefon Apple (180px)', false)
+        ->assertSee('Logo ini digunakan pada footer sahaja', false);
 });
 
 it('defaults the About CTA URL to the About page', function () {

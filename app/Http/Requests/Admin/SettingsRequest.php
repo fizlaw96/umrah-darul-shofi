@@ -8,6 +8,10 @@ use Illuminate\Validation\Rule;
 
 class SettingsRequest extends FormRequest
 {
+    private const COMPANY_LOGO_MAX_UPLOAD_KILOBYTES = 8192;
+
+    private const COMPANY_LOGO_MAX_DIMENSION = 4096;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -30,7 +34,8 @@ class SettingsRequest extends FormRequest
                 'nullable',
                 'image',
                 'mimes:jpg,jpeg,png,webp',
-                'max:2048',
+                'max:'.self::COMPANY_LOGO_MAX_UPLOAD_KILOBYTES,
+                'dimensions:max_width='.self::COMPANY_LOGO_MAX_DIMENSION.',max_height='.self::COMPANY_LOGO_MAX_DIMENSION,
             ],
             'remove_company_logo' => ['nullable', 'boolean'],
             'footer_logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
@@ -58,6 +63,21 @@ class SettingsRequest extends FormRequest
             'about_cta_label' => ['nullable', 'string', 'max:80'],
             'about_cta_url' => ['nullable', 'url', 'max:255'],
             'terms_content' => ['nullable', 'string', 'max:20000'],
+        ];
+    }
+
+    /**
+     * Get the custom validation messages that apply to the request.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'company_logo.image' => 'Logo utama mesti berupa imej JPEG, PNG atau WebP.',
+            'company_logo.mimes' => 'Logo utama mesti berupa fail JPEG, PNG atau WebP.',
+            'company_logo.max' => 'Logo utama mesti tidak melebihi 8 MB.',
+            'company_logo.dimensions' => 'Logo utama tidak boleh melebihi 4,096 × 4,096 piksel.',
         ];
     }
 }
