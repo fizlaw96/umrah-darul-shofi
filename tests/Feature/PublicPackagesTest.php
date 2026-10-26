@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\HeroSlide;
 use App\Models\Package;
 use App\Models\PackageCategory;
 use App\Models\PackageDeparture;
@@ -39,6 +40,40 @@ it('renders the mobile menu, cinematic package carousel, and gallery lightbox', 
         ->assertDontSee('data-hero-slider', false)
         ->assertDontSee('data-hero-prev', false)
         ->assertSee('id="darul-gallery-lightbox"', false);
+});
+
+it('includes every visible homepage category in the cinematic hero without requiring a package', function () {
+    $umrah = PackageCategory::factory()->create([
+        'name' => 'Pakej Umrah',
+        'slug' => 'pakej-umrah',
+        'description' => 'Pilihan perjalanan Umrah.',
+        'sort_order' => 1,
+        'is_active' => true,
+        'show_on_homepage' => true,
+    ]);
+    $haji = PackageCategory::factory()->create([
+        'name' => 'Pakej Haji',
+        'slug' => 'pakej-haji',
+        'description' => 'Pilihan perjalanan Haji.',
+        'sort_order' => 2,
+        'is_active' => true,
+        'show_on_homepage' => true,
+    ]);
+    HeroSlide::factory()->for($umrah, 'category')->create([
+        'title' => $umrah->name,
+        'subtitle' => $umrah->description,
+        'is_published' => true,
+        'sort_order' => 1,
+    ]);
+
+    $response = $this->get(route('home'))
+        ->assertOk()
+        ->assertSee('data-hero-package-name="Pakej Umrah"', false)
+        ->assertSee('data-hero-package-name="Pakej Haji"', false)
+        ->assertSee(route('packages.index', ['category' => $haji->slug]), false)
+        ->assertSee('umrah-premium-makkah-hero.png', false);
+
+    expect(substr_count($response->getContent(), 'data-hero-slide'))->toBe(2);
 });
 
 it('falls back to the contact section when WhatsApp is not configured', function () {

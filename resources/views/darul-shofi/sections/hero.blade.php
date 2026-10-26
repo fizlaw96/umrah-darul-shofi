@@ -1,41 +1,49 @@
 @php
-    $fallbackPoster = asset('darul-shofi/images/hero/umrah-ekonomi-madinah-hero.png');
-    $heroItems = $heroSlides->map(function ($heroSlide) use ($fallbackPoster): array {
-        $ctaUrl = $heroSlide->package
-            ? route('packages.show', $heroSlide->package)
-            : ($heroSlide->category ? route('packages.index', ['category' => $heroSlide->category->slug]) : route('packages.index'));
+    $fallbackPosters = [
+        asset('darul-shofi/images/hero/umrah-ekonomi-madinah-hero.png'),
+        asset('darul-shofi/images/hero/umrah-premium-makkah-hero.png'),
+        asset('darul-shofi/images/hero/umrah-ramadan-makkah-hero.png'),
+        asset('darul-shofi/images/hero/umrah-premium-makkah-hero.png'),
+    ];
+    $fallbackPoster = $fallbackPosters[0];
+    $heroSlidesByCategory = $heroSlides->keyBy('package_category_id');
 
-        return [
-            'title' => $heroSlide->title,
-            'subtitle' => $heroSlide->subtitle,
-            'price' => $heroSlide->package?->formattedStartingPrice() ?? '',
-            'cta_label' => $heroSlide->cta_label ?: 'Lihat Pakej',
-            'cta_url' => $ctaUrl,
-            'poster' => $heroSlide->imageUrl() ?: $fallbackPoster,
-            'video' => $heroSlide->videoUrl() ?: '',
-        ];
-    });
+    $heroItems = collect($homepageCategories ?? [])
+        ->values()
+        ->take(4)
+        ->map(function ($category, int $index) use ($fallbackPosters, $heroSlidesByCategory): array {
+            $heroSlide = $heroSlidesByCategory->get($category->id);
+            $ctaUrl = $heroSlide?->package
+                ? route('packages.show', $heroSlide->package)
+                : route('packages.index', ['category' => $category->slug]);
+
+            return [
+                'title' => $heroSlide?->title ?: $category->name,
+                'subtitle' => $heroSlide?->subtitle ?: ($category->description ?: 'Terokai pilihan perjalanan ibadah bersama SalamHaji.'),
+                'price' => $heroSlide?->package?->formattedStartingPrice() ?? $category->packages->first()?->formattedStartingPrice() ?? '',
+                'cta_label' => $heroSlide?->cta_label ?: 'Terokai Pakej',
+                'cta_url' => $ctaUrl,
+                'poster' => $heroSlide?->imageUrl() ?: $fallbackPosters[$index % count($fallbackPosters)],
+                'video' => $heroSlide?->videoUrl() ?: '',
+            ];
+        });
 
     if ($heroItems->isEmpty()) {
-        $fallbackPosters = [
-            asset('darul-shofi/images/hero/umrah-ekonomi-madinah-hero.png'),
-            asset('darul-shofi/images/hero/umrah-premium-makkah-hero.png'),
-            asset('darul-shofi/images/hero/umrah-ramadan-makkah-hero.png'),
-            asset('darul-shofi/images/hero/umrah-premium-makkah-hero.png'),
-        ];
+        $heroItems = $heroSlides->values()->map(function ($heroSlide, int $index) use ($fallbackPosters): array {
+            $ctaUrl = $heroSlide->package
+                ? route('packages.show', $heroSlide->package)
+                : ($heroSlide->category ? route('packages.index', ['category' => $heroSlide->category->slug]) : route('packages.index'));
 
-        $heroItems = collect($homepageCategories ?? [])
-            ->values()
-            ->take(4)
-            ->map(fn ($category, int $index): array => [
-                'title' => $category->name,
-                'subtitle' => $category->description ?: 'Terokai pilihan perjalanan ibadah bersama SalamHaji.',
-                'price' => $category->packages->first()?->formattedStartingPrice() ?? '',
-                'cta_label' => 'Terokai Pakej',
-                'cta_url' => route('packages.index', ['category' => $category->slug]),
-                'poster' => $fallbackPosters[$index],
-                'video' => '',
-            ]);
+            return [
+                'title' => $heroSlide->title,
+                'subtitle' => $heroSlide->subtitle,
+                'price' => $heroSlide->package?->formattedStartingPrice() ?? '',
+                'cta_label' => $heroSlide->cta_label ?: 'Lihat Pakej',
+                'cta_url' => $ctaUrl,
+                'poster' => $heroSlide->imageUrl() ?: $fallbackPosters[$index % count($fallbackPosters)],
+                'video' => $heroSlide->videoUrl() ?: '',
+            ];
+        });
 
         if ($heroItems->isEmpty()) {
             $heroItems = collect([[
