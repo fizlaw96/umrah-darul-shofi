@@ -171,6 +171,16 @@ it('includes the package link and main image in WhatsApp enquiries', function ()
         ->assertDontSee('/hubungi-kami', false);
 });
 
+it('renders the floating WhatsApp button without a mobile bottom navigation bar', function () {
+    config()->set('darul_shofi.whatsapp_number', '60 12-345 6789');
+    $package = Package::factory()->published()->create();
+
+    $this->get(route('packages.show', $package))
+        ->assertOk()
+        ->assertSee('fixed bottom-6 right-5', false)
+        ->assertDontSee('aria-label="Navigasi bawah"', false);
+});
+
 it('filters published packages by departure month', function () {
     $matchingPackage = Package::factory()->published()->create(['title' => 'Pakej Tarikh Sesuai']);
     $otherPackage = Package::factory()->published()->create(['title' => 'Pakej Tarikh Lain']);

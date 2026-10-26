@@ -81,25 +81,18 @@
             </div>
         @endif
 
-        <main class="pb-16 md:pb-0">
+        <main>
             {{ $slot }}
         </main>
 
         @include('darul-shofi.partials.footer', ['footerClass' => 'ds-global-footer--spaced'])
-
-        <nav class="fixed inset-x-0 bottom-0 z-40 grid h-16 grid-cols-5 border-t border-[#e5e0d6] bg-white md:hidden" aria-label="Navigasi bawah">
-            <a href="{{ route('home') }}" class="grid place-content-center gap-0.5 text-center text-[9px] font-bold text-[#404946]"><span class="material-symbols-outlined text-[18px]">home</span>Utama</a>
-            <a href="{{ route('packages.index') }}" class="grid place-content-center gap-0.5 text-center text-[9px] font-bold text-[#404946]"><span class="material-symbols-outlined text-[18px]">travel</span>Pakej</a>
-            <a href="{{ route('about') }}" class="grid place-content-center gap-0.5 text-center text-[9px] font-bold text-[#404946]"><span class="material-symbols-outlined text-[18px]">info</span>Tentang</a>
-            <a href="{{ route('mutawifs.index') }}" class="grid place-content-center gap-0.5 text-center text-[9px] font-bold text-[#404946]"><span class="material-symbols-outlined text-[18px]">person</span>Mutawif</a>
-        </nav>
 
         @php
             $floatingWhatsAppNumber = $siteSettings['contact_whatsapp'] ?: config('darul_shofi.whatsapp_number');
             $floatingWhatsAppMessage = $whatsAppMessage ?: 'Assalamualaikum, saya ingin bertanya tentang pakej Umrah.';
         @endphp
         @if ($showFloatingWhatsApp && filled($floatingWhatsAppNumber))
-            <div class="group fixed bottom-20 right-5 z-50 flex items-center md:bottom-6 md:right-7">
+            <div class="group fixed bottom-6 right-5 z-50 flex items-center md:right-7">
                 <span class="pointer-events-none mr-3 hidden whitespace-nowrap rounded-full border border-[#e7c875]/40 bg-white px-3.5 py-1.5 text-xs font-semibold text-dark-green opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100 sm:block">Perlukan bantuan? WhatsApp kami</span>
                 <x-whats-app-link
                     :number="$floatingWhatsAppNumber"
