@@ -91,9 +91,8 @@
 
     <section class="bg-[#f7f8f4]">
         <div @class([
-            'mx-auto grid',
-            'max-w-[1120px]' => $heroGalleryImages->isEmpty(),
-            'max-w-[1440px] lg:grid-cols-[minmax(0,1.62fr)_minmax(300px,.78fr)]' => $heroGalleryImages->isNotEmpty(),
+            'grid',
+            'lg:grid-cols-[minmax(0,1.62fr)_minmax(300px,.78fr)]' => $heroGalleryImages->isNotEmpty(),
         ])>
             <article class="package-cover grid overflow-hidden bg-[#082e27] lg:grid-cols-[minmax(0,.9fr)_minmax(21rem,1.1fr)]" data-package-cover>
                 @if (filled($heroImagePath))
