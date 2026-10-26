@@ -160,6 +160,38 @@ it('rejects a hero video longer than ten seconds', function () {
     $this->assertDatabaseMissing('hero_slides', ['package_category_id' => $category->id]);
 });
 
+it('returns to the category form with an upload error when a video exceeds the PHP post limit', function () {
+    $staff = User::factory()->staff()->create();
+    $category = PackageCategory::factory()->create();
+    $editUrl = route('admin.package-categories.edit', $category);
+
+    $this->actingAs($staff)
+        ->from($editUrl)
+        ->call('PUT', route('admin.package-categories.update', $category), [], [], [], [
+            'CONTENT_LENGTH' => (string) PHP_INT_MAX,
+            'HTTP_REFERER' => $editUrl,
+        ])
+        ->assertRedirect($editUrl.'?upload_error=1');
+
+    $this->actingAs($staff)
+        ->get($editUrl.'?upload_error=1')
+        ->assertOk()
+        ->assertSee('Fail terlalu besar untuk dimuat naik oleh pelayan. Gunakan video yang tidak melebihi 100 MB.');
+
+    $this->assertDatabaseHas('package_categories', ['id' => $category->id]);
+});
+
+it('does not redirect to an external website when an upload exceeds the PHP post limit', function () {
+    $staff = User::factory()->staff()->create();
+
+    $this->actingAs($staff)
+        ->call('PUT', route('admin.package-categories.update', 1), [], [], [], [
+            'CONTENT_LENGTH' => (string) PHP_INT_MAX,
+            'HTTP_REFERER' => 'https://example.com/admin/package-categories/1/edit',
+        ])
+        ->assertRedirect(route('home').'?upload_error=1');
+});
+
 it('automatically orders new mutawif and testimonial content while adding FAQ content', function () {
     $staff = User::factory()->staff()->create();
     $package = Package::factory()->create();

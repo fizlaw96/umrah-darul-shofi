@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 uses(LazilyRefreshDatabase::class);
 
 it('allows staff to upload multiple, update, and delete gallery media', function () {
-    Storage::fake('public');
+    Storage::fake('public', ['url' => '/media']);
 
     $staff = User::factory()->staff()->create();
 
@@ -117,6 +117,19 @@ it('only displays published media from each homepage section on the public websi
         ->assertSee('Foto Bersama Menuju Baitullah')
         ->assertSee('Foto Kenangan Jemaah')
         ->assertDontSee('Foto disorokkan');
+});
+
+it('serves uploaded public media through the application media endpoint', function () {
+    Storage::fake('public', ['url' => '/media']);
+
+    $path = UploadedFile::fake()->image('poster-umrah.jpg', 1200, 800)->store('hero', 'public');
+    $url = Storage::disk('public')->url($path);
+
+    expect($url)->toStartWith('/media/');
+
+    $this->get($url)
+        ->assertOk()
+        ->assertHeader('content-type', 'image/jpeg');
 });
 
 it('forbids non-staff users from managing gallery media', function () {

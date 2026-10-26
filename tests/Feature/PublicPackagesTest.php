@@ -132,7 +132,7 @@ it('includes the package link and main image in WhatsApp enquiries', function ()
         ->assertSee('WhatsApp Kami')
         ->assertSee($whatsAppUrl, false)
         ->assertDontSee('Pasukan kami sedia membantu semak pilihan perjalanan anda.')
-        ->assertSee('<meta property="og:image" content="'.url('/storage/packages/haji-utama.jpg').'">', false)
+        ->assertSee('<meta property="og:image" content="'.url('/media/packages/haji-utama.jpg').'">', false)
         ->assertDontSee('/hubungi-kami', false);
 });
 
@@ -224,11 +224,11 @@ it('renders no more than three unique images in the package hero', function () {
     $response
         ->assertOk()
         ->assertSee('3 foto galeri')
-        ->assertSee('/storage/packages/galeri-satu.jpg', false)
-        ->assertSee('/storage/packages/galeri-dua.jpg', false)
-        ->assertDontSee('/storage/packages/galeri-tiga.jpg', false);
+        ->assertSee('/media/packages/galeri-satu.jpg', false)
+        ->assertSee('/media/packages/galeri-dua.jpg', false)
+        ->assertDontSee('/media/packages/galeri-tiga.jpg', false);
 
-    expect(substr_count($response->getContent(), '/storage/packages/cover.jpg'))->toBe(2);
+    expect(substr_count($response->getContent(), '/media/packages/cover.jpg'))->toBe(2);
 });
 
 it('shows the return date for each available departure', function () {
@@ -302,11 +302,11 @@ it('shows hotel and attached room media in the same carousel without repeating t
         ->assertSee('data-travel-media', false)
         ->assertSee('Anjum Hotel Makkah')
         ->assertSee('Saudia Airlines')
-        ->assertSee('/storage/packages/travel/hotels/anjum-hotel.jpg', false)
-        ->assertSee('/storage/packages/travel/hotels/anjum-room.jpg', false)
-        ->assertSee('/storage/packages/content/room-prices/anjum-double.jpg', false)
+        ->assertSee('/media/packages/travel/hotels/anjum-hotel.jpg', false)
+        ->assertSee('/media/packages/travel/hotels/anjum-room.jpg', false)
+        ->assertSee('/media/packages/content/room-prices/anjum-double.jpg', false)
         ->assertSee('Gambar penginapan seterusnya')
-        ->assertSee('/storage/packages/travel/flights/saudia-airlines.jpg', false);
+        ->assertSee('/media/packages/travel/flights/saudia-airlines.jpg', false);
 
     expect(substr_count($response->getContent(), $coverImageUrl))->toBe(2);
 });
@@ -330,8 +330,8 @@ it('shows ziarah and gift images alongside their package details', function () {
         ->assertOk()
         ->assertSee('Masjid Quba')
         ->assertSee('Beg Sandang Umrah')
-        ->assertSee('/storage/packages/content/ziarah/masjid-quba.jpg', false)
-        ->assertSee('/storage/packages/content/gifts/beg-sandang.jpg', false);
+        ->assertSee('/media/packages/content/ziarah/masjid-quba.jpg', false)
+        ->assertSee('/media/packages/content/gifts/beg-sandang.jpg', false);
 });
 
 it('renders an itinerary download without displaying deprecated manual highlights', function () {
@@ -349,5 +349,5 @@ it('renders an itinerary download without displaying deprecated manual highlight
         ->assertSee('Pengenalan Pakej')
         ->assertDontSee('Bimbingan mutawif')
         ->assertSee('Muat Turun Itinerari (PDF)')
-        ->assertSee('/storage/packages/itineraries/atur-cara.pdf', false);
+        ->assertSee('/media/packages/itineraries/atur-cara.pdf', false);
 });
