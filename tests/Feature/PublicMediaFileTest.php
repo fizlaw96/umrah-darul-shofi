@@ -13,6 +13,7 @@ it('serves uploaded files through the application media endpoint', function () {
 
     $this->get($url)
         ->assertOk()
+        ->assertHeader('accept-ranges', 'bytes')
         ->assertHeader('content-type', 'image/jpeg')
         ->assertHeader('x-content-type-options', 'nosniff');
 });
