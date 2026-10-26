@@ -324,6 +324,100 @@ const initializePackageImageFrames = () => {
     });
 };
 
+const initializePackagePosterLightbox = () => {
+    const dialog = document.querySelector('[data-package-poster-lightbox]');
+
+    if (!(dialog instanceof HTMLDialogElement)) {
+        return;
+    }
+
+    const image = dialog.querySelector('[data-package-poster-lightbox-image]');
+    const caption = dialog.querySelector('[data-package-poster-lightbox-caption]');
+
+    if (!(image instanceof HTMLImageElement)) {
+        return;
+    }
+
+    document.querySelectorAll('[data-package-poster]').forEach((trigger) => {
+        if (!(trigger instanceof HTMLButtonElement)) {
+            return;
+        }
+
+        trigger.addEventListener('click', () => {
+            image.src = trigger.dataset.packagePosterSrc ?? '';
+            image.alt = trigger.dataset.packagePosterAlt ?? '';
+
+            if (caption instanceof HTMLElement) {
+                caption.textContent = trigger.dataset.packagePosterAlt ?? '';
+            }
+
+            dialog.showModal();
+        });
+    });
+
+    dialog.querySelector('[data-package-poster-lightbox-close]')?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) {
+            dialog.close();
+        }
+    });
+    dialog.addEventListener('close', () => {
+        image.removeAttribute('src');
+        image.alt = '';
+
+        if (caption instanceof HTMLElement) {
+            caption.textContent = '';
+        }
+    });
+};
+
+const initializeHotelLightbox = () => {
+    const dialog = document.querySelector('[data-hotel-lightbox]');
+
+    if (!(dialog instanceof HTMLDialogElement)) {
+        return;
+    }
+
+    const image = dialog.querySelector('[data-hotel-lightbox-image]');
+    const caption = dialog.querySelector('[data-hotel-lightbox-caption]');
+
+    if (!(image instanceof HTMLImageElement)) {
+        return;
+    }
+
+    document.querySelectorAll('[data-hotel-lightbox-trigger]').forEach((trigger) => {
+        if (!(trigger instanceof HTMLButtonElement)) {
+            return;
+        }
+
+        trigger.addEventListener('click', () => {
+            image.src = trigger.dataset.hotelLightboxSrc ?? '';
+            image.alt = trigger.dataset.hotelLightboxAlt ?? '';
+
+            if (caption instanceof HTMLElement) {
+                caption.textContent = trigger.dataset.hotelLightboxAlt ?? '';
+            }
+
+            dialog.showModal();
+        });
+    });
+
+    dialog.querySelector('[data-hotel-lightbox-close]')?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) {
+            dialog.close();
+        }
+    });
+    dialog.addEventListener('close', () => {
+        image.removeAttribute('src');
+        image.alt = '';
+
+        if (caption instanceof HTMLElement) {
+            caption.textContent = '';
+        }
+    });
+};
+
 const initializePackageCoverLayouts = () => {
     document.querySelectorAll('[data-package-cover]').forEach((cover) => {
         const image = cover.querySelector('[data-package-cover-image]');
@@ -789,7 +883,21 @@ const initializePackageForm = () => {
             const removeExistingImageButton = event.target.closest('[data-collection-existing-image-remove]');
 
             if (removeExistingImageButton) {
-                removeExistingImageButton.closest('[data-collection-existing-image]')?.remove();
+                const currentImage = removeExistingImageButton.closest('[data-collection-existing-image]');
+                const existingImageInput = currentImage?.querySelector('input[type="hidden"]');
+
+                if (existingImageInput instanceof HTMLInputElement && existingImageInput.name) {
+                    const isMultipleImages = existingImageInput.name.includes('[existing_images][]');
+                    const removal = document.createElement('input');
+                    removal.type = 'hidden';
+                    removal.name = existingImageInput.name
+                        .replace('[existing_images][]', '[removed_existing_images][]')
+                        .replace('[existing_image]', '[remove_existing_image]');
+                    removal.value = isMultipleImages ? existingImageInput.value : '1';
+                    form.append(removal);
+                }
+
+                currentImage?.remove();
                 isDirty = true;
                 form.dispatchEvent(new Event('input', { bubbles: true }));
 
@@ -1437,7 +1545,7 @@ const initializePackageAiImport = () => {
         applyServices(data.included_services, 'included', 'Perkhidmatan termasuk', validationErrors);
         applyServices(data.excluded_services, 'excluded', 'Perkhidmatan tidak termasuk', validationErrors);
 
-        ['show_on_homepage', 'is_featured'].forEach((name) => {
+        ['is_featured'].forEach((name) => {
             if (data[name] === null || data[name] === undefined) {
                 return;
             }
@@ -2068,26 +2176,363 @@ const initializeAutomaticFilters = () => {
 };
 
 const initializeConfirmations = () => {
-    document.querySelectorAll('[data-confirm-archive]').forEach((form) => {
-        form.addEventListener('submit', (event) => {
-            if (!window.confirm('Arkibkan pakej yang dipilih? Pakej boleh dipulihkan semula sebagai draf.')) {
-                event.preventDefault();
+    document.addEventListener('submit', (event) => {
+        const form = event.target;
+
+        if (!(form instanceof HTMLFormElement)) {
+            return;
+        }
+
+        const isDelete = form.matches('[data-confirm-delete], [data-confirm-image-delete], [data-confirm-media-delete]')
+            || form.querySelector('input[name="_method"][value="DELETE"]') !== null;
+        const isArchive = form.matches('[data-confirm-archive]');
+
+        if (!isDelete && !isArchive) {
+            return;
+        }
+
+        const message = form.dataset.confirmMessage
+            ?? (isArchive ? 'Arkibkan pakej ini? Pakej boleh dipulihkan semula sebagai draf.' : 'Anda pasti mahu memadamkan item ini? Tindakan ini tidak boleh dibatalkan.');
+
+        if (!window.confirm(message)) {
+            event.preventDefault();
+        }
+    });
+};
+
+const initializeRemovableImagePreviews = () => {
+    document.querySelectorAll('[data-current-image-remove]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const input = document.getElementById(button.dataset.removeInput ?? '');
+
+            if (input instanceof HTMLInputElement) {
+                input.value = '1';
             }
+
+            button.closest('[data-current-image]')?.remove();
+        });
+    });
+};
+
+const initializePackageMediaPicker = () => {
+    const picker = document.querySelector('[data-package-media-picker]');
+    const preview = document.querySelector('[data-package-media-preview]');
+
+    if (!(picker instanceof HTMLDialogElement) || !(preview instanceof HTMLDialogElement)) {
+        return;
+    }
+
+    const cards = [...picker.querySelectorAll('[data-package-media-asset]')];
+    const breadcrumb = picker.querySelector('[data-package-media-breadcrumb]');
+    const previewImage = preview.querySelector('[data-package-media-preview-image]');
+    const previewName = preview.querySelector('[data-package-media-preview-name]');
+    let activeTarget;
+    let activeFolder = '';
+    let previewAsset;
+
+    const selectedIds = () => activeTarget
+        ? [...activeTarget.querySelectorAll('[data-package-media-selected-input]')].map((input) => input.value)
+        : [];
+
+    const updateCards = () => {
+        const selected = selectedIds();
+
+        cards.forEach((card) => {
+            const isVisible = activeFolder === '' || card.dataset.assetFolder === activeFolder;
+            const isSelected = selected.includes(card.dataset.assetId ?? '');
+
+            card.hidden = !isVisible;
+            card.classList.toggle('bg-[#dfe9e1]', isSelected);
+            card.classList.toggle('opacity-50', isSelected);
+        });
+
+        if (breadcrumb) {
+            const button = picker.querySelector(`[data-package-media-folder-button="${activeFolder}"]`);
+
+            breadcrumb.textContent = activeFolder === '' ? 'Semua folder' : (button?.textContent ?? activeFolder);
+        }
+    };
+
+    const renderSelection = () => {
+        if (!activeTarget) {
+            return;
+        }
+
+        const container = activeTarget.querySelector('[data-package-media-selected]');
+
+        if (!(container instanceof HTMLElement)) {
+            return;
+        }
+
+        const currentCards = cards.filter((card) => selectedIds().includes(card.dataset.assetId ?? ''));
+
+        container.replaceChildren(...currentCards.map((card) => {
+            const selection = document.createElement('div');
+            selection.className = 'relative overflow-hidden rounded-lg border border-[#b9d6c1] bg-white';
+            const image = document.createElement('img');
+            image.src = card.dataset.assetUrl ?? '';
+            image.alt = '';
+            image.className = 'aspect-square w-full object-cover';
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = activeTarget.dataset.mediaName ?? '';
+            input.value = card.dataset.assetId ?? '';
+            input.dataset.packageMediaSelectedInput = 'true';
+            const remove = document.createElement('button');
+            remove.type = 'button';
+            remove.className = 'absolute right-1 top-1 grid size-6 place-items-center rounded-full bg-[#b33129] text-white';
+            remove.setAttribute('aria-label', 'Buang pilihan gambar');
+            remove.textContent = '×';
+            remove.addEventListener('click', () => {
+                selection.remove();
+                updateCards();
+            });
+            selection.append(image, input, remove);
+
+            return selection;
+        }));
+
+        updateCards();
+    };
+
+    const selectAsset = (asset) => {
+        if (!activeTarget || !asset) {
+            return;
+        }
+
+        const multiple = activeTarget.dataset.mediaMultiple === 'true';
+        const existing = selectedIds();
+        const id = asset.dataset.assetId ?? '';
+
+        if (existing.includes(id)) {
+            return;
+        }
+
+        if (!multiple) {
+            activeTarget.querySelectorAll('[data-package-media-selected-input]').forEach((input) => input.closest('div')?.remove());
+        }
+
+        const selection = document.createElement('div');
+        selection.className = 'relative overflow-hidden rounded-lg border border-[#b9d6c1] bg-white';
+        const image = document.createElement('img');
+        image.src = asset.dataset.assetUrl ?? '';
+        image.alt = '';
+        image.className = 'aspect-square w-full object-cover';
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = activeTarget.dataset.mediaName ?? '';
+        input.value = id;
+        input.dataset.packageMediaSelectedInput = 'true';
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'absolute right-1 top-1 grid size-6 place-items-center rounded-full bg-[#b33129] text-white';
+        remove.setAttribute('aria-label', 'Buang pilihan gambar');
+        remove.textContent = '×';
+        remove.addEventListener('click', () => {
+            selection.remove();
+            updateCards();
+        });
+        selection.append(image, input, remove);
+        activeTarget.querySelector('[data-package-media-selected]')?.append(selection);
+        updateCards();
+
+        if (!multiple) {
+            picker.close();
+        }
+    };
+
+    const mediaMapping = (input) => {
+        if (input.name === 'poster_image') {
+            return ['poster', 'poster_media_asset_id', false];
+        }
+
+        if (input.name === 'gallery[]') {
+            return ['landscape', 'gallery_media_asset_ids[]', true];
+        }
+
+        if (input.name.startsWith('flight_options')) {
+            return ['flight', input.name.replace('[images][]', '[media_asset_ids][]'), true];
+        }
+
+        if (input.name.startsWith('hotel_options')) {
+            return ['hotel', input.name.replace('[images][]', '[media_asset_ids][]'), true];
+        }
+
+        if (input.name.startsWith('room_prices')) {
+            return ['room', input.name.replace('[image]', '[media_asset_id]'), false];
+        }
+
+        if (input.name.startsWith('ziarah_places')) {
+            return ['ziarah', input.name.replace('[image]', '[media_asset_id]'), false];
+        }
+
+        if (input.name.startsWith('gifts')) {
+            return ['gift', input.name.replace('[image]', '[media_asset_id]'), false];
+        }
+
+        return null;
+    };
+
+    const addMediaPicker = (input) => {
+        if (!(input instanceof HTMLInputElement) || input.closest('[data-package-media-selection]')) {
+            return;
+        }
+
+        const mapping = mediaMapping(input);
+
+        if (!mapping) {
+            return;
+        }
+
+        const [folder, mediaName, multiple] = mapping;
+        const target = document.createElement('div');
+        target.dataset.packageMediaSelection = 'true';
+        target.dataset.mediaName = mediaName;
+        target.dataset.mediaMultiple = String(multiple);
+        target.className = 'mt-2';
+        const controls = document.createElement('div');
+        controls.className = 'flex flex-col gap-2 sm:flex-row sm:items-center';
+        input.classList.remove('mt-2');
+        input.classList.add('min-w-0', 'flex-1');
+        const divider = document.createElement('span');
+        divider.className = 'hidden shrink-0 text-[11px] font-bold uppercase tracking-[.1em] text-[#718078] sm:block';
+        divider.textContent = 'atau';
+        const trigger = document.createElement('button');
+        trigger.type = 'button';
+        trigger.dataset.packageMediaPickerTrigger = 'true';
+        trigger.dataset.mediaFolder = folder;
+        trigger.className = 'admin-button-secondary shrink-0 !px-3 !py-2 text-xs';
+        trigger.setAttribute('aria-label', 'Pilih dari pustaka media');
+        const icon = document.createElement('span');
+        icon.className = 'material-symbols-outlined text-[18px]';
+        icon.textContent = 'folder';
+        const label = document.createElement('span');
+        label.textContent = 'Pilih dari pustaka media';
+        trigger.append(icon, label);
+        const selected = document.createElement('div');
+        selected.dataset.packageMediaSelected = 'true';
+        selected.className = 'mt-2 grid grid-cols-4 gap-2';
+        input.before(target);
+        controls.append(input, divider, trigger);
+        target.append(controls, selected);
+    };
+
+    const addMediaPickers = () => document.querySelectorAll('[data-collection-image-input], [data-package-media-upload-input]').forEach(addMediaPicker);
+
+    addMediaPickers();
+    document.addEventListener('click', (event) => {
+        const trigger = event.target instanceof Element ? event.target.closest('[data-package-media-picker-trigger]') : null;
+
+        if (!(trigger instanceof HTMLElement)) {
+            return;
+        }
+
+        activeTarget = trigger.closest('[data-package-media-selection]');
+        activeFolder = trigger.dataset.mediaFolder ?? '';
+        updateCards();
+        picker.showModal();
+    });
+    document.querySelectorAll('[data-collection-add]').forEach((button) => button.addEventListener('click', () => {
+        window.setTimeout(addMediaPickers);
+    }));
+
+    cards.forEach((card) => {
+        card.addEventListener('click', () => {
+            previewAsset = card;
+
+            if (previewImage instanceof HTMLImageElement) {
+                previewImage.src = card.dataset.assetUrl ?? '';
+                previewImage.alt = card.dataset.assetName ?? '';
+            }
+
+            if (previewName) {
+                previewName.textContent = card.dataset.assetName ?? '';
+            }
+
+            preview.showModal();
         });
     });
 
-    document.querySelectorAll('[data-confirm-image-delete]').forEach((form) => {
-        form.addEventListener('submit', (event) => {
-            if (!window.confirm('Buang gambar ini daripada galeri pakej?')) {
-                event.preventDefault();
-            }
+    preview.querySelector('[data-package-media-preview-select]')?.addEventListener('click', () => {
+        selectAsset(previewAsset);
+        preview.close();
+    });
+    preview.querySelector('[data-package-media-preview-close]')?.addEventListener('click', () => preview.close());
+    picker.querySelector('[data-package-media-picker-close]')?.addEventListener('click', () => picker.close());
+    picker.querySelector('[data-package-media-picker-done]')?.addEventListener('click', () => picker.close());
+    picker.querySelector('[data-package-media-folder-all]')?.addEventListener('click', () => {
+        activeFolder = '';
+        updateCards();
+    });
+    picker.querySelectorAll('[data-package-media-folder-button]').forEach((button) => {
+        button.addEventListener('click', () => {
+            activeFolder = button.dataset.packageMediaFolderButton ?? '';
+            updateCards();
         });
     });
+    [picker, preview].forEach((dialog) => dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) {
+            dialog.close();
+        }
+    }));
+};
 
-    document.querySelectorAll('[data-confirm-media-delete]').forEach((form) => {
-        form.addEventListener('submit', (event) => {
-            if (!window.confirm('Buang media ini daripada galeri website?')) {
-                event.preventDefault();
+const initializePackageMediaUsageDialogs = () => {
+    document.querySelectorAll('[data-package-media-usage-open]').forEach((trigger) => {
+        if (!(trigger instanceof HTMLButtonElement)) {
+            return;
+        }
+
+        const dialog = document.getElementById(trigger.dataset.packageMediaUsageOpen ?? '');
+
+        if (!(dialog instanceof HTMLDialogElement)) {
+            return;
+        }
+
+        const rows = [...dialog.querySelectorAll('[data-package-media-usage-row]')];
+        const pagination = dialog.querySelector('[data-package-media-usage-pagination]');
+        const pageStatus = dialog.querySelector('[data-package-media-usage-page-status]');
+        const previousButton = dialog.querySelector('[data-package-media-usage-previous]');
+        const nextButton = dialog.querySelector('[data-package-media-usage-next]');
+        const pageSize = 10;
+        const totalPages = Math.ceil(rows.length / pageSize);
+        let currentPage = 0;
+
+        const renderPage = (page) => {
+            if (totalPages <= 1
+                || !(pagination instanceof HTMLElement)
+                || !(pageStatus instanceof HTMLElement)
+                || !(previousButton instanceof HTMLButtonElement)
+                || !(nextButton instanceof HTMLButtonElement)) {
+                return;
+            }
+
+            currentPage = Math.min(Math.max(page, 0), totalPages - 1);
+            const start = currentPage * pageSize;
+            const end = Math.min(start + pageSize, rows.length);
+
+            rows.forEach((row, index) => {
+                row.hidden = index < start || index >= end;
+            });
+            pageStatus.textContent = `Menunjukkan ${start + 1}–${end} daripada ${rows.length} penggunaan`;
+            pagination.hidden = false;
+            previousButton.disabled = currentPage === 0;
+            nextButton.disabled = currentPage === totalPages - 1;
+            previousButton.classList.toggle('opacity-40', previousButton.disabled);
+            nextButton.classList.toggle('opacity-40', nextButton.disabled);
+        };
+
+        previousButton instanceof HTMLButtonElement && previousButton.addEventListener('click', () => renderPage(currentPage - 1));
+        nextButton instanceof HTMLButtonElement && nextButton.addEventListener('click', () => renderPage(currentPage + 1));
+
+        trigger.addEventListener('click', () => {
+            renderPage(0);
+            dialog.showModal();
+        });
+        dialog.querySelector('[data-package-media-usage-close]')?.addEventListener('click', () => dialog.close());
+        dialog.addEventListener('click', (event) => {
+            if (event.target === dialog) {
+                dialog.close();
             }
         });
     });
@@ -2377,7 +2822,12 @@ initializePackageAiImport();
 initializePackagePosterPrompt();
 initializePackageFormEnhancements();
 initializeAutomaticFilters();
+initializePackagePosterLightbox();
+initializeHotelLightbox();
 initializeConfirmations();
+initializeRemovableImagePreviews();
+initializePackageMediaPicker();
+initializePackageMediaUsageDialogs();
 initializeFeaturedVideoSource();
 initializeCategoryHeroMedia();
 initializeCategorySlugPreviews();

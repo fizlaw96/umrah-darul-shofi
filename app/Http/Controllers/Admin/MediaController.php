@@ -2,9 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\PackageMediaUsageReporter;
+use App\Actions\RenamePackageMediaAsset;
+use App\Actions\StorePackageMediaAsset;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\MediaItemRequest;
+use App\Http\Requests\Admin\RenamePackageMediaAssetRequest;
 use App\Models\MediaItem;
+use App\Models\Package;
+use App\Models\PackageMediaAsset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -14,6 +20,12 @@ use Illuminate\View\View;
 
 class MediaController extends Controller
 {
+    public function __construct(
+        private readonly StorePackageMediaAsset $packageMediaAssets,
+        private readonly PackageMediaUsageReporter $packageMediaUsageReporter,
+        private readonly RenamePackageMediaAsset $renamePackageMediaAsset,
+    ) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -31,6 +43,18 @@ class MediaController extends Controller
             ->latest('id')
             ->get();
         $mediaItems = $allMediaItems->where('section', $selectedSection)->values();
+        $this->packageMediaAssets->registerLegacyPackageAssets(
+            Package::query()->with('images:id,package_id,path')->get(),
+        );
+        $packageMediaAssets = PackageMediaAsset::query()->orderBy('folder')->latest('id')->get();
+        $packageMediaUsages = $this->packageMediaUsageReporter->usagesFor($packageMediaAssets);
+        $requestedPackageFolder = $request->string('folder')->toString();
+        $selectedPackageFolder = array_key_exists($requestedPackageFolder, PackageMediaAsset::folders())
+            ? $requestedPackageFolder
+            : PackageMediaAsset::FlightFolder;
+        $packageMediaAssets = $packageMediaAssets
+            ->sortByDesc(fn (PackageMediaAsset $asset): int => $packageMediaUsages->get($asset->path, collect())->count())
+            ->values();
 
         return view('admin.media.index', [
             'mediaItems' => $mediaItems,
@@ -46,6 +70,11 @@ class MediaController extends Controller
                         'count' => $items->count(),
                     ];
                 }),
+            'selectedTab' => $request->string('tab')->toString() === 'package-media' ? 'package-media' : 'gallery',
+            'packageMediaAssets' => $packageMediaAssets,
+            'selectedPackageFolder' => $selectedPackageFolder,
+            'selectedPackageMediaAssets' => $packageMediaAssets->where('folder', $selectedPackageFolder)->values(),
+            'packageMediaUsages' => $packageMediaUsages,
         ]);
     }
 
@@ -115,6 +144,37 @@ class MediaController extends Controller
         return redirect()
             ->route('admin.media.index', ['section' => $section])
             ->with('success', 'Media galeri telah dibuang.');
+    }
+
+    public function destroyPackageAsset(PackageMediaAsset $packageMediaAsset): RedirectResponse
+    {
+        $usages = $this->packageMediaUsageReporter->usagesFor(collect([$packageMediaAsset]));
+
+        if (($usages->get($packageMediaAsset->path)?->isNotEmpty()) === true) {
+            return back()->with('error', 'Media ini masih digunakan oleh pakej dan tidak boleh dipadamkan.');
+        }
+
+        $path = $packageMediaAsset->path;
+        $folder = $packageMediaAsset->folder;
+        $packageMediaAsset->delete();
+        $this->deleteStoredFile($path);
+
+        return redirect()->route('admin.media.index', [
+            'tab' => 'package-media',
+            'folder' => $folder,
+        ])->with('success', 'Media pakej berjaya dipadamkan.');
+    }
+
+    public function renamePackageAsset(RenamePackageMediaAssetRequest $request, PackageMediaAsset $packageMediaAsset): RedirectResponse
+    {
+        $packageMediaAsset = $this->renamePackageMediaAsset->handle(
+            $packageMediaAsset,
+            $request->string('name')->toString(),
+        );
+
+        return redirect()
+            ->route('admin.media.index', ['tab' => 'package-media', 'folder' => $packageMediaAsset->folder])
+            ->with('success', 'Nama media pakej berjaya dikemas kini.');
     }
 
     private function generatedAltText(UploadedFile $image, string $section, int $position): string

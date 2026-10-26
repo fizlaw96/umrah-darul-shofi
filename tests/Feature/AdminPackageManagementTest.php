@@ -2,6 +2,8 @@
 
 use App\Models\Package;
 use App\Models\PackageCategory;
+use App\Models\PackageDeparture;
+use App\Models\PackageMediaAsset;
 use App\Models\PackageServiceOption;
 use App\Models\User;
 use App\Notifications\PackageArchived;
@@ -35,12 +37,11 @@ function packagePayload(PackageCategory $category, array $overrides = []): array
         'makkah_nights' => 4,
         'madinah_nights' => 3,
         'walking_distance' => '5 minit berjalan kaki ke Masjidil Haram',
-        'show_on_homepage' => '1',
         'intent' => 'draft',
     ], $overrides);
 }
 
-it('saves a package as a draft with its homepage and travel settings', function () {
+it('saves a package as a draft with its travel settings', function () {
     $staff = User::factory()->staff()->create();
     $category = PackageCategory::factory()->create();
     $returnFlight = PackageServiceOption::factory()->create([
@@ -70,7 +71,6 @@ it('saves a package as a draft with its homepage and travel settings', function 
     $this->assertDatabaseHas('packages', [
         'title' => 'Pakej Safwah Premium',
         'status' => 'draft',
-        'show_on_homepage' => true,
         'makkah_hotel' => 'Safwah Royal Orchid',
     ]);
 
@@ -359,6 +359,7 @@ it('publishes a package when the publish form intent is submitted', function () 
             'title' => 'Pakej Safwah Diterbitkan',
             'code' => 'DS-UMR-PUBLISH',
             'slug' => 'pakej-safwah-diterbitkan',
+            'poster_image' => UploadedFile::fake()->image('poster.jpg', 900, 1400),
             'intent' => 'publish',
         ]))
         ->assertRedirect(route('admin.packages.edit', 'pakej-safwah-diterbitkan'))
@@ -424,16 +425,17 @@ it('hides automatic Google search information from the package form', function (
         ->assertDontSee('name="seo_description"', false);
 });
 
-it('publishes selected packages and displays only homepage-enabled packages on the public home page', function () {
+it('publishes selected packages and displays every published package on the public home page', function () {
     $staff = User::factory()->staff()->create();
     $category = PackageCategory::factory()->create();
     $visiblePackage = Package::factory()->for($category, 'category')->create([
         'title' => 'Pakej Homepage Terbit',
         'status' => 'draft',
         'show_on_homepage' => true,
+        'poster_image' => 'packages/media/poster/homepage-terbit.jpg',
     ]);
-    $hiddenPackage = Package::factory()->published()->for($category, 'category')->create([
-        'title' => 'Pakej Tidak Di Homepage',
+    $automaticPackage = Package::factory()->published()->for($category, 'category')->create([
+        'title' => 'Pakej Terbit Automatik',
         'show_on_homepage' => false,
     ]);
 
@@ -452,7 +454,24 @@ it('publishes selected packages and displays only homepage-enabled packages on t
     $this->get(route('home'))
         ->assertOk()
         ->assertSee($visiblePackage->title)
-        ->assertDontSee($hiddenPackage->title);
+        ->assertSee($automaticPackage->title);
+});
+
+it('shows the earliest departure month in the package table without old image or homepage columns', function () {
+    $staff = User::factory()->staff()->create();
+    $package = Package::factory()->create(['title' => 'Pakej Musim Disember']);
+    $departure = PackageDeparture::factory()->for($package)->create([
+        'departure_date' => '2026-12-18',
+        'return_date' => '2026-12-28',
+    ]);
+
+    $this->actingAs($staff)
+        ->get(route('admin.packages.index'))
+        ->assertOk()
+        ->assertSee('Musim')
+        ->assertSee($departure->departure_date->translatedFormat('F Y'))
+        ->assertDontSee('Paparan Homepage')
+        ->assertDontSee('>Gambar</th>', false);
 });
 
 it('searches package records by code and filters by category and status', function () {
@@ -494,13 +513,16 @@ it('uses automatic filters in the package list without a filter button', functio
 
 it('renders package actions without pricing and accommodation columns', function () {
     $staff = User::factory()->staff()->create();
-    $package = Package::factory()->create();
+    $package = Package::factory()->published()->create();
 
     $this->actingAs($staff)
         ->get(route('admin.packages.index'))
         ->assertOk()
         ->assertSee($package->title)
         ->assertSee(route('admin.packages.destroy', $package), false)
+        ->assertSee(route('packages.show', $package), false)
+        ->assertSee('target="_blank"', false)
+        ->assertSee('aria-label="Buka halaman awam '.$package->title.'"', false)
         ->assertSee('aria-label="Arkibkan '.$package->title.'"', false)
         ->assertDontSee('Harga Bermula')
         ->assertDontSee('Tempoh &amp; Hotel', false);
@@ -761,6 +783,53 @@ it('stores structured room prices, ziarah places, and gifts for a package', func
     ]);
 });
 
+it('automatically attaches named package media and permits manual removal', function () {
+    Storage::fake('public');
+
+    $staff = User::factory()->staff()->create();
+    $category = PackageCategory::factory()->create();
+    $hotelKey = 'f6f50e3f-286f-45f2-acbf-5fe0dfbbc0f6';
+    $asset = PackageMediaAsset::factory()->create([
+        'folder' => PackageMediaAsset::HotelFolder,
+        'path' => 'packages/media/penginapan-hotel/hotel-safwah-royal.jpg',
+        'original_name' => 'Hotel Safwah Royal.jpg',
+    ]);
+    Storage::disk('public')->put($asset->path, 'hotel-image');
+
+    $this->actingAs($staff)
+        ->post(route('admin.packages.store'), packagePayload($category, [
+            'hotel_options_present' => '1',
+            'hotel_options' => [[
+                'key' => $hotelKey,
+                'location' => 'Makkah',
+                'name' => 'Hotel Safwah Royal',
+                'rating' => 5,
+                'nights' => 4,
+            ]],
+        ]))
+        ->assertRedirect();
+
+    $package = Package::query()->sole();
+
+    expect($package->hotel_options[0]['images'])->toBe([$asset->path]);
+
+    $this->actingAs($staff)
+        ->put(route('admin.packages.update', $package), packagePayload($category, [
+            'hotel_options_present' => '1',
+            'hotel_options' => [[
+                'key' => $hotelKey,
+                'location' => 'Makkah',
+                'name' => 'Hotel Safwah Royal',
+                'rating' => 5,
+                'nights' => 4,
+                'removed_existing_images' => [$asset->path],
+            ]],
+        ]))
+        ->assertRedirect();
+
+    expect($package->fresh()->hotel_options[0]['images'])->toBe([]);
+});
+
 it('stores room images with their room prices instead of the hotel carousel', function () {
     Storage::fake('public');
 
@@ -805,10 +874,10 @@ it('stores room images with their room prices instead of the hotel carousel', fu
 
     expect($package->room_prices[0]['hotel_key'])->toBe($hotelKey);
     expect($hotelImages)->toHaveCount(1);
-    expect($hotelImages[0])->toStartWith('packages/travel/hotels/');
-    expect($roomImage)->toStartWith('packages/content/room-prices/');
-    expect($ziarahImage)->toStartWith('packages/content/ziarah/');
-    expect($giftImage)->toStartWith('packages/content/gifts/');
+    expect($hotelImages[0])->toStartWith('packages/media/');
+    expect($roomImage)->toStartWith('packages/media/');
+    expect($ziarahImage)->toStartWith('packages/media/');
+    expect($giftImage)->toStartWith('packages/media/');
     Storage::disk('public')->assertExists($hotelImages[0]);
     Storage::disk('public')->assertExists($roomImage);
     Storage::disk('public')->assertExists($ziarahImage);
@@ -920,6 +989,10 @@ it('renders the package information sections in the admin form', function () {
         ->assertSee('Harga Bilik')
         ->assertSee('Hotel penginapan')
         ->assertSee('data-room-hotel-select', false)
+        ->assertSee('data-package-media-upload-input', false)
+        ->assertSee('data-collection-image-input', false)
+        ->assertSee('admin-package-media-dialog', false)
+        ->assertSee('admin-package-media-preview-dialog', false)
         ->assertSee('data-room-image-input', false)
         ->assertSee('Jana poster pakej dengan AI')
         ->assertSee('Tarikh Berlepas')

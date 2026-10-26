@@ -65,13 +65,21 @@ class PackageCategoryController extends Controller
 
     public function destroy(PackageCategory $packageCategory): RedirectResponse
     {
-        $packageCategory->update([
-            'is_active' => false,
-            'show_on_homepage' => false,
-        ]);
-        $this->syncHeroSlide($packageCategory);
+        if ($packageCategory->packages()->exists()) {
+            return back()->with('error', 'Kategori ini tidak boleh dipadamkan kerana masih digunakan oleh pakej sedia ada.');
+        }
 
-        return back()->with('success', 'Kategori dinyahaktifkan. Rekod pakej sedia ada dikekalkan.');
+        $heroSlide = $packageCategory->heroSlide;
+
+        if ($heroSlide instanceof HeroSlide) {
+            $this->deleteFile($heroSlide->background_image);
+            $this->deleteFile($heroSlide->background_video);
+            $heroSlide->delete();
+        }
+
+        $packageCategory->delete();
+
+        return redirect()->route('admin.package-categories.index')->with('success', 'Kategori pakej berjaya dipadamkan.');
     }
 
     /** @return array{name: string, slug: string, description: ?string, is_active: bool, show_on_homepage: bool} */

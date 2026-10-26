@@ -20,6 +20,23 @@
     }
   });
 
+  const packageLightbox = document.querySelector('[data-home-package-lightbox]');
+  if (packageLightbox instanceof HTMLDialogElement) {
+    const image = packageLightbox.querySelector('[data-home-package-lightbox-image]');
+    const caption = packageLightbox.querySelector('[data-home-package-lightbox-caption]');
+    document.querySelectorAll('[data-home-package-poster]').forEach(trigger => trigger.addEventListener('click', () => {
+      if (image instanceof HTMLImageElement) {
+        image.src = trigger.dataset.posterSrc || '';
+        image.alt = trigger.dataset.posterAlt || '';
+      }
+      if (caption) caption.textContent = trigger.dataset.posterAlt || '';
+      packageLightbox.showModal();
+    }));
+    packageLightbox.querySelector('[data-home-package-lightbox-close]')?.addEventListener('click', () => packageLightbox.close());
+    packageLightbox.addEventListener('click', event => { if (event.target === packageLightbox) packageLightbox.close(); });
+    packageLightbox.addEventListener('close', () => { if (image instanceof HTMLImageElement) image.removeAttribute('src'); });
+  }
+
   // Mobile navigation.
   const menuButton = document.querySelector('[data-mobile-menu-toggle]');
   const mobileMenu = document.querySelector('[data-mobile-menu]');

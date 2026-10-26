@@ -20,6 +20,7 @@ use Illuminate\Support\Str;
     'short_description',
     'description',
     'cover_image',
+    'poster_image',
     'starting_price_sen',
     'room_prices',
     'duration_days',
@@ -48,7 +49,6 @@ use Illuminate\Support\Str;
     'exclusions',
     'service_options',
     'is_featured',
-    'show_on_homepage',
     'display_order',
     'status',
     'published_at',
@@ -91,11 +91,6 @@ class Package extends Model
             ->where('published_at', '<=', now());
     }
 
-    public function scopeVisibleOnHomepage(Builder $query): Builder
-    {
-        return $query->where('show_on_homepage', true);
-    }
-
     public function scopePubliclyVisible(Builder $query): Builder
     {
         return $query
@@ -133,6 +128,21 @@ class Package extends Model
         }
 
         return Storage::disk('public')->url($this->cover_image);
+    }
+
+    public function posterImageUrl(): ?string
+    {
+        $posterImage = $this->poster_image ?: $this->cover_image;
+
+        if (blank($posterImage)) {
+            return null;
+        }
+
+        if (Str::startsWith($posterImage, ['http://', 'https://'])) {
+            return $posterImage;
+        }
+
+        return Storage::disk('public')->url($posterImage);
     }
 
     public function travelImageUrl(string $path): string
@@ -219,7 +229,6 @@ class Package extends Model
             'exclusions' => 'array',
             'service_options' => 'array',
             'is_featured' => 'boolean',
-            'show_on_homepage' => 'boolean',
             'proposed_departure_date' => 'date',
             'published_at' => 'datetime',
         ];

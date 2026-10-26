@@ -71,7 +71,7 @@ class TestimonialController extends Controller
 
     private function save(TestimonialRequest $request, Testimonial $testimonial): void
     {
-        $values = $request->safe()->except(['photo', 'is_published', 'sort_order']);
+        $values = $request->safe()->except(['photo', 'remove_photo', 'is_published', 'sort_order']);
 
         if (! $testimonial->exists) {
             $values['sort_order'] = ((int) Testimonial::query()->max('sort_order')) + 1;
@@ -82,6 +82,8 @@ class TestimonialController extends Controller
 
         if ($request->hasFile('photo')) {
             $values['photo'] = $request->file('photo')->store('testimonials', 'public');
+        } elseif ($request->boolean('remove_photo')) {
+            $values['photo'] = null;
         }
 
         DB::transaction(function () use ($testimonial, $values): void {

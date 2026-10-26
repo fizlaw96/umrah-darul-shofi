@@ -1,27 +1,14 @@
-{{-- Based on supplied Stitch HTML: sections/airline-partners.blade.php --}}
-<section class="ds-airline-partners py-6 bg-white border-y border-[#EAE5DE] overflow-hidden marquee-container" data-purpose="partners-marquee">
-<div class="max-w-7xl mx-auto px-4 sm:px-6 mb-3">
-<p class="text-center text-[11px] uppercase tracking-widest text-brand-muted font-semibold">Rakan Syarikat Penerbangan &amp; Akreditasi Rasmi</p>
-</div>
-<!-- Seamless Infinite Carousel Track -->
-<div class="relative w-full overflow-hidden flex items-center">
-<div class="ds-marquee-track ds-marquee-track--forward items-center">
-<div class="ds-marquee-sequence ds-marquee-sequence--partners items-center">
-<span class="font-serif-luxury font-bold text-gray-600 tracking-wider text-lg flex items-center gap-2"><img aria-hidden="true" alt="" class="ds-airline-logo" src="{{ asset('darul-shofi/images/partners/malaysia-airlines.svg') }}"> MALAYSIA AIRLINES</span>
-<span class="font-serif-luxury font-bold text-gray-600 tracking-wider text-lg flex items-center gap-2"><img aria-hidden="true" alt="" class="ds-airline-logo" src="{{ asset('darul-shofi/images/partners/saudia.svg') }}"> SAUDIA AIRLINES</span>
-<span class="font-serif-luxury font-bold text-gray-600 tracking-wider text-lg flex items-center gap-2"><img aria-hidden="true" alt="" class="ds-airline-logo" src="{{ asset('darul-shofi/images/partners/qatar-airways.svg') }}"> QATAR AIRWAYS</span>
-<span class="font-serif-luxury font-bold text-gray-600 tracking-wider text-lg flex items-center gap-2"><img aria-hidden="true" alt="" class="ds-airline-logo" src="{{ asset('darul-shofi/images/partners/emirates.svg') }}"> EMIRATES</span>
-<span class="font-serif-luxury font-bold text-gray-600 tracking-wider text-lg flex items-center gap-2"><img aria-hidden="true" alt="" class="ds-airline-logo" src="{{ asset('darul-shofi/images/partners/turkish-airlines.svg') }}"> TURKISH AIRLINES</span>
-<span class="font-serif-luxury font-bold text-gray-600 tracking-wider text-lg flex items-center gap-2"><img aria-hidden="true" alt="" class="ds-airline-logo" src="{{ asset('darul-shofi/images/partners/airasia-x.svg') }}"> AIRASIA X</span>
-</div>
-<div aria-hidden="true" class="ds-marquee-sequence ds-marquee-sequence--partners items-center">
-<span class="font-serif-luxury font-bold text-gray-600 tracking-wider text-lg flex items-center gap-2"><img alt="" class="ds-airline-logo" src="{{ asset('darul-shofi/images/partners/malaysia-airlines.svg') }}"> MALAYSIA AIRLINES</span>
-<span class="font-serif-luxury font-bold text-gray-600 tracking-wider text-lg flex items-center gap-2"><img alt="" class="ds-airline-logo" src="{{ asset('darul-shofi/images/partners/saudia.svg') }}"> SAUDIA AIRLINES</span>
-<span class="font-serif-luxury font-bold text-gray-600 tracking-wider text-lg flex items-center gap-2"><img alt="" class="ds-airline-logo" src="{{ asset('darul-shofi/images/partners/qatar-airways.svg') }}"> QATAR AIRWAYS</span>
-<span class="font-serif-luxury font-bold text-gray-600 tracking-wider text-lg flex items-center gap-2"><img alt="" class="ds-airline-logo" src="{{ asset('darul-shofi/images/partners/emirates.svg') }}"> EMIRATES</span>
-<span class="font-serif-luxury font-bold text-gray-600 tracking-wider text-lg flex items-center gap-2"><img alt="" class="ds-airline-logo" src="{{ asset('darul-shofi/images/partners/turkish-airlines.svg') }}"> TURKISH AIRLINES</span>
-<span class="font-serif-luxury font-bold text-gray-600 tracking-wider text-lg flex items-center gap-2"><img alt="" class="ds-airline-logo" src="{{ asset('darul-shofi/images/partners/airasia-x.svg') }}"> AIRASIA X</span>
-</div>
-</div>
-</div>
-</section>
+@if ($airlineCompanies->isNotEmpty())
+    <section class="ds-airline-partners border-y border-[#EAE5DE] bg-white py-6 overflow-hidden marquee-container" data-purpose="partners-marquee">
+        <div class="mx-auto mb-3 max-w-7xl px-4 sm:px-6"><p class="text-center text-[11px] font-semibold uppercase tracking-widest text-brand-muted">Rakan Syarikat Penerbangan &amp; Akreditasi Rasmi</p></div>
+        <div class="relative flex w-full items-center overflow-hidden"><div class="ds-marquee-track ds-marquee-track--forward items-center">
+            @foreach ([false, true] as $isDuplicate)
+                <div @class(['ds-marquee-sequence', 'ds-marquee-sequence--partners', 'items-center']) @if ($isDuplicate) aria-hidden="true" @endif>
+                    @foreach ($airlineCompanies as $airlineCompany)
+                        <span class="ds-airline-partner font-serif-luxury flex items-center gap-2 text-lg font-bold tracking-wider text-gray-600"><img @if (! $isDuplicate) alt="{{ $airlineCompany->name }}" @else alt="" @endif class="ds-airline-logo" src="{{ $airlineCompany->logoUrl() }}"><span>{{ $airlineCompany->name }}</span></span>
+                    @endforeach
+                </div>
+            @endforeach
+        </div></div>
+    </section>
+@endif

@@ -560,3 +560,42 @@ it('renders only published mutawif profiles on the public page', function () {
         ->assertSee($published->full_name)
         ->assertDontSee($draft->full_name);
 });
+
+it('shows and removes the current mutawif and testimonial photos from their edit forms', function () {
+    Storage::fake('public');
+    $staff = User::factory()->staff()->create();
+    $mutawif = Mutawif::factory()->create(['photo' => 'mutawifs/ustaz-semasa.jpg']);
+    $package = Package::factory()->create();
+    $testimonial = Testimonial::factory()->for($package)->create(['photo' => 'testimonials/jemaah-semasa.jpg']);
+    Storage::disk('public')->put($mutawif->photo, 'mutawif photo');
+    Storage::disk('public')->put($testimonial->photo, 'testimonial photo');
+
+    $this->actingAs($staff)
+        ->get(route('admin.mutawifs.edit', $mutawif))
+        ->assertOk()
+        ->assertSee($mutawif->photoUrl(), false)
+        ->assertSee('data-current-image-remove', false);
+    $this->get(route('admin.testimonials.edit', $testimonial))
+        ->assertOk()
+        ->assertSee($testimonial->photoUrl(), false)
+        ->assertSee('data-current-image-remove', false);
+
+    $this->put(route('admin.mutawifs.update', $mutawif), [
+        'full_name' => $mutawif->full_name,
+        'is_published' => $mutawif->is_published,
+        'remove_photo' => true,
+    ])->assertRedirect(route('admin.mutawifs.index'));
+    $this->put(route('admin.testimonials.update', $testimonial), [
+        'package_id' => $package->id,
+        'reviewer_name' => $testimonial->reviewer_name,
+        'rating' => $testimonial->rating,
+        'review' => $testimonial->review,
+        'is_published' => $testimonial->is_published,
+        'remove_photo' => true,
+    ])->assertRedirect(route('admin.testimonials.index'));
+
+    expect($mutawif->fresh()->photo)->toBeNull()
+        ->and($testimonial->fresh()->photo)->toBeNull();
+    Storage::disk('public')->assertMissing('mutawifs/ustaz-semasa.jpg');
+    Storage::disk('public')->assertMissing('testimonials/jemaah-semasa.jpg');
+});

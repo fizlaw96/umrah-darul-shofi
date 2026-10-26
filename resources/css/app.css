@@ -562,8 +562,28 @@
     }
 
     .admin-ai-import-dialog::backdrop,
-    .admin-poster-prompt-dialog::backdrop {
+    .admin-poster-prompt-dialog::backdrop,
+    .admin-package-media-dialog::backdrop,
+    .admin-package-media-preview-dialog::backdrop {
         background: rgb(0 37 30 / 0.55);
+    }
+
+    .admin-package-media-dialog,
+    .admin-package-media-preview-dialog {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        margin: 0;
+        transform: translate(-50%, -50%);
+    }
+
+    .admin-package-media-dialog {
+        max-height: min(88dvh, 52rem);
+    }
+
+    .admin-package-media-dialog[open] {
+        display: flex;
+        flex-direction: column;
     }
 }
 

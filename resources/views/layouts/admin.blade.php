@@ -47,6 +47,7 @@
                 <a href="{{ route('admin.testimonials.index') }}" class="admin-sidebar-link {{ request()->routeIs('admin.testimonials.*') ? 'is-active' : '' }}"><span class="material-symbols-outlined text-[19px]">format_quote</span>Testimoni</a>
                 <a href="{{ route('admin.faqs.index') }}" class="admin-sidebar-link {{ request()->routeIs('admin.faqs.*') ? 'is-active' : '' }}"><span class="material-symbols-outlined text-[19px]">help</span>FAQ</a>
                 <a href="{{ route('admin.mutawifs.index') }}" class="admin-sidebar-link {{ request()->routeIs('admin.mutawifs.*') ? 'is-active' : '' }}"><span class="material-symbols-outlined text-[19px]">groups</span>Mutawif</a>
+                <a href="{{ route('admin.airline-companies.index') }}" class="admin-sidebar-link {{ request()->routeIs('admin.airline-companies.*') ? 'is-active' : '' }}"><span class="material-symbols-outlined text-[19px]">flight</span>Syarikat Penerbangan</a>
 
                 <p class="mb-2 mt-7 px-2 text-[10px] font-bold tracking-[0.1em] text-[#69746f]">TETAPAN</p>
                 <a href="{{ route('admin.settings.edit') }}" class="admin-sidebar-link {{ request()->routeIs('admin.settings.*') ? 'is-active' : '' }}"><span class="material-symbols-outlined text-[19px]">tune</span>Tetapan Website</a>
@@ -91,6 +92,7 @@
                 <div class="mx-auto max-w-[1560px]">
                     @if (session('success'))<div class="mb-6 flex items-center gap-2 rounded-xl border border-[#bce6cd] bg-[#e9f7ed] px-4 py-3 text-sm font-semibold text-[#075741]" role="status"><span class="material-symbols-outlined text-[18px]">check_circle</span>{{ session('success') }}</div>@endif
                     @if (session('status'))<div class="mb-6 flex items-center gap-2 rounded-xl border border-[#bce6cd] bg-[#e9f7ed] px-4 py-3 text-sm font-semibold text-[#075741]" role="status"><span class="material-symbols-outlined text-[18px]">info</span>{{ session('status') }}</div>@endif
+                    @if (session('error'))<div class="mb-6 flex items-center gap-2 rounded-xl border border-[#f4c9c4] bg-[#fff1ef] px-4 py-3 text-sm font-semibold text-[#9b3029]" role="alert"><span class="material-symbols-outlined text-[18px]">error</span>{{ session('error') }}</div>@endif
                     {{ $slot }}
                 </div>
             </main>

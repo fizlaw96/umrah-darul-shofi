@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AirlineCompany;
 use App\Models\Faq;
 use App\Models\HeroSlide;
 use App\Models\MediaItem;
@@ -24,7 +25,6 @@ class HomeController extends Controller
                 ->visibleOnHomepage()
                 ->with(['packages' => fn ($query) => $query
                     ->publiclyVisible()
-                    ->visibleOnHomepage()
                     ->with('category')
                     ->withVisibleDepartures()
                     ->orderByDesc('is_featured')
@@ -55,6 +55,11 @@ class HomeController extends Controller
                 ->orderBy('sort_order')
                 ->latest('id')
                 ->take(MediaItem::sectionLimit(MediaItem::GallerySection))
+                ->get(),
+            'airlineCompanies' => AirlineCompany::query()
+                ->published()
+                ->orderBy('sort_order')
+                ->orderBy('name')
                 ->get(),
         ]);
     }

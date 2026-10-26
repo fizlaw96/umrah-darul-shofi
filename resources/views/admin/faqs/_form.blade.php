@@ -26,7 +26,7 @@
 </form>
 
 @if ($isEditing)
-    <form id="delete-faq" method="POST" action="{{ route('admin.faqs.destroy', $faq) }}">
+    <form id="delete-faq" method="POST" action="{{ route('admin.faqs.destroy', $faq) }}" data-confirm-delete data-confirm-message="Padam soalan lazim ini?">
         @csrf
         @method('DELETE')
     </form>

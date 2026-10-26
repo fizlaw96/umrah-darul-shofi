@@ -34,10 +34,22 @@
 
         <div class="mt-10 flex items-center justify-between gap-4"><p class="text-sm font-semibold text-slate-500">{{ $packages->total() }} pakej ditemui</p></div>
         @if ($packages->isNotEmpty())
-            <div class="mt-5 grid gap-6 md:grid-cols-2 xl:grid-cols-3">@foreach ($packages as $package)<x-package-card :package="$package" />@endforeach</div>
+            <div class="mt-5 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3 [scrollbar-width:thin] sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 xl:grid-cols-3">@foreach ($packages as $package)<x-package-card :package="$package" />@endforeach</div>
             <div class="mt-10">{{ $packages->links() }}</div>
         @else
             <div class="panel mt-5 p-10 text-center"><p class="text-lg font-extrabold text-dark-green">Tiada pakej sepadan buat masa ini.</p><p class="mt-2 text-sm text-slate-500">Cuba longgarkan penapis anda untuk melihat pakej yang tersedia.</p><a class="button-primary mt-5" href="{{ route('packages.index') }}">Lihat semua pakej</a></div>
         @endif
     </section>
+
+    <dialog class="m-auto w-[min(92vw,44rem)] border-0 bg-transparent p-0 text-white backdrop:bg-[#001d16]/90 backdrop:backdrop-blur-sm" data-package-poster-lightbox aria-label="Paparan poster pakej">
+        <div class="relative overflow-hidden rounded-2xl border border-[#d5b469]/60 bg-[#00271f] p-4 shadow-2xl sm:p-6">
+            <button type="button" class="absolute right-3 top-3 grid size-10 place-items-center rounded-full border border-[#d5b469]/60 bg-[#073e34] text-white transition hover:bg-[#184e3f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffdf9a]" data-package-poster-lightbox-close aria-label="Tutup poster">
+                <span class="material-symbols-outlined text-[20px]">close</span>
+            </button>
+            <figure class="m-0 text-center">
+                <img src="" alt="" class="mx-auto max-h-[78vh] max-w-full rounded-lg object-contain" data-package-poster-lightbox-image>
+                <figcaption class="mt-4 pr-10 text-sm font-semibold text-[#ffdf9a]" data-package-poster-lightbox-caption></figcaption>
+            </figure>
+        </div>
+    </dialog>
 </x-layouts.app>

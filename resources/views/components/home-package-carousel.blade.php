@@ -10,10 +10,6 @@
                 @endif
             </div>
             <div class="ds-package-category-section__actions">
-                @if ($packages->isNotEmpty())
-                    <button type="button" data-package-scroll="previous" class="ds-package-scroll-button" aria-label="Pakej {{ $category->name }} sebelumnya"><i class="fa-solid fa-arrow-left"></i></button>
-                    <button type="button" data-package-scroll="next" class="ds-package-scroll-button" aria-label="Pakej {{ $category->name }} seterusnya"><i class="fa-solid fa-arrow-right"></i></button>
-                @endif
                 <a class="ds-package-category-section__all" href="{{ route('packages.index', ['category' => $category->slug]) }}">Lihat Semua Pakej <i class="fa-solid fa-arrow-right"></i></a>
             </div>
         </header>
@@ -25,13 +21,13 @@
             <div class="ds-package-category-scroller" data-package-scroller>
                 @foreach ($packages as $package)
                     <article class="ds-home-package-card">
-                        <a href="{{ route('packages.show', $package) }}" class="ds-home-package-card__poster" data-package-image-frame>
-                            @if ($package->imageUrl())
-                                <img src="{{ $package->imageUrl() }}" alt="{{ $package->title }}" loading="lazy" data-package-image>
+                        <button type="button" class="ds-home-package-card__poster" data-home-package-poster data-poster-src="{{ $package->posterImageUrl() }}" data-poster-alt="{{ $package->title }}" aria-label="Lihat poster {{ $package->title }}">
+                            @if ($package->posterImageUrl())
+                                <img src="{{ $package->posterImageUrl() }}" alt="{{ $package->title }}" loading="lazy">
                             @else
                                 <span class="ds-home-package-card__empty-poster"><i class="fa-solid fa-kaaba"></i></span>
                             @endif
-                        </a>
+                        </button>
                         <div class="ds-home-package-card__body">
                             <h3 class="ds-home-package-card__title"><a href="{{ route('packages.show', $package) }}">{{ $package->title }}</a></h3>
                             <p class="ds-home-package-card__description">{{ $package->short_description }}</p>

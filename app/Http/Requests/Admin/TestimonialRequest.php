@@ -29,6 +29,7 @@ class TestimonialRequest extends FormRequest
             'rating' => ['required', 'integer', 'between:1,5'],
             'review' => ['required', 'string', 'max:5000'],
             'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'remove_photo' => ['nullable', 'boolean'],
             'is_published' => ['nullable', 'boolean'],
         ];
     }

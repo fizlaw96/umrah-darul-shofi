@@ -45,10 +45,10 @@
             </div>
         </section>
 
-        <div class="mt-7 flex flex-wrap justify-between gap-3 border-t border-[#e8eee9] pt-5"><button class="admin-button-primary" type="submit">Simpan Kategori</button><button form="deactivate-category" class="admin-button-secondary !border-[#edc5be] !text-[#b33129]" type="submit">Nyahaktifkan</button></div>
+        <div class="mt-7 flex flex-wrap justify-between gap-3 border-t border-[#e8eee9] pt-5"><button class="admin-button-primary" type="submit">Simpan Kategori</button><button form="delete-category" class="admin-button-secondary !border-[#edc5be] !text-[#b33129]" type="submit">Padam Kategori</button></div>
     </form>
 
-    <form id="deactivate-category" method="POST" action="{{ route('admin.package-categories.destroy', $packageCategory) }}">
+    <form id="delete-category" method="POST" action="{{ route('admin.package-categories.destroy', $packageCategory) }}" data-confirm-delete data-confirm-message="Padam kategori ini? Kategori yang masih mempunyai pakej tidak boleh dipadamkan.">
         @csrf
         @method('DELETE')
     </form>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AirlineCompanyController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DepartureController as AdminDepartureController;
 use App\Http\Controllers\Admin\FaqController as AdminFaqController;
@@ -92,7 +93,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:access-admin'])
     Route::get('/packages/{package}', [PackageParticipantController::class, 'index'])->name('packages.show');
     Route::resource('package-categories', PackageCategoryController::class)->except(['show']);
     Route::resource('hero-slides', HeroSlideController::class)->only(['index', 'edit']);
+    Route::put('/media/package-assets/{packageMediaAsset}/rename', [MediaController::class, 'renamePackageAsset'])->name('media.package-assets.rename');
+    Route::delete('/media/package-assets/{packageMediaAsset}', [MediaController::class, 'destroyPackageAsset'])->name('media.package-assets.destroy');
     Route::resource('media', MediaController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('airline-companies', AirlineCompanyController::class)->except(['show']);
     Route::get('/media-social', [MediaSocialController::class, 'edit'])->name('media-social.edit');
     Route::put('/media-social', [MediaSocialController::class, 'update'])->name('media-social.update');
     Route::resource('testimonials', TestimonialController::class);

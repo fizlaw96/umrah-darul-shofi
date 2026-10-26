@@ -3,8 +3,10 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\Package;
+use App\Models\PackageMediaAsset;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
@@ -36,8 +38,13 @@ class PackageRequest extends FormRequest
             'description' => ['required', 'string', 'max:20000'],
             'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'remove_cover_image' => ['nullable', 'boolean'],
+            'poster_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'poster_media_asset_id' => ['nullable', 'integer', Rule::exists('package_media_assets', 'id')],
+            'remove_poster_image' => ['nullable', 'boolean'],
             'gallery' => ['nullable', 'array', 'max:3'],
             'gallery.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'gallery_media_asset_ids' => ['nullable', 'array', 'max:3'],
+            'gallery_media_asset_ids.*' => ['integer', 'distinct', Rule::exists('package_media_assets', 'id')],
             'primary_image_path' => ['nullable', 'string', 'max:255'],
             'gallery_primary_index' => ['nullable', 'integer', 'min:0', 'max:2'],
             'starting_price' => ['required', 'numeric', 'min:0'],
@@ -47,7 +54,9 @@ class PackageRequest extends FormRequest
             'room_prices.*.price' => ['nullable', 'numeric', 'min:0'],
             'room_prices.*.hotel_key' => ['nullable', 'uuid'],
             'room_prices.*.existing_image' => ['nullable', 'string', 'max:255'],
+            'room_prices.*.remove_existing_image' => ['nullable', 'boolean'],
             'room_prices.*.image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'room_prices.*.media_asset_id' => ['nullable', 'integer', Rule::exists('package_media_assets', 'id')],
             'duration_days' => ['required', 'integer', 'min:1', 'max:60'],
             'duration_nights' => ['required', 'integer', 'min:0', 'max:59'],
             'season_label' => ['nullable', 'string', Rule::in($this->selectableSeasonYears())],
@@ -74,8 +83,12 @@ class PackageRequest extends FormRequest
             'flight_options.*.notes' => ['nullable', 'string', 'max:2000'],
             'flight_options.*.existing_images' => ['nullable', 'array', 'max:4'],
             'flight_options.*.existing_images.*' => ['nullable', 'string', 'max:255'],
+            'flight_options.*.removed_existing_images' => ['nullable', 'array', 'max:4'],
+            'flight_options.*.removed_existing_images.*' => ['string', 'max:255'],
             'flight_options.*.images' => ['nullable', 'array', 'max:4'],
             'flight_options.*.images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'flight_options.*.media_asset_ids' => ['nullable', 'array', 'max:4'],
+            'flight_options.*.media_asset_ids.*' => ['integer', 'distinct', Rule::exists('package_media_assets', 'id')],
             'hotel_options_present' => ['nullable', 'boolean'],
             'hotel_options' => ['nullable', 'array', 'max:6'],
             'hotel_options.*' => ['array'],
@@ -88,21 +101,29 @@ class PackageRequest extends FormRequest
             'hotel_options.*.notes' => ['nullable', 'string', 'max:2000'],
             'hotel_options.*.existing_images' => ['nullable', 'array', 'max:4'],
             'hotel_options.*.existing_images.*' => ['nullable', 'string', 'max:255'],
+            'hotel_options.*.removed_existing_images' => ['nullable', 'array', 'max:4'],
+            'hotel_options.*.removed_existing_images.*' => ['string', 'max:255'],
             'hotel_options.*.images' => ['nullable', 'array', 'max:4'],
             'hotel_options.*.images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'hotel_options.*.media_asset_ids' => ['nullable', 'array', 'max:4'],
+            'hotel_options.*.media_asset_ids.*' => ['integer', 'distinct', Rule::exists('package_media_assets', 'id')],
             'ziarah_places' => ['nullable', 'array', 'max:20'],
             'ziarah_places.*' => ['array'],
             'ziarah_places.*.name' => ['nullable', 'string', 'max:120'],
             'ziarah_places.*.location' => ['nullable', 'string', 'max:120'],
             'ziarah_places.*.description' => ['nullable', 'string', 'max:1000'],
             'ziarah_places.*.existing_image' => ['nullable', 'string', 'max:255'],
+            'ziarah_places.*.remove_existing_image' => ['nullable', 'boolean'],
             'ziarah_places.*.image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'ziarah_places.*.media_asset_id' => ['nullable', 'integer', Rule::exists('package_media_assets', 'id')],
             'gifts' => ['nullable', 'array', 'max:5'],
             'gifts.*' => ['array'],
             'gifts.*.title' => ['nullable', 'string', 'max:120'],
             'gifts.*.description' => ['nullable', 'string', 'max:1000'],
             'gifts.*.existing_image' => ['nullable', 'string', 'max:255'],
+            'gifts.*.remove_existing_image' => ['nullable', 'boolean'],
             'gifts.*.image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'gifts.*.media_asset_id' => ['nullable', 'integer', Rule::exists('package_media_assets', 'id')],
             'itinerary_pdf' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
             'remove_itinerary_pdf' => ['nullable', 'boolean'],
             'service_options_present' => ['nullable', 'boolean'],
@@ -126,7 +147,6 @@ class PackageRequest extends FormRequest
             'departure_rows.*.capacity' => ['nullable', 'integer', 'min:1', 'max:10000'],
             'departure_rows.*.status' => ['nullable', Rule::in(['draft', 'open', 'closed', 'cancelled'])],
             'is_featured' => ['nullable', 'boolean'],
-            'show_on_homepage' => ['nullable', 'boolean'],
             'intent' => ['nullable', Rule::in(['draft', 'publish'])],
             'status' => ['nullable', Rule::in(['draft', 'published', 'archived'])],
         ];
@@ -164,8 +184,77 @@ class PackageRequest extends FormRequest
                     'price' => 'Harga seorang',
                 ]);
                 $this->validateDepartureRows($validator);
+                $this->validatePosterAndLandscapeImages($validator);
             },
         ];
+    }
+
+    private function validatePosterAndLandscapeImages(Validator $validator): void
+    {
+        $package = $this->route('package');
+        $isPublishing = $this->input('intent') === 'publish' || $this->input('status') === 'published';
+        $hasPoster = $this->hasFile('poster_image') || filled($this->input('poster_media_asset_id')) || ($package instanceof Package && filled($package->poster_image) && ! $this->boolean('remove_poster_image'));
+
+        if ($isPublishing && ! $hasPoster) {
+            $validator->errors()->add('poster_image', 'Gambar poster potret diperlukan sebelum pakej diterbitkan.');
+        }
+
+        $this->validateImageOrientation($validator, 'poster_image', true, 'Gambar poster mesti dalam orientasi potret.');
+        $this->validateImageOrientation($validator, 'cover_image', false, 'Gambar utama mesti dalam orientasi landscape.');
+
+        foreach ($this->file('gallery', []) as $index => $galleryImage) {
+            $this->validateUploadedImageOrientation($validator, $galleryImage, "gallery.{$index}", false, 'Gambar landscape mesti lebih lebar daripada tinggi.');
+        }
+
+        $posterAssetId = $this->input('poster_media_asset_id');
+
+        if (filled($posterAssetId)) {
+            $posterAsset = PackageMediaAsset::query()->find($posterAssetId);
+
+            if ($posterAsset instanceof PackageMediaAsset && ! $posterAsset->isPortrait()) {
+                $validator->errors()->add('poster_media_asset_id', 'Pilih gambar poster dalam orientasi potret.');
+            }
+        }
+
+        foreach ($this->input('gallery_media_asset_ids', []) as $index => $assetId) {
+            $asset = PackageMediaAsset::query()->find($assetId);
+
+            if ($asset instanceof PackageMediaAsset && ! $asset->isLandscape()) {
+                $validator->errors()->add("gallery_media_asset_ids.{$index}", 'Pilih gambar dalam orientasi landscape.');
+            }
+        }
+    }
+
+    private function validateImageOrientation(Validator $validator, string $field, bool $portrait, string $message): void
+    {
+        $image = $this->file($field);
+
+        if ($image !== null) {
+            $this->validateUploadedImageOrientation($validator, $image, $field, $portrait, $message);
+        }
+    }
+
+    private function validateUploadedImageOrientation(Validator $validator, mixed $image, string $field, bool $portrait, string $message): void
+    {
+        if (! $image instanceof UploadedFile) {
+            return;
+        }
+
+        try {
+            $dimensions = getimagesize($image->getRealPath());
+        } catch (\Throwable) {
+            $dimensions = false;
+        }
+
+        if ($dimensions === false) {
+            return;
+        }
+
+        $isCorrectOrientation = $portrait ? $dimensions[1] > $dimensions[0] : $dimensions[0] > $dimensions[1];
+
+        if (! $isCorrectOrientation) {
+            $validator->errors()->add($field, $message);
+        }
     }
 
     /**

@@ -78,7 +78,7 @@
 <x-layouts.app
     :title="$package->automaticSeoTitle()"
     :meta-description="$package->automaticSeoDescription()"
-    :meta-image="$package->imageUrl()"
+    :meta-image="$package->posterImageUrl()"
     :whats-app-message="$packageMessage"
 >
     <section class="border-b border-[#e5eadf] bg-[#f7f8f4]">
@@ -169,7 +169,7 @@
                                 <article class="overflow-hidden rounded-2xl border border-[#e4e9e1] bg-white shadow-[0_14px_30px_-26px_rgba(0,50,40,.55)]">
                                     @if ($hotelImages->isNotEmpty())
                                         <div class="relative" data-carousel data-autoplay="5000">
-                                            <div data-carousel-track class="overflow-x-auto scroll-smooth"><div class="flex gap-0">@foreach ($hotelImages as $hotelImagePath)<img src="{{ $package->travelImageUrl($hotelImagePath) }}" alt="{{ $hotel['name'] }}" class="aspect-[16/10] w-full shrink-0 object-cover" loading="lazy">@endforeach</div></div>
+                                            <div data-carousel-track class="overflow-x-auto scroll-smooth"><div class="flex gap-0">@foreach ($hotelImages as $hotelImagePath)<button type="button" data-hotel-lightbox-trigger data-hotel-lightbox-src="{{ $package->travelImageUrl($hotelImagePath) }}" data-hotel-lightbox-alt="{{ $hotel['name'] }}" class="block aspect-[16/10] w-full shrink-0 cursor-zoom-in overflow-hidden text-left focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-[#ffdf9a]" aria-label="Lihat gambar {{ $hotel['name'] }}"><img src="{{ $package->travelImageUrl($hotelImagePath) }}" alt="{{ $hotel['name'] }}" class="size-full object-cover" loading="lazy"></button>@endforeach</div></div>
                                             @if ($hotelImages->count() > 1)<button type="button" data-carousel-prev class="carousel-control absolute left-3 top-1/2 -translate-y-1/2" aria-label="Gambar penginapan sebelumnya"><span class="material-symbols-outlined">chevron_left</span></button><button type="button" data-carousel-next class="carousel-control absolute right-3 top-1/2 -translate-y-1/2" aria-label="Gambar penginapan seterusnya"><span class="material-symbols-outlined">chevron_right</span></button>@endif
                                         </div>
                                     @else
@@ -232,4 +232,11 @@
             </aside>
         </div>
     </section>
+
+    <dialog class="m-auto w-[min(94vw,72rem)] border-0 bg-transparent p-0 text-white backdrop:bg-[#001d16]/90 backdrop:backdrop-blur-sm" data-hotel-lightbox aria-label="Paparan gambar penginapan">
+        <div class="relative overflow-hidden rounded-2xl border border-[#d5b469]/60 bg-[#00271f] p-4 shadow-2xl sm:p-6">
+            <button type="button" class="absolute right-3 top-3 grid size-10 place-items-center rounded-full border border-[#d5b469]/60 bg-[#073e34] text-white transition hover:bg-[#184e3f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffdf9a]" data-hotel-lightbox-close aria-label="Tutup gambar penginapan"><span class="material-symbols-outlined text-[20px]">close</span></button>
+            <figure class="m-0 text-center"><img src="" alt="" class="mx-auto max-h-[78vh] max-w-full rounded-lg object-contain" data-hotel-lightbox-image><figcaption class="mt-4 pr-10 text-sm font-semibold text-[#ffdf9a]" data-hotel-lightbox-caption></figcaption></figure>
+        </div>
+    </dialog>
 </x-layouts.app>

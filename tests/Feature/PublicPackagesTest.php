@@ -147,8 +147,25 @@ it('directs a catalogue card to its package detail instead of WhatsApp', functio
     $this->get(route('packages.index'))
         ->assertOk()
         ->assertSee(route('packages.show', $package), false)
-        ->assertSee('Lihat pakej')
+        ->assertSee('aria-label="Lihat pakej Pakej WhatsApp"', false)
         ->assertDontSee('https://wa.me/', false);
+});
+
+it('renders catalogue posters as lightbox controls and titles as package links', function () {
+    $package = Package::factory()->published()->create([
+        'title' => 'Pakej Poster Katalog',
+        'poster_image' => 'packages/media/poster/pakej-poster-katalog.jpg',
+    ]);
+
+    $this->get(route('packages.index'))
+        ->assertOk()
+        ->assertSee('data-package-poster-lightbox', false)
+        ->assertSee('data-package-poster', false)
+        ->assertSee('aria-label="Lihat poster Pakej Poster Katalog"', false)
+        ->assertSee('max-h-full max-w-full object-contain', false)
+        ->assertSee(route('packages.show', $package), false)
+        ->assertSee('snap-x', false)
+        ->assertDontSee('data-package-scroll', false);
 });
 
 it('includes the package link and main image in WhatsApp enquiries', function () {
@@ -351,6 +368,8 @@ it('shows hotel and attached room media in the same carousel without repeating t
         ->assertSee('/media/packages/travel/hotels/anjum-room.jpg', false)
         ->assertSee('/media/packages/content/room-prices/anjum-double.jpg', false)
         ->assertSee('Gambar penginapan seterusnya')
+        ->assertSee('data-hotel-lightbox-trigger', false)
+        ->assertSee('data-hotel-lightbox', false)
         ->assertSee('/media/packages/travel/flights/saudia-airlines.jpg', false);
 
     expect(substr_count($response->getContent(), $coverImageUrl))->toBe(2);

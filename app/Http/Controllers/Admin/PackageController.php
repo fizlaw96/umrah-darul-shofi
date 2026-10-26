@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\ArchivePackage;
+use App\Actions\StorePackageMediaAsset;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PackageRequest;
 use App\Models\Package;
 use App\Models\PackageCategory;
 use App\Models\PackageDeparture;
 use App\Models\PackageImage;
+use App\Models\PackageMediaAsset;
 use App\Models\PackageServiceOption;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
@@ -24,7 +26,10 @@ use Throwable;
 
 class PackageController extends Controller
 {
-    public function __construct(private readonly ArchivePackage $archivePackage) {}
+    public function __construct(
+        private readonly ArchivePackage $archivePackage,
+        private readonly StorePackageMediaAsset $packageMediaAssets,
+    ) {}
 
     /**
      * Display a listing of the resource.
@@ -32,7 +37,10 @@ class PackageController extends Controller
     public function index(Request $request): View
     {
         $packages = Package::query()
-            ->with('category')
+            ->with([
+                'category',
+                'departures' => fn ($query) => $query->orderBy('departure_date'),
+            ])
             ->when($request->filled('q'), function ($query) use ($request): void {
                 $search = '%'.$request->string('q')->toString().'%';
 
@@ -77,6 +85,7 @@ class PackageController extends Controller
             'categories' => PackageCategory::query()->orderBy('sort_order')->get(),
             'package' => new Package,
             'serviceOptions' => $this->serviceOptions(),
+            'packageMediaAssets' => $this->mediaAssets(),
         ]);
     }
 
@@ -115,6 +124,7 @@ class PackageController extends Controller
             'categories' => PackageCategory::query()->orderBy('sort_order')->get(),
             'package' => $package,
             'serviceOptions' => $this->serviceOptions(),
+            'packageMediaAssets' => $this->mediaAssets(),
         ]);
     }
 
@@ -231,6 +241,11 @@ class PackageController extends Controller
             'package_ids.*' => ['integer', 'distinct', 'exists:packages,id'],
         ]);
 
+        if ($validated['action'] === 'publish'
+            && Package::query()->whereKey($validated['package_ids'])->whereNull('poster_image')->exists()) {
+            return back()->with('error', 'Setiap pakej memerlukan gambar poster potret sebelum diterbitkan.');
+        }
+
         DB::transaction(function () use ($validated): void {
             $packages = Package::query()
                 ->whereKey($validated['package_ids'])
@@ -265,6 +280,7 @@ class PackageController extends Controller
         $validated = $request->validated();
         $wasArchived = $package->status === 'archived';
         $previousCoverImage = $package->cover_image;
+        $previousPosterImage = $package->poster_image;
         $previousItineraryPdf = $package->itinerary_pdf;
         $storedPaths = [];
         $removedTravelImagePaths = [];
@@ -298,7 +314,6 @@ class PackageController extends Controller
             'hotel_information' => $validated['hotel_information'] ?? null,
             'flight_information' => $validated['flight_information'] ?? null,
             'is_featured' => $request->boolean('is_featured'),
-            'show_on_homepage' => $request->boolean('show_on_homepage'),
             'display_order' => $package->exists
                 ? $package->display_order
                 : ((int) Package::query()->max('display_order')) + 1,
@@ -327,10 +342,37 @@ class PackageController extends Controller
 
         try {
             if ($request->hasFile('cover_image')) {
-                $values['cover_image'] = $request->file('cover_image')->store('packages', 'public');
-                $storedPaths[] = $values['cover_image'];
+                $values['cover_image'] = $this->storePackageImage(
+                    $request->file('cover_image'),
+                    PackageMediaAsset::LandscapeFolder,
+                    $storedPaths,
+                    $validated['title'],
+                );
             } elseif ($request->boolean('remove_cover_image')) {
                 $values['cover_image'] = null;
+            } elseif (blank($package->cover_image)) {
+                $values['cover_image'] = $this->packageMediaAssets->pathForName(
+                    PackageMediaAsset::LandscapeFolder,
+                    $validated['title'],
+                );
+            }
+
+            if ($request->hasFile('poster_image')) {
+                $values['poster_image'] = $this->storePackageImage(
+                    $request->file('poster_image'),
+                    PackageMediaAsset::PosterFolder,
+                    $storedPaths,
+                    $validated['title'],
+                );
+            } elseif (filled($validated['poster_media_asset_id'] ?? null)) {
+                $values['poster_image'] = $this->packageMediaAssets->pathsFor([(int) $validated['poster_media_asset_id']])[0] ?? $package->poster_image;
+            } elseif ($request->boolean('remove_poster_image')) {
+                $values['poster_image'] = null;
+            } elseif (blank($package->poster_image)) {
+                $values['poster_image'] = $this->packageMediaAssets->pathForName(
+                    PackageMediaAsset::PosterFolder,
+                    $validated['title'],
+                );
             }
 
             if ($request->hasFile('itinerary_pdf')) {
@@ -351,7 +393,7 @@ class PackageController extends Controller
                     $validated['flight_options'] ?? [],
                     $request->file('flight_options', []),
                     $currentFlightOptions,
-                    'packages/travel/flights',
+                    PackageMediaAsset::FlightFolder,
                     ['airline', 'departure_airport', 'arrival_airport', 'proposed_departure_date', 'notes'],
                     $storedPaths,
                 )
@@ -361,7 +403,7 @@ class PackageController extends Controller
                     $validated['hotel_options'] ?? [],
                     $request->file('hotel_options', []),
                     $currentHotelOptions,
-                    'packages/travel/hotels',
+                    PackageMediaAsset::HotelFolder,
                     ['location', 'name', 'rating', 'nights', 'walking_distance', 'notes'],
                     $storedPaths,
                     true,
@@ -384,7 +426,7 @@ class PackageController extends Controller
                 $validated['ziarah_places'] ?? [],
                 $request->file('ziarah_places', []),
                 $currentZiarahPlaces,
-                'packages/content/ziarah',
+                PackageMediaAsset::ZiarahFolder,
                 'name',
                 ['location', 'description'],
                 $storedPaths,
@@ -393,7 +435,7 @@ class PackageController extends Controller
                 $validated['gifts'] ?? [],
                 $request->file('gifts', []),
                 $currentGifts,
-                'packages/content/gifts',
+                PackageMediaAsset::GiftFolder,
                 'title',
                 ['description'],
                 $storedPaths,
@@ -417,19 +459,25 @@ class PackageController extends Controller
 
             $uploadedGalleryImages = $request->file('gallery', []);
 
-            if (count(array_unique($existingImagePaths)) + count($uploadedGalleryImages) > 3) {
+            $selectedGalleryPaths = $this->packageMediaAssets->pathsFor($validated['gallery_media_asset_ids'] ?? []);
+            $newSelectedGalleryPaths = array_values(array_diff($selectedGalleryPaths, $existingImagePaths));
+
+            if (count($existingImagePaths) + count($uploadedGalleryImages) + count($newSelectedGalleryPaths) > 3) {
                 throw ValidationException::withMessages([
                     'gallery' => 'Setiap pakej hanya boleh mempunyai maksimum 3 gambar.',
                 ]);
             }
 
-            $galleryPaths = [];
+            $galleryPaths = $newSelectedGalleryPaths;
 
             foreach ($uploadedGalleryImages as $image) {
-                $galleryPaths[] = $image->store('packages/gallery', 'public');
+                $galleryPaths[] = $this->storePackageImage(
+                    $image,
+                    PackageMediaAsset::LandscapeFolder,
+                    $storedPaths,
+                    $validated['title'],
+                );
             }
-
-            $storedPaths = [...$storedPaths, ...$galleryPaths];
 
             DB::transaction(function () use ($package, $values, $galleryPaths, $validated): void {
                 $package->fill($values);
@@ -463,6 +511,7 @@ class PackageController extends Controller
                 }
             });
         } catch (Throwable $throwable) {
+            PackageMediaAsset::query()->whereIn('path', $storedPaths)->delete();
             Storage::disk('public')->delete($storedPaths);
 
             throw $throwable;
@@ -471,6 +520,10 @@ class PackageController extends Controller
         if ($previousCoverImage !== $package->cover_image
             && ! $package->images()->where('path', $previousCoverImage)->exists()) {
             $this->deleteStoredFile($previousCoverImage);
+        }
+
+        if ($previousPosterImage !== $package->poster_image) {
+            $this->deleteStoredFile($previousPosterImage);
         }
 
         if ($previousItineraryPdf !== $package->itinerary_pdf) {
@@ -539,6 +592,9 @@ class PackageController extends Controller
             ->pluck('key')
             ->filter(fn (mixed $key): bool => is_string($key) && filled($key))
             ->all();
+        $hotelNamesByKey = collect($hotelOptions)
+            ->filter(fn (mixed $hotel): bool => is_array($hotel))
+            ->mapWithKeys(fn (array $hotel): array => [(string) ($hotel['key'] ?? '') => (string) ($hotel['name'] ?? '')]);
         $prices = [];
 
         foreach ($roomPrices as $index => $roomPrice) {
@@ -566,10 +622,14 @@ class PackageController extends Controller
             }
 
             $upload = $uploads[$index]['image'] ?? null;
+            $mediaName = trim(($hotelNamesByKey->get($hotelKey) ?: 'Bilik').' '.$roomType);
 
             if ($upload instanceof UploadedFile) {
-                $imagePath = $upload->store('packages/content/room-prices', 'public');
-                $storedPaths[] = $imagePath;
+                $imagePath = $this->storePackageImage($upload, PackageMediaAsset::RoomFolder, $storedPaths, $mediaName);
+            } elseif (filled($roomPrice['media_asset_id'] ?? null)) {
+                $imagePath = $this->packageMediaAssets->pathsFor([(int) $roomPrice['media_asset_id']])[0] ?? $imagePath;
+            } elseif (blank($imagePath) && ! $this->booleanValue($roomPrice['remove_existing_image'] ?? false)) {
+                $imagePath = $this->packageMediaAssets->pathForName(PackageMediaAsset::RoomFolder, $mediaName);
             }
 
             if (filled($imagePath)) {
@@ -656,8 +716,11 @@ class PackageController extends Controller
             $upload = $uploads[$index]['image'] ?? null;
 
             if ($upload instanceof UploadedFile) {
-                $imagePath = $upload->store($storageDirectory, 'public');
-                $storedPaths[] = $imagePath;
+                $imagePath = $this->storePackageImage($upload, $storageDirectory, $storedPaths, $name);
+            } elseif (filled($item['media_asset_id'] ?? null)) {
+                $imagePath = $this->packageMediaAssets->pathsFor([(int) $item['media_asset_id']])[0] ?? $imagePath;
+            } elseif (blank($imagePath) && ! $this->booleanValue($item['remove_existing_image'] ?? false)) {
+                $imagePath = $this->packageMediaAssets->pathForName($storageDirectory, $name);
             }
 
             if (filled($imagePath)) {
@@ -713,9 +776,23 @@ class PackageController extends Controller
                         continue;
                     }
 
-                    $path = $upload->store($storageDirectory, 'public');
+                    $path = $this->storePackageImage(
+                        $upload,
+                        $storageDirectory,
+                        $storedPaths,
+                        (string) $option[$nameField],
+                    );
                     $images[] = $path;
-                    $storedPaths[] = $path;
+                }
+            }
+
+            $images = [...$images, ...$this->packageMediaAssets->pathsFor($option['media_asset_ids'] ?? [])];
+
+            if ($images === [] && $this->stringItems($option['removed_existing_images'] ?? []) === []) {
+                $automaticPath = $this->packageMediaAssets->pathForName($storageDirectory, (string) $option[$nameField]);
+
+                if (filled($automaticPath)) {
+                    $images[] = $automaticPath;
                 }
             }
 
@@ -785,9 +862,40 @@ class PackageController extends Controller
 
     private function deleteStoredFile(?string $path): void
     {
-        if (filled($path) && ! Str::startsWith($path, ['http://', 'https://'])) {
+        if (filled($path)
+            && ! Str::startsWith($path, ['http://', 'https://'])
+            && ! PackageMediaAsset::query()->where('path', $path)->exists()) {
             Storage::disk('public')->delete($path);
         }
+    }
+
+    /**
+     * @param  array<int, string>  $storedPaths
+     */
+    private function storePackageImage(UploadedFile $uploadedFile, string $folder, array &$storedPaths, ?string $name = null): string
+    {
+        $asset = $this->packageMediaAssets->handle($uploadedFile, $folder, $name);
+
+        if ($asset->wasRecentlyCreated) {
+            $storedPaths[] = $asset->path;
+        }
+
+        return $asset->path;
+    }
+
+    private function booleanValue(mixed $value): bool
+    {
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    /** @return Collection<int, PackageMediaAsset> */
+    private function mediaAssets(): Collection
+    {
+        $this->packageMediaAssets->registerLegacyPackageAssets(
+            Package::query()->with('images:id,package_id,path')->get(),
+        );
+
+        return PackageMediaAsset::query()->orderBy('folder')->latest('id')->get();
     }
 
     /** @return Collection<int, PackageServiceOption> */
