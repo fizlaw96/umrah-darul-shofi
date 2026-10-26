@@ -50,11 +50,12 @@ class HeroSlideRequest extends FormRequest
                 $video = $this->file('background_video');
 
                 if ($video !== null && ! $validator->errors()->has('background_video')) {
-                    $duration = app(VideoDurationInspector::class)->durationInSeconds($video);
+                    $inspector = app(VideoDurationInspector::class);
+                    $duration = $inspector->durationInSeconds($video);
 
-                    if ($duration === null) {
+                    if ($duration === null && $inspector->canInspect()) {
                         $validator->errors()->add('background_video', 'Tempoh video tidak dapat disahkan. Pastikan FFprobe tersedia pada pelayan.');
-                    } elseif ($duration > 10) {
+                    } elseif ($duration !== null && $duration > 10) {
                         $validator->errors()->add('background_video', 'Video hero mesti berdurasi maksimum 10 saat.');
                     }
                 }

@@ -160,6 +160,40 @@ it('rejects a hero video longer than ten seconds', function () {
     $this->assertDatabaseMissing('hero_slides', ['package_category_id' => $category->id]);
 });
 
+it('stores a hero video when duration inspection is unavailable on the host', function () {
+    Storage::fake('public');
+    $staff = User::factory()->staff()->create();
+    $category = PackageCategory::factory()->create();
+
+    app()->bind(VideoDurationInspector::class, fn (): VideoDurationInspector => new class extends VideoDurationInspector
+    {
+        public function canInspect(): bool
+        {
+            return false;
+        }
+
+        public function durationInSeconds(UploadedFile $video): ?float
+        {
+            return null;
+        }
+    });
+
+    $this->actingAs($staff)
+        ->put(route('admin.package-categories.update', $category), [
+            'name' => $category->name,
+            'slug' => $category->slug,
+            'description' => $category->description,
+            'background_video' => UploadedFile::fake()->create('hero.mp4', 512, 'video/mp4'),
+            'is_active' => true,
+            'show_on_homepage' => true,
+        ])
+        ->assertRedirect(route('admin.package-categories.index'));
+
+    $heroSlide = HeroSlide::query()->where('package_category_id', $category->id)->firstOrFail();
+
+    Storage::disk('public')->assertExists($heroSlide->background_video);
+});
+
 it('returns to the category form with an upload error when a video exceeds the PHP post limit', function () {
     $staff = User::factory()->staff()->create();
     $category = PackageCategory::factory()->create();
