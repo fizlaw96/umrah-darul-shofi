@@ -114,8 +114,8 @@
 
                         <div class="flex items-center justify-between gap-4">
                             <label class="flex cursor-pointer items-center gap-2.5 text-sm font-medium text-[#40514a]">
-                                <input class="size-5 rounded accent-[#007c68]" type="checkbox" name="remember" value="1" @checked(old('remember'))>
-                                Ingat Saya
+                                <input class="size-5 rounded accent-[#007c68]" type="checkbox" name="remember" value="1" @checked(old('remember', true))>
+                                Kekal log masuk pada peranti ini
                             </label>
                             <a href="{{ route('admin.password.request') }}" class="text-sm font-bold text-[#007c68] transition hover:text-[#002f28]">Lupa Kata Laluan?</a>
                         </div>

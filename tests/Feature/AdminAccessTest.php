@@ -84,6 +84,14 @@ it('authenticates a staff member and regenerates the administrator session', fun
     $this->assertAuthenticatedAs($staff);
 });
 
+it('selects persistent login by default for the administrator sign-in form', function () {
+    $this->get(route('admin.login'))
+        ->assertOk()
+        ->assertSee('name="remember"', false)
+        ->assertSee('checked', false)
+        ->assertSee('Kekal log masuk pada peranti ini');
+});
+
 it('rejects invalid administrator credentials', function () {
     $staff = User::factory()->staff()->create();
 
