@@ -89,19 +89,19 @@
         </div>
     </section>
 
-    <section class="bg-[#003f34] px-4 py-4 sm:px-6 lg:px-8 lg:py-5">
+    <section class="bg-[#f7f8f4]">
         <div @class([
-            'mx-auto grid gap-3',
+            'mx-auto grid',
             'max-w-[1120px]' => $heroGalleryImages->isEmpty(),
             'max-w-[1440px] lg:grid-cols-[minmax(0,1.62fr)_minmax(300px,.78fr)]' => $heroGalleryImages->isNotEmpty(),
         ])>
-            <article class="package-cover grid overflow-hidden rounded-[1.35rem] bg-[#082e27] lg:grid-cols-[minmax(0,.9fr)_minmax(21rem,1.1fr)]" data-package-cover>
+            <article class="package-cover grid overflow-hidden bg-[#082e27] lg:grid-cols-[minmax(0,.9fr)_minmax(21rem,1.1fr)]" data-package-cover>
                 @if (filled($heroImagePath))
-                    <div class="package-cover__media relative grid min-h-[26rem] place-items-center overflow-hidden border-b border-white/10 bg-[radial-gradient(circle_at_center,rgba(255,224,128,.14),transparent_50%),linear-gradient(135deg,#0b4c3f,#04271f)] p-4 sm:min-h-[34rem] sm:p-7 lg:min-h-full lg:border-r lg:border-b-0">
+                    <div class="package-cover__media relative grid min-h-[26rem] place-items-center overflow-hidden bg-[radial-gradient(circle_at_center,rgba(255,224,128,.14),transparent_50%),linear-gradient(135deg,#0b4c3f,#04271f)] p-4 sm:min-h-[34rem] sm:p-7 lg:min-h-full">
                         <img src="{{ $package->travelImageUrl($heroImagePath) }}" alt="{{ $package->title }}" class="relative h-auto max-h-[34rem] w-auto max-w-full shadow-[0_22px_45px_-24px_rgba(0,0,0,.8)] object-contain" loading="eager" fetchpriority="high" data-package-cover-image>
                     </div>
                 @else
-                    <div class="grid min-h-[26rem] place-items-center border-b border-white/10 bg-[radial-gradient(circle_at_70%_15%,#186c57,transparent_45%),linear-gradient(135deg,#003c32,#001e19)] text-[#ffe3a0] sm:min-h-[34rem] lg:min-h-full lg:border-r lg:border-b-0"><span class="material-symbols-outlined text-8xl">mosque</span></div>
+                    <div class="grid min-h-[26rem] place-items-center bg-[radial-gradient(circle_at_70%_15%,#186c57,transparent_45%),linear-gradient(135deg,#003c32,#001e19)] text-[#ffe3a0] sm:min-h-[34rem] lg:min-h-full"><span class="material-symbols-outlined text-8xl">mosque</span></div>
                 @endif
                 <div class="package-cover__details flex flex-col justify-end p-6 text-white sm:p-8 lg:p-10">
                     <div class="flex flex-wrap gap-2">
@@ -119,9 +119,9 @@
             </article>
 
             @if ($heroGalleryImages->isNotEmpty())
-                <div class="hidden min-h-[550px] grid-cols-2 grid-rows-2 gap-3 lg:grid">
+                <div class="hidden min-h-[550px] grid-cols-2 grid-rows-2 lg:grid">
                     @foreach ($heroGalleryImages as $index => $image)
-                        <figure class="group relative col-span-2 overflow-hidden rounded-[1.1rem] bg-[#0a3029]">
+                        <figure class="group relative col-span-2 overflow-hidden bg-[#0a3029]">
                             <img src="{{ $image->url() }}" alt="{{ $image->alt_text ?: $package->title }}" class="size-full object-cover transition duration-500 group-hover:scale-105" loading="lazy">
                             @if ($index === 0)
                                 <figcaption class="absolute inset-x-0 bottom-0 flex justify-end bg-gradient-to-t from-black/65 to-transparent px-4 pb-3 pt-10"><a href="#penginapan-pakej" class="inline-flex items-center gap-1 rounded-lg bg-black/55 px-2.5 py-1.5 text-[10px] font-bold text-white backdrop-blur transition hover:bg-black/75"><span class="material-symbols-outlined text-[15px]">photo_library</span>{{ $heroImageCount }} foto galeri</a></figcaption>
