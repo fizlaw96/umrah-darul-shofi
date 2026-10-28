@@ -715,6 +715,24 @@ const initializeBulkSelection = () => {
     });
 };
 
+const initializeFlexibleDepartureSettings = () => {
+    document.querySelectorAll('[data-flexible-departure-settings]').forEach((settings) => {
+        const toggle = settings.querySelector('[data-is-date-flexible]');
+        const fixedDepartures = settings.querySelector('[data-fixed-departures]');
+
+        if (!(toggle instanceof HTMLInputElement) || !(fixedDepartures instanceof HTMLElement)) {
+            return;
+        }
+
+        const updateFixedDeparturesVisibility = () => {
+            fixedDepartures.hidden = toggle.checked;
+        };
+
+        toggle.addEventListener('change', updateFixedDeparturesVisibility);
+        updateFixedDeparturesVisibility();
+    });
+};
+
 const initializeAdminTabs = () => {
     document.querySelectorAll('[data-admin-tabs]').forEach((container) => {
         const triggers = [...container.querySelectorAll('[data-admin-tab-trigger]')];
@@ -1894,9 +1912,13 @@ const initializePackageFormEnhancements = () => {
                     return null;
                 }
 
+                const locationLabel = location instanceof HTMLInputElement
+                    ? location.value.trim()
+                    : '';
+
                 return {
                     key: key.value,
-                    label: `${location instanceof HTMLSelectElement && location.value !== '' ? `${location.value} · ` : ''}${name.value.trim()}`,
+                    label: `${locationLabel !== '' ? `${locationLabel} · ` : ''}${name.value.trim()}`,
                 };
             })
             .filter((hotel) => hotel !== null);
@@ -2822,6 +2844,7 @@ initializePackageAiImport();
 initializePackagePosterPrompt();
 initializePackageFormEnhancements();
 initializeAutomaticFilters();
+initializeFlexibleDepartureSettings();
 initializePackagePosterLightbox();
 initializeHotelLightbox();
 initializeConfirmations();

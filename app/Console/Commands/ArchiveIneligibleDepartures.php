@@ -27,6 +27,7 @@ class ArchiveIneligibleDepartures extends Command
 
         $packagesToArchive = Package::query()
             ->published()
+            ->where('is_date_flexible', false)
             ->has('departures')
             ->whereDoesntHave('departures', fn ($query) => $query->visibleForPromotion())
             ->get();

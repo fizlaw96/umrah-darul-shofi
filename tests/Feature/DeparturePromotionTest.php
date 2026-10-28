@@ -84,3 +84,18 @@ it('keeps a published package without departure records unchanged', function () 
 
     $this->assertDatabaseHas('packages', ['id' => $package->id, 'status' => 'published']);
 });
+
+it('keeps a flexible package published when its dated departures are ineligible', function () {
+    $this->travelTo(CarbonImmutable::parse('2026-10-01 09:00:00', 'Asia/Kuala_Lumpur'));
+
+    $package = Package::factory()->published()->create(['is_date_flexible' => true]);
+    PackageDeparture::factory()->for($package)->create([
+        'departure_date' => '2026-10-30',
+        'return_date' => '2026-11-07',
+        'status' => 'open',
+    ]);
+
+    $this->artisan('packages:archive-ineligible-departures')->assertSuccessful();
+
+    $this->assertDatabaseHas('packages', ['id' => $package->id, 'status' => 'published']);
+});

@@ -93,7 +93,7 @@ class PackageRequest extends FormRequest
             'hotel_options' => ['nullable', 'array', 'max:6'],
             'hotel_options.*' => ['array'],
             'hotel_options.*.key' => ['nullable', 'uuid', 'distinct'],
-            'hotel_options.*.location' => ['nullable', Rule::in(['Makkah', 'Madinah'])],
+            'hotel_options.*.location' => ['nullable', 'string', 'max:120'],
             'hotel_options.*.name' => ['nullable', 'string', 'max:255'],
             'hotel_options.*.rating' => ['nullable', 'integer', 'between:1,5'],
             'hotel_options.*.nights' => ['nullable', 'integer', 'min:0', 'max:59'],
@@ -147,6 +147,7 @@ class PackageRequest extends FormRequest
             'departure_rows.*.capacity' => ['nullable', 'integer', 'min:1', 'max:10000'],
             'departure_rows.*.status' => ['nullable', Rule::in(['draft', 'open', 'closed', 'cancelled'])],
             'is_featured' => ['nullable', 'boolean'],
+            'is_date_flexible' => ['nullable', 'boolean'],
             'intent' => ['nullable', Rule::in(['draft', 'publish'])],
             'status' => ['nullable', Rule::in(['draft', 'published', 'archived'])],
         ];
@@ -178,12 +179,14 @@ class PackageRequest extends FormRequest
                 $this->requireCompleteRows($validator, 'hotel_options', [
                     'name' => 'Nama hotel',
                 ]);
-                $this->requireCompleteRows($validator, 'departure_rows', [
-                    'departure_date' => 'Tarikh pergi',
-                    'return_date' => 'Tarikh balik',
-                    'price' => 'Harga seorang',
-                ]);
-                $this->validateDepartureRows($validator);
+                if (! $this->boolean('is_date_flexible')) {
+                    $this->requireCompleteRows($validator, 'departure_rows', [
+                        'departure_date' => 'Tarikh pergi',
+                        'return_date' => 'Tarikh balik',
+                        'price' => 'Harga seorang',
+                    ]);
+                    $this->validateDepartureRows($validator);
+                }
                 $this->validatePosterAndLandscapeImages($validator);
             },
         ];

@@ -49,6 +49,7 @@ use Illuminate\Support\Str;
     'exclusions',
     'service_options',
     'is_featured',
+    'is_date_flexible',
     'display_order',
     'status',
     'published_at',
@@ -98,7 +99,8 @@ class Package extends Model
             ->whereHas('category', fn (Builder $categoryQuery) => $categoryQuery->active())
             ->where(function (Builder $packageQuery): void {
                 $packageQuery
-                    ->doesntHave('departures')
+                    ->where('is_date_flexible', true)
+                    ->orWhereDoesntHave('departures')
                     ->orWhereHas('departures', fn (Builder $departureQuery) => $departureQuery->visibleForPromotion());
             });
     }
@@ -229,6 +231,7 @@ class Package extends Model
             'exclusions' => 'array',
             'service_options' => 'array',
             'is_featured' => 'boolean',
+            'is_date_flexible' => 'boolean',
             'proposed_departure_date' => 'date',
             'published_at' => 'datetime',
         ];

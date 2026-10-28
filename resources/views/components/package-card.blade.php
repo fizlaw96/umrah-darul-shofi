@@ -26,7 +26,9 @@
             </h3>
         </div>
 
-        @if ($nextDeparture)
+        @if ($package->is_date_flexible)
+            <p class="mt-3 flex items-center gap-1.5 text-[10px] font-medium text-[#59635f]"><span class="material-symbols-outlined text-[15px] text-[#9a762e]">info</span><span>Tarikh akan disahkan</span></p>
+        @elseif ($nextDeparture)
             <p class="mt-3 flex items-center gap-1.5 text-[10px] font-medium text-[#59635f]"><span class="material-symbols-outlined text-[15px] text-[#9a762e]">calendar_month</span><span>Berlepas {{ $nextDeparture->departure_date->translatedFormat('d M Y') }}</span>@if ($nextDeparture->status === 'closed')<span class="font-bold text-[#a14b3e]">· Ditutup</span>@endif</p>
         @endif
 

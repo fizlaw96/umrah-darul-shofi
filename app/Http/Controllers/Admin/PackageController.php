@@ -314,6 +314,7 @@ class PackageController extends Controller
             'hotel_information' => $validated['hotel_information'] ?? null,
             'flight_information' => $validated['flight_information'] ?? null,
             'is_featured' => $request->boolean('is_featured'),
+            'is_date_flexible' => $request->boolean('is_date_flexible'),
             'display_order' => $package->exists
                 ? $package->display_order
                 : ((int) Package::query()->max('display_order')) + 1,
@@ -479,7 +480,7 @@ class PackageController extends Controller
                 );
             }
 
-            DB::transaction(function () use ($package, $values, $galleryPaths, $validated): void {
+            DB::transaction(function () use ($request, $package, $values, $galleryPaths, $validated): void {
                 $package->fill($values);
                 $package->save();
 
@@ -506,7 +507,7 @@ class PackageController extends Controller
 
                 $this->syncItineraries($package, $validated);
 
-                if (array_key_exists('departure_rows', $validated)) {
+                if (! $request->boolean('is_date_flexible') && array_key_exists('departure_rows', $validated)) {
                     $this->syncDepartures($package, $validated['departure_rows'] ?? []);
                 }
             });

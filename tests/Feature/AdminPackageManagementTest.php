@@ -202,6 +202,25 @@ it('stores poster departure details as a draft when airport and capacity are unk
         ->and($departure->status)->toBe('draft');
 });
 
+it('stores a flexible package without requiring a dated departure', function () {
+    $staff = User::factory()->staff()->create();
+    $category = PackageCategory::factory()->create();
+
+    $this->actingAs($staff)
+        ->post(route('admin.packages.store'), packagePayload($category, [
+            'is_date_flexible' => '1',
+            'departure_rows' => [[
+                'departure_date' => '2026-12-18',
+            ]],
+        ]))
+        ->assertRedirect();
+
+    $package = Package::query()->sole();
+
+    expect($package->is_date_flexible)->toBeTrue()
+        ->and($package->departures()->count())->toBe(0);
+});
+
 it('requires a capacity before a departure can be opened to customers', function () {
     $staff = User::factory()->staff()->create();
     $category = PackageCategory::factory()->create();
@@ -783,6 +802,24 @@ it('stores structured room prices, ziarah places, and gifts for a package', func
     ]);
 });
 
+it('stores a manually entered hotel location', function () {
+    $staff = User::factory()->staff()->create();
+    $category = PackageCategory::factory()->create();
+
+    $this->actingAs($staff)
+        ->post(route('admin.packages.store'), packagePayload($category, [
+            'hotel_options_present' => '1',
+            'hotel_options' => [[
+                'key' => '4c5b9edc-3154-4c43-8bf3-4a8b0c149f73',
+                'location' => 'Shanghai, China',
+                'name' => 'Grand Millennium Shanghai',
+            ]],
+        ]))
+        ->assertRedirect();
+
+    expect(Package::query()->sole()->hotel_options[0]['location'])->toBe('Shanghai, China');
+});
+
 it('automatically attaches named package media and permits manual removal', function () {
     Storage::fake('public');
 
@@ -988,6 +1025,9 @@ it('renders the package information sections in the admin form', function () {
         ->assertSee('6. Itinerari')
         ->assertSee('Harga Bilik')
         ->assertSee('Hotel penginapan')
+        ->assertSee('name="hotel_options[__INDEX__][location]"', false)
+        ->assertSee('placeholder="Contoh: Shanghai, China"', false)
+        ->assertDontSee('Pilih lokasi')
         ->assertSee('data-room-hotel-select', false)
         ->assertSee('data-package-media-upload-input', false)
         ->assertSee('data-collection-image-input', false)
@@ -996,6 +1036,8 @@ it('renders the package information sections in the admin form', function () {
         ->assertSee('data-room-image-input', false)
         ->assertSee('Jana poster pakej dengan AI')
         ->assertSee('Tarikh Berlepas')
+        ->assertSee('Tarikh fleksibel')
+        ->assertSee('data-is-date-flexible', false)
         ->assertSee('Tempat Ziarah')
         ->assertSee('Set Hadiah Jemaah')
         ->assertSee('Gambar lokasi')

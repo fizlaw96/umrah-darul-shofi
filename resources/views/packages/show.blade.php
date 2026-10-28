@@ -112,7 +112,7 @@
                         <div class="flex items-center gap-2.5"><span class="grid size-9 place-items-center rounded-lg bg-[#ffe080] text-[#183f32]"><span class="material-symbols-outlined text-[20px]">calendar_month</span></span><div><dt class="text-[8px] font-bold uppercase tracking-[.1em] text-white/60">Tempoh</dt><dd class="mt-0.5 text-[11px] font-bold">{{ $package->duration_days }} Hari {{ $package->duration_nights }} Malam</dd></div></div>
                         <div class="flex items-center gap-2.5"><span class="grid size-9 place-items-center rounded-lg bg-[#ffe080] text-[#183f32]"><span class="material-symbols-outlined text-[20px]">hotel</span></span><div><dt class="text-[8px] font-bold uppercase tracking-[.1em] text-white/60">Hotel</dt><dd class="mt-0.5 line-clamp-2 text-[11px] font-bold">{{ $package->makkah_hotel ?: 'Mengikut susunan pakej' }}</dd></div></div>
                         <div class="flex items-center gap-2.5"><span class="grid size-9 place-items-center rounded-lg bg-[#ffe080] text-[#183f32]"><span class="material-symbols-outlined text-[20px]">flight</span></span><div><dt class="text-[8px] font-bold uppercase tracking-[.1em] text-white/60">Penerbangan</dt><dd class="mt-0.5 line-clamp-2 text-[11px] font-bold">{{ $package->airline ?: 'Akan disahkan' }}</dd></div></div>
-                        <div class="flex items-center gap-2.5"><span class="grid size-9 place-items-center rounded-lg bg-[#ffe080] text-[#183f32]"><span class="material-symbols-outlined text-[20px]">groups</span></span><div><dt class="text-[8px] font-bold uppercase tracking-[.1em] text-white/60">Kumpulan</dt><dd class="mt-0.5 text-[11px] font-bold">{{ $firstDeparture ? 'Sehingga '.$firstDeparture->capacity.' jemaah' : 'Tarikh akan dibuka' }}</dd></div></div>
+                        <div class="flex items-center gap-2.5"><span class="grid size-9 place-items-center rounded-lg bg-[#ffe080] text-[#183f32]"><span class="material-symbols-outlined text-[20px]">groups</span></span><div><dt class="text-[8px] font-bold uppercase tracking-[.1em] text-white/60">Kumpulan</dt><dd class="mt-0.5 text-[11px] font-bold">{{ $package->is_date_flexible ? 'Butiran akan disahkan' : ($firstDeparture ? 'Sehingga '.$firstDeparture->capacity.' jemaah' : 'Tarikh akan dibuka') }}</dd></div></div>
                     </dl>
                 </div>
             </article>
@@ -213,7 +213,14 @@
                 <section class="overflow-hidden rounded-2xl border border-[#e2e9e0] bg-white shadow-[0_18px_42px_-30px_rgba(0,50,40,.55)]">
                     <div class="border-b border-[#e8ece5] px-5 py-5"><div class="flex items-start justify-between gap-3"><div><p class="text-[9px] font-extrabold uppercase tracking-[.15em] text-[#7c8881]">Harga dari</p><p class="mt-1 font-display text-4xl leading-none text-[#123d32]">{{ $package->formattedStartingPrice() }}</p><p class="mt-2 text-[10px] text-[#748078]">Seorang · tertakluk kepada pengesahan</p></div><span class="rounded-lg bg-[#fff4ce] px-2.5 py-1.5 text-[9px] font-bold text-[#6e5718]">{{ $package->category->name }}</span></div>
                     @if (collect($package->room_prices ?? [])->isNotEmpty())<div class="mt-4 space-y-2 border-t border-[#e8ece5] pt-4">@foreach ($package->room_prices as $roomPrice)<div class="flex items-center justify-between gap-3 text-[11px]"><span class="flex min-w-0 items-center gap-2 text-[#607069]">@if (filled($roomPrice['image'] ?? null))<img src="{{ $package->travelImageUrl($roomPrice['image']) }}" alt="" class="size-8 shrink-0 rounded-md object-cover">@endif<span>{{ $roomPrice['room_type'] ?? '' }}</span></span><span class="shrink-0 font-bold text-[#183f34]">RM {{ number_format(($roomPrice['price_sen'] ?? 0) / 100, 2) }}</span></div>@endforeach</div>@endif</div>
-                    <div class="px-5 py-5"><div class="flex items-center justify-between gap-3"><h2 class="flex items-center gap-2 text-sm font-extrabold text-[#183f34]"><span class="material-symbols-outlined text-[18px] text-[#8f7129]">calendar_month</span>Tarikh Berlepas</h2><span class="text-[10px] font-bold text-[#08725a]">{{ $package->departures->count() }} jadual dipaparkan</span></div>
+                    <div class="px-5 py-5">
+                        @if ($package->is_date_flexible)
+                            <div class="flex gap-3 rounded-xl bg-[#f5f8f4] p-3.5 text-[11px] leading-5 text-[#68746e]">
+                                <span class="material-symbols-outlined shrink-0 text-[18px] text-[#8f7129]">info</span>
+                                <p>Tarikh perjalanan akan disahkan oleh agensi. Hubungi kami untuk memilih bulan yang sesuai.</p>
+                            </div>
+                        @else
+                            <div class="flex items-center justify-between gap-3"><h2 class="flex items-center gap-2 text-sm font-extrabold text-[#183f34]"><span class="material-symbols-outlined text-[18px] text-[#8f7129]">calendar_month</span>Tarikh Berlepas</h2><span class="text-[10px] font-bold text-[#08725a]">{{ $package->departures->count() }} jadual dipaparkan</span></div>
                         <div class="mt-4 space-y-2.5">
                             @forelse ($package->departures as $departure)
                                 @php($isDepartureOpen = $departure->status === 'open')
@@ -223,6 +230,7 @@
                                 <p class="rounded-xl bg-[#f5f8f4] p-3.5 text-[11px] leading-5 text-[#68746e]">Tarikh baharu akan dikemas kini oleh agensi.</p>
                             @endforelse
                         </div>
+                        @endif
                         @if (filled($whatsappNumber))<x-whats-app-link :number="$whatsappNumber" :message="$packageMessage" class="button-gold mt-5 w-full !rounded-xl"><span class="material-symbols-outlined text-[18px]">chat</span>WhatsApp Kami</x-whats-app-link>@endif
                         @if ($package->itineraryPdfUrl())<a href="{{ $package->itineraryPdfUrl() }}" target="_blank" rel="noopener noreferrer" class="button-secondary mt-3 w-full !rounded-xl !px-3 !py-2.5 !text-[11px]"><span class="material-symbols-outlined text-[18px]">download</span>Muat Turun Itinerari (PDF)</a>@endif
                     </div>

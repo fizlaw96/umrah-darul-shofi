@@ -43,10 +43,14 @@ class PackageController extends Controller
             ->when($request->filled('month') && preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $request->string('month')->toString()) === 1, function ($query) use ($request): void {
                 $month = CarbonImmutable::createFromFormat('Y-m', $request->string('month')->toString(), 'Asia/Kuala_Lumpur');
 
-                $query->whereHas('departures', function ($departureQuery) use ($month): void {
-                    $departureQuery
-                        ->visibleForPromotion()
-                        ->whereBetween('departure_date', [$month->startOfMonth()->toDateString(), $month->endOfMonth()->toDateString()]);
+                $query->where(function ($packageQuery) use ($month): void {
+                    $packageQuery
+                        ->where('is_date_flexible', true)
+                        ->orWhereHas('departures', function ($departureQuery) use ($month): void {
+                            $departureQuery
+                                ->visibleForPromotion()
+                                ->whereBetween('departure_date', [$month->startOfMonth()->toDateString(), $month->endOfMonth()->toDateString()]);
+                        });
                 });
             });
 

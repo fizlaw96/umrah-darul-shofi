@@ -188,6 +188,29 @@ it('includes the package link and main image in WhatsApp enquiries', function ()
         ->assertDontSee('/hubungi-kami', false);
 });
 
+it('shows a short confirmation note for a flexible package', function () {
+    config()->set('darul_shofi.whatsapp_number', '60 12-345 6789');
+    $package = Package::factory()->published()->create([
+        'title' => 'Pakej Umrah Fleksibel',
+        'is_date_flexible' => true,
+    ]);
+    PackageDeparture::factory()->for($package)->create([
+        'departure_date' => now()->subMonth()->toDateString(),
+        'return_date' => now()->subMonth()->addDays(8)->toDateString(),
+        'status' => 'closed',
+    ]);
+
+    $this->get(route('packages.show', $package))
+        ->assertOk()
+        ->assertSee('Tarikh perjalanan akan disahkan oleh agensi. Hubungi kami untuk memilih bulan yang sesuai.')
+        ->assertSee('WhatsApp Kami')
+        ->assertDontSee('Tarikh fleksibel')
+        ->assertDontSee('data-flexible-departure-picker', false)
+        ->assertDontSee('data-flexible-departure-date', false)
+        ->assertDontSee('Pilih tarikh &amp; WhatsApp', false)
+        ->assertDontSee('Tarikh baharu akan dikemas kini oleh agensi.');
+});
+
 it('renders the floating WhatsApp button without a mobile bottom navigation bar', function () {
     config()->set('darul_shofi.whatsapp_number', '60 12-345 6789');
     $package = Package::factory()->published()->create();
@@ -210,6 +233,19 @@ it('filters published packages by departure month', function () {
         ->assertOk()
         ->assertSee($matchingPackage->title)
         ->assertDontSee($otherPackage->title);
+});
+
+it('includes flexible packages when a departure month is selected', function () {
+    $package = Package::factory()->published()->create([
+        'title' => 'Pakej Fleksibel Setiap Bulan',
+        'is_date_flexible' => true,
+    ]);
+    $selectedMonth = now()->addMonths(2)->format('Y-m');
+
+    $this->get(route('packages.index', ['month' => $selectedMonth]))
+        ->assertOk()
+        ->assertSee($package->title)
+        ->assertSee('Tarikh akan disahkan');
 });
 
 it('filters published packages by the selected budget range', function () {
