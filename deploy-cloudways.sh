@@ -5,9 +5,15 @@ set -Eeuo pipefail
 project_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$project_path"
 
-if ! php -r 'exit(version_compare(PHP_VERSION, "8.3.0", ">=") ? 0 : 1);'; then
-    echo "PHP 8.3 atau lebih baharu diperlukan. Tukar versi PHP melalui Cloudways terlebih dahulu." >&2
-    exit 1
+php_binary="${PHP_BINARY:-php}"
+
+if ! "$php_binary" -r 'exit(version_compare(PHP_VERSION, "8.3.0", ">=") ? 0 : 1);'; then
+    if command -v php8.3 >/dev/null 2>&1 && php8.3 -r 'exit(version_compare(PHP_VERSION, "8.3.0", ">=") ? 0 : 1);'; then
+        php_binary="php8.3"
+    else
+        echo "PHP 8.3 atau lebih baharu diperlukan. Tukar versi PHP melalui Cloudways terlebih dahulu." >&2
+        exit 1
+    fi
 fi
 
 if [ -s "$HOME/.nvm/nvm.sh" ]; then
@@ -33,7 +39,7 @@ fi
 git fetch origin "$branch"
 git pull --ff-only origin "$branch"
 
-php artisan down --render=errors.503 --retry=60 --refresh=60 --no-interaction
+"$php_binary" artisan down --render=errors.503 --retry=60 --refresh=60 --no-interaction
 
 maintenance_mode_active=true
 deployment_completed=false
@@ -44,7 +50,7 @@ finish_deployment() {
     fi
 
     if [ "$deployment_completed" = true ]; then
-        php artisan up --no-interaction
+        "$php_binary" artisan up --no-interaction
         return
     fi
 
@@ -54,14 +60,14 @@ finish_deployment() {
 
 trap finish_deployment EXIT
 
-composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+"$php_binary" "$(command -v composer)" install --no-dev --prefer-dist --optimize-autoloader --no-interaction
 npm ci --include=dev
 npm run build
 
-php artisan migrate --force --no-interaction
-php artisan optimize:clear --no-interaction
-php artisan config:cache --no-interaction
-php artisan route:cache --no-interaction
-php artisan view:cache --no-interaction
+"$php_binary" artisan migrate --force --no-interaction
+"$php_binary" artisan optimize:clear --no-interaction
+"$php_binary" artisan config:cache --no-interaction
+"$php_binary" artisan route:cache --no-interaction
+"$php_binary" artisan view:cache --no-interaction
 
 deployment_completed=true
