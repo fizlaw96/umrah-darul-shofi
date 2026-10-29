@@ -29,15 +29,19 @@ fi
 nvm install 22
 nvm use 22
 
-branch="$(git branch --show-current)"
+if [ -d .git ]; then
+    branch="$(git branch --show-current)"
 
-if [ -z "$branch" ]; then
-    echo "Git berada dalam detached HEAD. Tukar ke branch deployment sebelum meneruskan." >&2
-    exit 1
+    if [ -z "$branch" ]; then
+        echo "Git berada dalam detached HEAD. Tukar ke branch deployment sebelum meneruskan." >&2
+        exit 1
+    fi
+
+    git fetch origin "$branch"
+    git pull --ff-only origin "$branch"
+else
+    echo "Kod telah dihantar oleh Cloudways. Jalankan skrip ini selepas memilih Pull di Deployment via GIT."
 fi
-
-git fetch origin "$branch"
-git pull --ff-only origin "$branch"
 
 "$php_binary" artisan down --render=errors.503 --retry=60 --refresh=60 --no-interaction
 
