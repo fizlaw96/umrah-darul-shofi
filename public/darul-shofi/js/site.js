@@ -267,7 +267,6 @@
   const galleryButtons = Array.from(document.querySelectorAll('[data-gallery-open]'));
   if (lightbox && galleryButtons.length && typeof lightbox.showModal === 'function') {
     const image = lightbox.querySelector('[data-gallery-preview]');
-    const caption = lightbox.querySelector('[data-gallery-caption]');
     const slides = galleryButtons.map(button => {
       const img = button.querySelector('img');
       return { src: img?.getAttribute('src') || '', alt: img?.getAttribute('alt') || 'Foto galeri' };
@@ -277,7 +276,6 @@
       active = (n + slides.length) % slides.length;
       image.src = slides[active].src;
       image.alt = slides[active].alt;
-      caption.textContent = `${slides[active].alt} · ${active + 1} / ${slides.length}`;
     };
     const pauseGallery = () => gallery?.setAttribute('data-gallery-paused', 'true');
     const resumeGallery = () => {
@@ -301,12 +299,10 @@
     lightbox.addEventListener('close', resumeGallery);
   }
 
-  // Full gallery: filter by package category, switch between visual and list grids, and open a shared lightbox.
+  // Full gallery: filter by package category and open a shared lightbox.
   const fullGallery = document.querySelector('[data-full-gallery]');
   if (fullGallery) {
-    const grid = fullGallery.querySelector('[data-full-gallery-grid]');
     const categoryButtons = Array.from(fullGallery.querySelectorAll('[data-full-gallery-filter]'));
-    const viewButtons = Array.from(fullGallery.querySelectorAll('[data-full-gallery-view]'));
     const fullGalleryButtons = Array.from(fullGallery.querySelectorAll('[data-full-gallery-open]'));
     const fullGalleryLightbox = fullGallery.querySelector('[data-full-gallery-lightbox]');
     let activeCategory = 'all';
@@ -345,16 +341,6 @@
     };
 
     categoryButtons.forEach(button => button.addEventListener('click', () => filter(button.dataset.fullGalleryFilter || 'all')));
-    viewButtons.forEach(button => button.addEventListener('click', () => {
-      const view = button.dataset.fullGalleryView || 'grid';
-
-      grid?.setAttribute('data-full-gallery-view', view);
-      viewButtons.forEach(viewButton => {
-        const selected = viewButton === button;
-        viewButton.classList.toggle('is-active', selected);
-        viewButton.setAttribute('aria-pressed', String(selected));
-      });
-    }));
     fullGalleryButtons.forEach(button => button.addEventListener('click', () => {
       const slides = visibleButtons();
       activeImage = slides.indexOf(button);

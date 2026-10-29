@@ -39,7 +39,8 @@ it('renders the mobile menu, cinematic package carousel, and gallery lightbox', 
         ->assertSee('Lihat Semua Pakej')
         ->assertDontSee('data-hero-slider', false)
         ->assertDontSee('data-hero-prev', false)
-        ->assertSee('id="darul-gallery-lightbox"', false);
+        ->assertSee('id="darul-gallery-lightbox"', false)
+        ->assertDontSee('data-gallery-caption', false);
 });
 
 it('only includes homepage categories that have a public package', function () {

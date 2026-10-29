@@ -82,7 +82,6 @@
             <button aria-label="Foto sebelumnya" class="ds-lightbox-step ds-lightbox-step--prev" data-gallery-prev type="button"><i class="fa-solid fa-chevron-left"></i></button>
             <figure>
                 <img alt="" data-gallery-preview decoding="async" loading="lazy">
-                <figcaption data-gallery-caption></figcaption>
             </figure>
             <button aria-label="Foto seterusnya" class="ds-lightbox-step ds-lightbox-step--next" data-gallery-next type="button"><i class="fa-solid fa-chevron-right"></i></button>
         </div>

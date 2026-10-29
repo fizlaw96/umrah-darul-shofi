@@ -25,10 +25,6 @@
                         <button type="button" data-full-gallery-filter="general" aria-pressed="false">Umum</button>
                     @endif
                 </div>
-                <div class="ds-full-gallery-page__views" aria-label="Jenis paparan galeri">
-                    <button class="is-active" type="button" data-full-gallery-view="grid" aria-pressed="true"><i class="fa-solid fa-grip"></i>Galeri</button>
-                    <button type="button" data-full-gallery-view="list" aria-pressed="false"><i class="fa-solid fa-list"></i>Senarai</button>
-                </div>
             </div>
 
             @if ($galleryMedia->isNotEmpty())

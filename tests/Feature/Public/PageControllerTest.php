@@ -86,6 +86,7 @@ it('renders published gallery media and filters for linked package categories', 
         ->assertSee('Kenangan Turkiye')
         ->assertSee('Pakej Turkiye')
         ->assertSee('data-full-gallery-lightbox', false)
+        ->assertDontSee('data-full-gallery-view="list"', false)
         ->assertDontSee('ds-full-gallery-item__detail', false)
         ->assertDontSee('Kenangan Tentang Kami')
         ->assertDontSee('Kenangan draf');
