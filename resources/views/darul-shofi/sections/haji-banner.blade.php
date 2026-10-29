@@ -14,7 +14,7 @@
                         <footer class="ds-testimonial-card__footer">
                             <div class="ds-testimonial-card__person">
                                 @if ($testimonial->photoUrl())
-                                    <img class="ds-testimonial-card__photo" src="{{ $testimonial->photoUrl() }}" alt="Foto {{ $testimonial->reviewer_name }}" loading="lazy">
+                                    <img class="ds-testimonial-card__photo" src="{{ $testimonial->photoUrl() }}" alt="Foto {{ $testimonial->reviewer_name }}" style="object-position: {{ $imageFocusPositions[$testimonial->photo] ?? '50% 50%' }}" loading="lazy">
                                 @else
                                     <span class="ds-testimonial-card__photo-fallback" aria-hidden="true">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($testimonial->reviewer_name, 0, 1)) }}</span>
                                 @endif

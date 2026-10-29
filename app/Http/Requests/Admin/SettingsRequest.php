@@ -48,6 +48,7 @@ class SettingsRequest extends FormRequest
             'office_address' => ['nullable', 'string', 'max:1000'],
             'office_hours' => ['nullable', 'string', 'max:255'],
             'registered_address' => ['nullable', 'string', 'max:1000'],
+            'company_address' => ['nullable', 'string', 'max:1000'],
             'public_contact_address' => ['nullable', 'string', 'max:1000'],
             'map_url' => ['nullable', 'url', 'max:1000'],
             'motac_license_number' => ['nullable', 'string', 'max:120'],

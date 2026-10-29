@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\ImageFocus;
 use App\Models\PackageCategory;
 use App\Models\User;
 use App\Models\WebsiteSetting;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\View;
 
@@ -52,7 +54,7 @@ class AppServiceProvider extends ServiceProvider
             ]);
         });
 
-        view()->composer(['layouts.app', 'layouts.admin', 'darul-shofi.layout', 'darul-shofi.home', 'darul-shofi.about', 'auth.admin-login'], function (View $view): void {
+        view()->composer(['layouts.app', 'layouts.admin', 'darul-shofi.layout', 'darul-shofi.home', 'darul-shofi.about', 'darul-shofi.gallery', 'auth.admin-login'], function (View $view): void {
             $defaults = WebsiteSetting::siteDefaults();
 
             $settings = WebsiteSetting::query()
@@ -83,6 +85,20 @@ class AppServiceProvider extends ServiceProvider
                 'siteSettings' => $siteSettings,
                 'footerCategories' => PackageCategory::query()->active()->orderBy('sort_order')->get(['name', 'slug']),
             ]);
+        });
+
+        view()->composer('*', function (View $view): void {
+            $request = request();
+            $imageFocusPositions = $request->attributes->get('image_focus_positions');
+
+            if ($imageFocusPositions === null) {
+                $imageFocusPositions = Schema::hasTable('image_foci')
+                    ? ImageFocus::positions()
+                    : [];
+                $request->attributes->set('image_focus_positions', $imageFocusPositions);
+            }
+
+            $view->with('imageFocusPositions', $imageFocusPositions);
         });
     }
 }

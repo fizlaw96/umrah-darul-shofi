@@ -1,4 +1,6 @@
 @php
+    $companyAddress = $siteSettings['company_address'];
+    $companyAddressLines = preg_split('/\R/', $companyAddress ?: '');
     $publicAddress = $siteSettings['public_contact_address'] ?: $siteSettings['office_address'];
     $publicAddressLines = preg_split('/\R/', $publicAddress ?: '');
     $darulSoffiLogoUrl = $siteSettings['footer_logo_url']
@@ -22,6 +24,19 @@
 
                 <h2>{{ $siteSettings['company_name'] }}</h2>
                 <p class="ds-global-footer__tagline">{{ $siteSettings['company_tagline'] }}</p>
+                @if (filled($companyAddress))
+                    <p class="ds-global-footer__company-address">
+                        <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24">
+                            <path d="M12 21s7-6.2 7-12A7 7 0 1 0 5 9c0 5.8 7 12 7 12Z"/>
+                            <circle cx="12" cy="9" r="2.25"/>
+                        </svg>
+                        <span class="ds-global-footer__address-copy">
+                            @foreach ($companyAddressLines as $addressLine)
+                                <span @class(['ds-global-footer__address-title' => $loop->first])>{{ $addressLine }}</span>
+                            @endforeach
+                        </span>
+                    </p>
+                @endif
                 <span class="ds-global-footer__accent" aria-hidden="true"></span>
                 <p class="ds-global-footer__mission">Kami komited membimbing perjalanan ibadah anda ke Tanah Suci dengan pakej yang terjamin, selesa dan bermakna.</p>
 

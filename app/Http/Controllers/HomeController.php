@@ -17,12 +17,17 @@ class HomeController extends Controller
         return view('darul-shofi.home', [
             'heroSlides' => HeroSlide::query()
                 ->published()
+                ->whereHas('category', fn ($categoryQuery) => $categoryQuery
+                    ->active()
+                    ->visibleOnHomepage()
+                    ->whereHas('packages', fn ($packageQuery) => $packageQuery->publiclyVisible()))
                 ->with(['category', 'package'])
                 ->orderBy('sort_order')
                 ->get(),
             'homepageCategories' => PackageCategory::query()
                 ->active()
                 ->visibleOnHomepage()
+                ->whereHas('packages', fn ($packageQuery) => $packageQuery->publiclyVisible())
                 ->with(['packages' => fn ($query) => $query
                     ->publiclyVisible()
                     ->with('category')
@@ -45,13 +50,15 @@ class HomeController extends Controller
             'aboutMedia' => MediaItem::query()
                 ->published()
                 ->forSection(MediaItem::AboutSection)
+                ->visibleOnHomepage()
                 ->orderBy('sort_order')
                 ->latest('id')
                 ->take(MediaItem::sectionLimit(MediaItem::AboutSection))
                 ->get(),
             'galleryMedia' => MediaItem::query()
                 ->published()
-                ->forSection(MediaItem::GallerySection)
+                ->forSection(MediaItem::FullGallerySection)
+                ->visibleOnHomepage()
                 ->orderBy('sort_order')
                 ->latest('id')
                 ->take(MediaItem::sectionLimit(MediaItem::GallerySection))

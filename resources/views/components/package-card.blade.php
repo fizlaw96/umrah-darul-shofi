@@ -3,8 +3,28 @@
 ])
 
 @php($nextDeparture = $package->departures->first())
+@php($promotionBadge = $package->promotionBadge())
+@php($isSuperDeal = $promotionBadge && $promotionBadge['type'] === \App\Models\Package::SuperDealBadge)
 
-<article class="group flex h-60 w-[82vw] shrink-0 snap-start overflow-hidden rounded-2xl border border-[#e9e4d9] bg-white shadow-[0_10px_26px_-20px_rgba(0,39,31,0.36)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_16px_30px_-20px_rgba(0,39,31,0.42)] sm:h-64 sm:w-auto">
+<article @class([
+    'package-card group relative flex h-60 w-[82vw] shrink-0 snap-start rounded-2xl border border-[#e9e4d9] bg-white shadow-[0_10px_26px_-20px_rgba(0,39,31,0.36)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_16px_30px_-20px_rgba(0,39,31,0.42)] sm:h-64 sm:w-auto',
+    'overflow-visible' => $promotionBadge,
+    'overflow-hidden' => ! $promotionBadge,
+    'package-card--super-deal' => $isSuperDeal,
+])>
+    @if ($promotionBadge)
+        <span @class([
+            'package-card__badge',
+            'package-card__badge--recommendation' => $promotionBadge['type'] === \App\Models\Package::RecommendationBadge,
+            'package-card__badge--super-deal' => $isSuperDeal,
+        ])>
+            @if ($isSuperDeal)
+                <span>Super<br>Deal</span>
+            @else
+                <span class="material-symbols-outlined">{{ $promotionBadge['icon'] }}</span>{{ $promotionBadge['label'] }}
+            @endif
+        </span>
+    @endif
     @if ($package->posterImageUrl())
         <button type="button" class="grid w-28 shrink-0 cursor-zoom-in place-items-center bg-[#f2f0e9] p-1.5 sm:w-32" data-package-poster data-package-poster-src="{{ $package->posterImageUrl() }}" data-package-poster-alt="{{ $package->title }}" aria-label="Lihat poster {{ $package->title }}">
             <img src="{{ $package->posterImageUrl() }}" alt="{{ $package->title }}" class="max-h-full max-w-full object-contain" loading="lazy">
@@ -15,7 +35,10 @@
         </div>
     @endif
 
-    <div class="flex min-w-0 flex-1 flex-col p-3.5 sm:p-4">
+    <div @class([
+        'package-card__body flex min-w-0 flex-1 flex-col p-3.5 sm:p-4',
+        '!pt-16' => $isSuperDeal,
+    ])>
         <div>
             <div class="flex items-center justify-between gap-2 text-[8px] font-bold uppercase tracking-[0.1em]">
                 <span class="text-[#95742c]">{{ $package->category->name }}</span>

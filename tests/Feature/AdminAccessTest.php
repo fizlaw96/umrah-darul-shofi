@@ -20,6 +20,14 @@ it('forbids a non-staff user from the admin dashboard', function () {
     $this->actingAs($user)->get(route('admin.dashboard'))->assertForbidden();
 });
 
+it('forbids a non-staff user from marking notifications as read', function () {
+    $user = User::factory()->create(['role' => 'customer']);
+
+    $this->actingAs($user)
+        ->post(route('admin.package-notifications.mark-all-as-read'))
+        ->assertForbidden();
+});
+
 it('allows staff into the admin dashboard', function () {
     $staff = User::factory()->staff()->create();
 

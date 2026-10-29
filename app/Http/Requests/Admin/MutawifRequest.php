@@ -24,6 +24,7 @@ class MutawifRequest extends FormRequest
     {
         return [
             'full_name' => ['required', 'string', 'max:255'],
+            'qualification' => ['nullable', 'string', 'max:2000'],
             'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'remove_photo' => ['nullable', 'boolean'],
             'is_published' => ['nullable', 'boolean'],

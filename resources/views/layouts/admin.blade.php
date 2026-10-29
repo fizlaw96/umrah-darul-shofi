@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>{{ $title ?? 'Pentadbiran' }} · {{ $siteSettings['company_name'] }}</title>
         @if (filled($siteSettings['company_favicon_url']))
             <link rel="icon" type="image/png" sizes="64x64" href="{{ $siteSettings['company_favicon_url'] }}">
@@ -13,10 +14,15 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="admin-shell bg-[#f7f8f6] text-[#163a30]">
-        @php($user = auth()->user())
-        @php($packageArchivedNotificationType = \App\Notifications\PackageArchived::class)
-        @php($unreadPackageNotificationCount = $user->unreadNotifications()->where('type', $packageArchivedNotificationType)->count())
-        @php($packageNotifications = $user->notifications()->where('type', $packageArchivedNotificationType)->latest()->limit(5)->get())
+        @php
+            $user = auth()->user();
+            $packageArchivedNotificationType = \App\Notifications\PackageArchived::class;
+            $unreadPackageNotificationCount = $user->unreadNotifications()->where('type', $packageArchivedNotificationType)->count();
+            $packageNotificationQuery = $user->notifications()->where('type', $packageArchivedNotificationType);
+            $packageNotifications = $unreadPackageNotificationCount
+                ? $packageNotificationQuery->orderByRaw('read_at IS NULL DESC')->latest()->limit(5)->get()
+                : $packageNotificationQuery->latest()->limit(1)->get();
+        @endphp
         <div data-admin-backdrop class="fixed inset-0 z-40 hidden bg-[#00251e]/35 lg:hidden"></div>
         <aside data-admin-sidebar class="fixed inset-y-0 left-0 z-50 flex w-[278px] -translate-x-full flex-col border-r border-[#e6ece7] bg-white transition-transform duration-300 lg:translate-x-0">
             <div class="flex items-center justify-between px-6 pb-6 pt-7">
@@ -71,7 +77,18 @@
                             @endif
                         </button>
                         <div id="package-notifications" data-notification-panel class="absolute right-0 top-full z-50 mt-3 w-[min(22rem,calc(100vw-2.5rem))] overflow-hidden rounded-2xl border border-[#dce9df] bg-white shadow-[0_18px_45px_-20px_rgba(0,37,30,.45)]" hidden>
-                            <div class="flex items-center justify-between border-b border-[#e8eee9] px-4 py-3"><p class="text-sm font-bold text-[#00251e]">Pemberitahuan</p><span class="text-[10px] font-bold uppercase tracking-[.08em] text-[#006b57]">{{ $unreadPackageNotificationCount }} baharu</span></div>
+                            <div class="flex items-center justify-between gap-3 border-b border-[#e8eee9] px-4 py-3">
+                                <p class="text-sm font-bold text-[#00251e]">Pemberitahuan</p>
+                                <div class="flex items-center gap-3">
+                                    @if ($unreadPackageNotificationCount)
+                                        <form method="POST" action="{{ route('admin.package-notifications.mark-all-as-read') }}">
+                                            @csrf
+                                            <button type="submit" class="text-[10px] font-bold text-[#006b57] transition hover:text-[#004d3f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#006b57]">Tandakan semua dibaca</button>
+                                        </form>
+                                    @endif
+                                    <span class="whitespace-nowrap text-[10px] font-bold uppercase tracking-[.08em] text-[#006b57]">{{ $unreadPackageNotificationCount ? $unreadPackageNotificationCount.' baharu' : 'Tiada baharu' }}</span>
+                                </div>
+                            </div>
                             <div class="max-h-96 overflow-y-auto">
                                 @forelse ($packageNotifications as $notification)
                                     <a href="{{ route('admin.package-notifications.show', $notification->id) }}" class="flex gap-3 border-b border-[#edf1ee] px-4 py-3.5 transition hover:bg-[#f5faf6] {{ is_null($notification->read_at) ? 'bg-[#e9f7ed]' : '' }}">
@@ -97,6 +114,34 @@
                 </div>
             </main>
         </div>
+        <script type="application/json" data-image-focus-positions>@json($imageFocusPositions)</script>
+        <dialog data-image-focus-dialog data-image-focus-save-url="{{ route('admin.image-focus.update') }}" class="m-auto max-h-[calc(100dvh-2rem)] w-[min(94vw,46rem)] max-w-none flex-col overflow-hidden rounded-2xl border border-[#dbe8df] bg-white p-0 text-[#163a30] shadow-2xl open:flex backdrop:bg-[#00251e]/70">
+            <div class="flex shrink-0 items-start justify-between gap-4 border-b border-[#e8eee9] px-5 py-4 sm:px-6">
+                <div>
+                    <p class="text-[10px] font-bold uppercase tracking-[.14em] text-[#00705b]">Paparan imej</p>
+                    <h2 class="mt-1 text-lg font-bold text-[#00251e]">Laraskan fokus gambar</h2>
+                    <p class="mt-1 text-xs leading-5 text-[#718078]">Tarik titik fokus pada gambar atau gunakan pelaras. Fail asal tidak dipotong.</p>
+                </div>
+                <button type="button" data-image-focus-close class="grid size-9 place-items-center rounded-lg text-[#506058] transition hover:bg-[#f2f5f2]" aria-label="Tutup pelaras fokus gambar"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <div class="min-h-0 flex-1 overflow-y-auto p-5 sm:p-6">
+                <div class="space-y-5">
+                    <div data-image-focus-stage class="relative aspect-[4/3] cursor-crosshair overflow-hidden rounded-xl bg-[#e9f2eb] touch-none">
+                        <img data-image-focus-preview src="" alt="Paparan fokus gambar" class="size-full select-none object-cover" draggable="false">
+                        <span data-image-focus-marker class="pointer-events-none absolute grid size-9 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-2 border-white bg-[#006b57]/80 text-white shadow-lg"><span class="material-symbols-outlined text-[19px]">center_focus_strong</span></span>
+                    </div>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <label><span class="admin-label">Kedudukan mendatar</span><input data-image-focus-x class="mt-2 w-full accent-[#006b57]" type="range" min="0" max="100" value="50"></label>
+                        <label><span class="admin-label">Kedudukan menegak</span><input data-image-focus-y class="mt-2 w-full accent-[#006b57]" type="range" min="0" max="100" value="50"></label>
+                    </div>
+                    <p data-image-focus-status class="min-h-5 text-xs font-semibold text-[#006b57]" aria-live="polite"></p>
+                </div>
+            </div>
+            <div class="flex shrink-0 flex-wrap justify-end gap-2 border-t border-[#e8eee9] bg-white px-5 py-4 sm:px-6">
+                <button type="button" data-image-focus-reset class="admin-button-secondary !px-3">Set semula</button>
+                <button type="button" data-image-focus-save class="admin-button-primary !px-4"><span class="material-symbols-outlined text-[18px]">save</span>Simpan fokus</button>
+            </div>
+        </dialog>
         @stack('scripts')
     </body>
 </html>

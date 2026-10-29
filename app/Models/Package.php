@@ -49,6 +49,7 @@ use Illuminate\Support\Str;
     'exclusions',
     'service_options',
     'is_featured',
+    'promotion_badge',
     'is_date_flexible',
     'display_order',
     'status',
@@ -58,6 +59,41 @@ class Package extends Model
 {
     /** @use HasFactory<PackageFactory> */
     use HasFactory;
+
+    public const RecommendationBadge = 'recommendation';
+
+    public const SuperDealBadge = 'super_deal';
+
+    /**
+     * @return array<string, array{label: string, icon: string}>
+     */
+    public static function promotionBadges(): array
+    {
+        return [
+            self::RecommendationBadge => [
+                'label' => 'Recommendation',
+                'icon' => 'star',
+            ],
+            self::SuperDealBadge => [
+                'label' => 'Super Deal',
+                'icon' => 'local_fire_department',
+            ],
+        ];
+    }
+
+    /**
+     * @return array{label: string, icon: string, type: string}|null
+     */
+    public function promotionBadge(): ?array
+    {
+        if (! $this->is_featured) {
+            return null;
+        }
+
+        $badge = static::promotionBadges()[$this->promotion_badge] ?? null;
+
+        return $badge === null ? null : [...$badge, 'type' => $this->promotion_badge];
+    }
 
     public function category(): BelongsTo
     {

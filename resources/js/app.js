@@ -633,6 +633,39 @@ initializePackageCoverLayouts();
 initializeVideoDialog();
 initializePackageFilters();
 
+const initializePromotionBadgeToggle = () => {
+    const form = document.querySelector('[data-package-form]');
+    const toggle = form?.querySelector('[data-featured-badge-toggle]');
+    const options = form?.querySelector('[data-promotion-badge-options]');
+
+    if (!(form instanceof HTMLFormElement)
+        || !(toggle instanceof HTMLInputElement)
+        || !(options instanceof HTMLElement)) {
+        return;
+    }
+
+    const badgeInputs = [...options.querySelectorAll('[data-promotion-badge-input]')]
+        .filter((input) => input instanceof HTMLInputElement);
+    const synchronizeBadgeOptions = () => {
+        const isFeatured = toggle.checked;
+
+        options.classList.toggle('hidden', !isFeatured);
+        badgeInputs.forEach((input) => {
+            input.disabled = !isFeatured;
+
+            if (!isFeatured) {
+                input.checked = false;
+            }
+        });
+    };
+
+    synchronizeBadgeOptions();
+    toggle.addEventListener('change', () => {
+        synchronizeBadgeOptions();
+        form.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+};
+
 const initializeAdminNavigation = () => {
     const sidebar = document.querySelector('[data-admin-sidebar]');
     const backdrop = document.querySelector('[data-admin-backdrop]');
@@ -1021,26 +1054,73 @@ const initializeMediaUpload = () => {
         const input = form.querySelector('[data-media-file-input]');
         const dropzone = form.querySelector('[data-media-dropzone]');
         const preview = form.querySelector('[data-media-upload-preview]');
+        const errors = form.querySelector('[data-media-upload-errors]');
+        const errorList = form.querySelector('[data-media-upload-error-list]');
 
-        if (!(input instanceof HTMLInputElement) || !(dropzone instanceof HTMLElement) || !(preview instanceof HTMLElement)) {
+        if (!(input instanceof HTMLInputElement)
+            || !(dropzone instanceof HTMLElement)
+            || !(preview instanceof HTMLElement)
+            || !(errors instanceof HTMLElement)
+            || !(errorList instanceof HTMLElement)) {
             return;
         }
+
+        const maximumFileSize = 2 * 1024 * 1024;
+        const maximumImageCount = 18;
+        let isUploading = false;
+        const setErrors = (messages = []) => {
+            errorList.replaceChildren(...messages.map((message) => {
+                const item = document.createElement('li');
+
+                item.textContent = message;
+
+                return item;
+            }));
+            errors.classList.toggle('hidden', messages.length === 0);
+        };
+        const fileErrors = (files) => {
+            const selectedFiles = [...files];
+            const oversizedFiles = selectedFiles.filter((file) => file.size > maximumFileSize);
+            const messages = [];
+
+            if (selectedFiles.length === 0) {
+                messages.push('Pilih sekurang-kurangnya satu gambar untuk dimuat naik.');
+            }
+
+            if (selectedFiles.length > maximumImageCount) {
+                messages.push(`Maksimum ${maximumImageCount} gambar boleh dimuat naik pada satu masa.`);
+            }
+
+            if (oversizedFiles.length > 0) {
+                messages.push(`Setiap gambar mestilah tidak melebihi 2 MB. Fail terlalu besar: ${oversizedFiles.map((file) => file.name).join(', ')}.`);
+            }
+
+            return messages;
+        };
 
         const showPreviews = (files) => {
             const selectedFiles = [...files];
 
-            preview.replaceChildren(...selectedFiles.map((file) => {
+            preview.replaceChildren(...selectedFiles.map((file, index) => {
                 const item = document.createElement('figure');
                 const image = document.createElement('img');
                 const caption = document.createElement('figcaption');
+                const removeButton = document.createElement('button');
 
-                item.className = 'overflow-hidden rounded-xl border border-[#dce7df] bg-white';
+                item.className = 'relative overflow-hidden rounded-xl border border-[#dce7df] bg-white';
                 image.src = URL.createObjectURL(file);
                 image.alt = file.name;
                 image.className = 'aspect-[4/3] w-full object-cover';
                 caption.className = 'truncate px-3 py-2 text-xs font-medium text-[#52645b]';
                 caption.textContent = file.name;
-                item.append(image, caption);
+                removeButton.type = 'button';
+                removeButton.className = 'absolute right-2 top-2 grid size-7 place-items-center rounded-full bg-[#00251e]/90 text-base leading-none text-white shadow-sm transition hover:bg-[#b33129] focus:outline-none focus:ring-2 focus:ring-[#006b57] focus:ring-offset-2';
+                removeButton.setAttribute('aria-label', `Buang ${file.name} daripada pilihan muat naik`);
+                removeButton.textContent = '×';
+                removeButton.addEventListener('click', () => {
+                    assignFiles(selectedFiles.filter((_, fileIndex) => fileIndex !== index));
+                });
+                item.append(image, caption, removeButton);
 
                 return item;
             }));
@@ -1058,9 +1138,13 @@ const initializeMediaUpload = () => {
             [...files].forEach((file) => transfer.items.add(file));
             input.files = transfer.files;
             showPreviews(transfer.files);
+            setErrors(fileErrors(transfer.files));
         };
 
-        input.addEventListener('change', () => showPreviews(input.files ?? []));
+        input.addEventListener('change', () => {
+            showPreviews(input.files ?? []);
+            setErrors(fileErrors(input.files ?? []));
+        });
         dropzone.addEventListener('click', () => input.click());
         dropzone.addEventListener('keydown', (event) => {
             if (event.key === 'Enter' || event.key === ' ') {
@@ -1080,10 +1164,304 @@ const initializeMediaUpload = () => {
                 dropzone.classList.remove('border-[#006b57]', 'bg-[#eff9f1]');
             });
         });
-        dropzone.addEventListener('drop', (event) => assignFiles(event.dataTransfer?.files ?? []));
+        dropzone.addEventListener('drop', (event) => {
+            const files = event.dataTransfer?.files ?? [];
+
+            assignFiles(files);
+        });
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            if (isUploading) {
+                return;
+            }
+
+            const validationErrors = fileErrors(input.files ?? []);
+
+            if (validationErrors.length > 0) {
+                setErrors(validationErrors);
+
+                return;
+            }
+
+            setErrors();
+            isUploading = true;
+
+            const submitButtons = [...form.querySelectorAll('button[type="submit"]')]
+                .filter((button) => button instanceof HTMLButtonElement);
+
+            submitButtons.forEach((button) => {
+                button.disabled = true;
+            });
+
+            try {
+                const selectedFiles = [...(input.files ?? [])];
+
+                for (const [index, file] of selectedFiles.entries()) {
+                    const data = new FormData(form);
+
+                    data.delete('images[]');
+                    data.append('images[]', file);
+
+                    const response = await fetch(form.action, {
+                        method: form.method,
+                        body: data,
+                        credentials: 'same-origin',
+                        headers: {
+                            Accept: 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    });
+
+                    if (response.ok) {
+                        continue;
+                    }
+
+                    const body = await response.json().catch(() => ({}));
+                    const messages = response.status === 413
+                        ? [`${file.name} terlalu besar untuk pelayan. Sila gunakan gambar yang lebih kecil.`]
+                        : Object.values(body.errors ?? {})
+                            .flat()
+                            .filter((message) => typeof message === 'string');
+
+                    assignFiles(selectedFiles.slice(index));
+                    setErrors(messages.length > 0 ? messages : [body.message ?? 'Media tidak dapat dimuat naik. Sila cuba semula.']);
+
+                    return;
+                }
+
+                const target = new URL(form.action);
+                const section = new FormData(form).get('section');
+                const galleryDestination = new FormData(form).get('gallery_destination');
+
+                if (typeof section === 'string' && section.length > 0) {
+                    target.searchParams.set(
+                        'section',
+                        galleryDestination === 'about' ? 'about' : section,
+                    );
+                }
+
+                window.location.assign(target);
+            } catch {
+                setErrors(['Media tidak dapat dimuat naik. Sila semak sambungan internet dan cuba semula.']);
+            } finally {
+                isUploading = false;
+                submitButtons.forEach((button) => {
+                    button.disabled = false;
+                });
+            }
+        });
     });
 };
 
+const initializeMediaBulkSave = () => {
+    document.querySelectorAll('[data-media-bulk-save]').forEach((container) => {
+        if (!(container instanceof HTMLElement)) {
+            return;
+        }
+
+        const saveButton = container.querySelector('[data-media-bulk-save-button]');
+        const status = container.querySelector('[data-media-bulk-save-status]');
+        const errors = container.querySelector('[data-media-bulk-save-errors]');
+        const errorList = container.querySelector('[data-media-bulk-save-error-list]');
+        const endpoint = container.dataset.mediaBulkUrl;
+        const section = container.dataset.mediaSection;
+
+        if (!(saveButton instanceof HTMLButtonElement)
+            || !(status instanceof HTMLElement)
+            || !(errors instanceof HTMLElement)
+            || !(errorList instanceof HTMLElement)
+            || !endpoint
+            || !section) {
+            return;
+        }
+
+        const setErrors = (messages = []) => {
+            errorList.replaceChildren(...messages.map((message) => {
+                const item = document.createElement('li');
+
+                item.textContent = message;
+
+                return item;
+            }));
+            errors.classList.toggle('hidden', messages.length === 0);
+        };
+
+        saveButton.addEventListener('click', async () => {
+            const forms = [...container.querySelectorAll('[data-media-item-form]')]
+                .filter((form) => form instanceof HTMLFormElement);
+
+            if (forms.length === 0) {
+                return;
+            }
+
+            const token = forms[0].querySelector('input[name="_token"]');
+
+            if (!(token instanceof HTMLInputElement) || !token.value) {
+                setErrors(['Sesi anda telah tamat. Sila muat semula halaman dan cuba lagi.']);
+
+                return;
+            }
+
+            const data = new FormData();
+            data.append('_token', token.value);
+            data.append('_method', 'PUT');
+            data.append('section', section);
+
+            forms.forEach((form) => {
+                const id = form.dataset.mediaId;
+
+                if (!id) {
+                    return;
+                }
+
+                const category = form.querySelector('select[name="package_category_id"]');
+                const published = form.querySelector('input[name="is_published"]');
+                const homepage = form.querySelector('input[name="show_on_homepage"]');
+                const image = form.querySelector('input[name="image"]');
+
+                data.append(`items[${id}][id]`, id);
+                data.append(`items[${id}][package_category_id]`, category instanceof HTMLSelectElement ? category.value : '');
+                data.append(`items[${id}][is_published]`, published instanceof HTMLInputElement
+                    ? (published.type === 'hidden' ? published.value : (published.checked ? '1' : '0'))
+                    : '1');
+
+                if (homepage instanceof HTMLInputElement) {
+                    data.append(`items[${id}][show_on_homepage]`, homepage.checked ? '1' : '0');
+                }
+
+                if (image instanceof HTMLInputElement && image.files?.[0]) {
+                    data.append(`items[${id}][image]`, image.files[0]);
+                }
+            });
+
+            saveButton.disabled = true;
+            status.textContent = 'Menyimpan semua perubahan…';
+            setErrors();
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    body: data,
+                    credentials: 'same-origin',
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+                const body = await response.json().catch(() => ({}));
+
+                if (!response.ok) {
+                    const messages = response.status === 413
+                        ? ['Jumlah fail terlalu besar untuk pelayan. Sila simpan dalam kumpulan yang lebih kecil.']
+                        : Object.values(body.errors ?? {})
+                            .flat()
+                            .filter((message) => typeof message === 'string');
+
+                    setErrors(messages.length > 0 ? messages : [body.message ?? 'Perubahan tidak dapat disimpan. Sila cuba semula.']);
+                    status.textContent = '';
+
+                    return;
+                }
+
+                window.location.assign(body.redirect_url ?? window.location.href);
+            } catch {
+                setErrors(['Perubahan tidak dapat disimpan. Sila semak sambungan internet dan cuba semula.']);
+                status.textContent = '';
+            } finally {
+                saveButton.disabled = false;
+            }
+        });
+    });
+};
+
+
+const initializeMediaEditViews = () => {
+    const grid = document.querySelector('[data-media-edit-grid]');
+    const buttons = [...document.querySelectorAll('[data-media-edit-view-button]')]
+        .filter((button) => button instanceof HTMLButtonElement);
+
+    if (!(grid instanceof HTMLElement) || buttons.length === 0) {
+        return;
+    }
+
+    const storageKey = 'admin-media-edit-view';
+    const setView = (view) => {
+        const nextView = view === 'list' ? 'list' : 'grid';
+
+        grid.dataset.mediaEditView = nextView;
+        ['sm:grid-cols-2', 'xl:grid-cols-3'].forEach((className) => {
+            grid.classList.toggle(className, nextView === 'grid');
+        });
+        grid.querySelectorAll('[data-media-edit-card]').forEach((card) => {
+            const summary = card.querySelector('[data-media-card-summary]');
+            const details = card.querySelector('[data-media-card-details]');
+
+            if (summary instanceof HTMLElement) {
+                summary.style.display = nextView === 'list' ? 'none' : '';
+            }
+
+            if (details instanceof HTMLElement) {
+                details.style.display = nextView === 'grid' ? 'none' : '';
+            }
+        });
+        buttons.forEach((button) => {
+            button.setAttribute('aria-pressed', String(button.dataset.mediaEditViewButton === nextView));
+        });
+
+        try {
+            window.localStorage.setItem(storageKey, nextView);
+        } catch {
+            // The selected view remains active even if browser storage is unavailable.
+        }
+    };
+
+    let savedView = 'grid';
+
+    try {
+        savedView = window.localStorage.getItem(storageKey) ?? 'grid';
+    } catch {
+        // The default grid view is used when browser storage is unavailable.
+    }
+
+    setView(savedView);
+    buttons.forEach((button) => {
+        button.addEventListener('click', () => setView(button.dataset.mediaEditViewButton));
+    });
+};
+
+const initializeMediaEditDialogs = () => {
+    const dialogs = [...document.querySelectorAll('[data-media-edit-dialog]')]
+        .filter((dialog) => dialog instanceof HTMLDialogElement);
+
+    if (dialogs.length === 0) {
+        return;
+    }
+
+    document.querySelectorAll('[data-media-edit-open]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const dialog = document.getElementById(button.dataset.mediaEditOpen ?? '');
+
+            if (dialog instanceof HTMLDialogElement) {
+                dialog.showModal();
+            }
+        });
+    });
+
+    document.querySelectorAll('[data-media-edit-close]').forEach((button) => {
+        button.addEventListener('click', () => {
+            button.closest('[data-media-edit-dialog]')?.close();
+        });
+    });
+
+    dialogs.forEach((dialog) => {
+        dialog.addEventListener('click', (event) => {
+            if (event.target === dialog) {
+                dialog.close();
+            }
+        });
+    });
+};
 
 const initializePackageAiImport = () => {
     const form = document.querySelector('[data-package-form]');
@@ -2834,12 +3212,220 @@ const initializeLogoPreviews = () => {
     });
 };
 
+const initializeImageFocusEditor = () => {
+    const dialog = document.querySelector('[data-image-focus-dialog]');
+
+    if (!(dialog instanceof HTMLDialogElement)) {
+        return;
+    }
+
+    const preview = dialog.querySelector('[data-image-focus-preview]');
+    const stage = dialog.querySelector('[data-image-focus-stage]');
+    const marker = dialog.querySelector('[data-image-focus-marker]');
+    const horizontalInput = dialog.querySelector('[data-image-focus-x]');
+    const verticalInput = dialog.querySelector('[data-image-focus-y]');
+    const status = dialog.querySelector('[data-image-focus-status]');
+    const saveButton = dialog.querySelector('[data-image-focus-save]');
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    const savedPositions = document.querySelector('[data-image-focus-positions]');
+    let imageFocusPositions = {};
+    let activeButton = null;
+    let isAdjusting = false;
+
+    if (!(preview instanceof HTMLImageElement)
+        || !(stage instanceof HTMLElement)
+        || !(marker instanceof HTMLElement)
+        || !(horizontalInput instanceof HTMLInputElement)
+        || !(verticalInput instanceof HTMLInputElement)
+        || !(saveButton instanceof HTMLButtonElement)) {
+        return;
+    }
+
+    try {
+        imageFocusPositions = JSON.parse(savedPositions?.textContent ?? '{}');
+    } catch {
+        imageFocusPositions = {};
+    }
+
+    const clamp = (value) => Math.min(100, Math.max(0, Math.round(value)));
+    const position = () => ({
+        x: clamp(Number(horizontalInput.value)),
+        y: clamp(Number(verticalInput.value)),
+    });
+    const renderPosition = () => {
+        const { x, y } = position();
+        const cssPosition = `${x}% ${y}%`;
+
+        preview.style.objectPosition = cssPosition;
+        marker.style.left = `${x}%`;
+        marker.style.top = `${y}%`;
+    };
+    const setPosition = (x, y) => {
+        horizontalInput.value = String(clamp(x));
+        verticalInput.value = String(clamp(y));
+        renderPosition();
+    };
+    const updateFromPointer = (event) => {
+        const bounds = stage.getBoundingClientRect();
+
+        setPosition(
+            ((event.clientX - bounds.left) / bounds.width) * 100,
+            ((event.clientY - bounds.top) / bounds.height) * 100,
+        );
+    };
+
+    const addCollectionFocusButtons = () => {
+        document.querySelectorAll('[data-collection-existing-image]').forEach((container) => {
+            if (!(container instanceof HTMLElement) || container.querySelector('[data-image-focus-open]')) {
+                return;
+            }
+
+            const image = container.querySelector('img');
+            const pathInput = [...container.querySelectorAll('input[type="hidden"]')]
+                .find((input) => input instanceof HTMLInputElement && input.value);
+
+            if (!(image instanceof HTMLImageElement) || !(pathInput instanceof HTMLInputElement)) {
+                return;
+            }
+
+            const path = pathInput.value;
+            const button = document.createElement('button');
+
+            image.dataset.imageFocusPath = path;
+            image.style.objectPosition = imageFocusPositions[path] ?? '50% 50%';
+            button.type = 'button';
+            button.setAttribute('data-image-focus-open', '');
+            button.dataset.imageFocusPath = path;
+            button.dataset.imageFocusUrl = image.currentSrc || image.src;
+            button.dataset.imageFocusPosition = imageFocusPositions[path] ?? '50% 50%';
+            button.dataset.imageFocusSaveUrl = dialog.dataset.imageFocusSaveUrl ?? '';
+            button.className = 'absolute bottom-1 left-1 grid size-7 place-items-center rounded-md bg-white/95 text-[#006b57] shadow';
+            button.setAttribute('aria-label', 'Laraskan fokus gambar');
+            button.innerHTML = '<span class="material-symbols-outlined text-[16px]">center_focus_strong</span>';
+            container.append(button);
+        });
+    };
+
+    addCollectionFocusButtons();
+
+    document.addEventListener('click', (event) => {
+        const button = event.target instanceof Element
+            ? event.target.closest('[data-image-focus-open]')
+            : null;
+
+        if (!(button instanceof HTMLElement)) {
+            return;
+        }
+
+        const [x = '50', y = '50'] = (button.dataset.imageFocusPosition ?? '50% 50%')
+            .replaceAll('%', '')
+            .split(/\s+/);
+
+        activeButton = button;
+        preview.src = button.dataset.imageFocusUrl ?? '';
+        status.textContent = '';
+        setPosition(Number(x), Number(y));
+        dialog.showModal();
+    });
+
+    [horizontalInput, verticalInput].forEach((input) => input.addEventListener('input', renderPosition));
+    stage.addEventListener('pointerdown', (event) => {
+        isAdjusting = true;
+        stage.setPointerCapture(event.pointerId);
+        updateFromPointer(event);
+    });
+    stage.addEventListener('pointermove', (event) => {
+        if (isAdjusting) {
+            updateFromPointer(event);
+        }
+    });
+    stage.addEventListener('pointerup', () => {
+        isAdjusting = false;
+    });
+    stage.addEventListener('pointercancel', () => {
+        isAdjusting = false;
+    });
+
+    dialog.querySelector('[data-image-focus-close]')?.addEventListener('click', () => dialog.close());
+    dialog.querySelector('[data-image-focus-reset]')?.addEventListener('click', () => setPosition(50, 50));
+    dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) {
+            dialog.close();
+        }
+    });
+    dialog.addEventListener('close', () => {
+        preview.removeAttribute('src');
+        activeButton = null;
+    });
+
+    saveButton.addEventListener('click', async () => {
+        if (!(activeButton instanceof HTMLElement) || !csrfToken) {
+            return;
+        }
+
+        const { x, y } = position();
+        const saveUrl = activeButton.dataset.imageFocusSaveUrl;
+
+        if (!saveUrl) {
+            return;
+        }
+
+        saveButton.disabled = true;
+        status.textContent = 'Menyimpan fokus gambar…';
+
+        try {
+            const response = await fetch(saveUrl, {
+                method: 'PUT',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                },
+                body: JSON.stringify({
+                    path: activeButton.dataset.imageFocusPath,
+                    position_x: x,
+                    position_y: y,
+                }),
+            });
+            const body = await response.json();
+
+            if (!response.ok) {
+                throw new Error(body.message ?? 'Fokus gambar tidak dapat disimpan.');
+            }
+
+            const cssPosition = body.position ?? `${x}% ${y}%`;
+            const path = activeButton.dataset.imageFocusPath ?? '';
+
+            imageFocusPositions[path] = cssPosition;
+
+            document.querySelectorAll('[data-image-focus-open]').forEach((button) => {
+                if (button.dataset.imageFocusPath === path) {
+                    button.dataset.imageFocusPosition = cssPosition;
+                }
+            });
+            document.querySelectorAll(`[data-image-focus-path="${CSS.escape(path)}"]`).forEach((image) => {
+                image.style.objectPosition = cssPosition;
+            });
+            status.textContent = body.message ?? 'Fokus gambar berjaya disimpan.';
+            window.setTimeout(() => dialog.close(), 450);
+        } catch (error) {
+            status.textContent = error instanceof Error ? error.message : 'Fokus gambar tidak dapat disimpan.';
+        } finally {
+            saveButton.disabled = false;
+        }
+    });
+};
+
 initializeAdminNavigation();
 initializePasswordToggles();
 initializeBulkSelection();
 initializeAdminTabs();
 initializePackageForm();
+initializePromotionBadgeToggle();
 initializeMediaUpload();
+initializeMediaBulkSave();
+initializeMediaEditViews();
+initializeMediaEditDialogs();
 initializePackageAiImport();
 initializePackagePosterPrompt();
 initializePackageFormEnhancements();
@@ -2856,3 +3442,4 @@ initializeCategoryHeroMedia();
 initializeCategorySlugPreviews();
 initializeNotificationMenus();
 initializeLogoPreviews();
+initializeImageFocusEditor();

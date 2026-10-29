@@ -314,6 +314,9 @@ class PackageController extends Controller
             'hotel_information' => $validated['hotel_information'] ?? null,
             'flight_information' => $validated['flight_information'] ?? null,
             'is_featured' => $request->boolean('is_featured'),
+            'promotion_badge' => $request->boolean('is_featured')
+                ? $validated['promotion_badge'] ?? null
+                : null,
             'is_date_flexible' => $request->boolean('is_date_flexible'),
             'display_order' => $package->exists
                 ? $package->display_order

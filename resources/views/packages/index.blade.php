@@ -34,7 +34,7 @@
 
         <div class="mt-10 flex items-center justify-between gap-4"><p class="text-sm font-semibold text-slate-500">{{ $packages->total() }} pakej ditemui</p></div>
         @if ($packages->isNotEmpty())
-            <div class="mt-5 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3 [scrollbar-width:thin] sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 xl:grid-cols-3">@foreach ($packages as $package)<x-package-card :package="$package" />@endforeach</div>
+            <div class="mt-5 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3 pt-14 [scrollbar-width:thin] sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 xl:grid-cols-3">@foreach ($packages as $package)<x-package-card :package="$package" />@endforeach</div>
             <div class="mt-10">{{ $packages->links() }}</div>
         @else
             <div class="panel mt-5 p-10 text-center"><p class="text-lg font-extrabold text-dark-green">Tiada pakej sepadan buat masa ini.</p><p class="mt-2 text-sm text-slate-500">Cuba longgarkan penapis anda untuk melihat pakej yang tersedia.</p><a class="button-primary mt-5" href="{{ route('packages.index') }}">Lihat semua pakej</a></div>

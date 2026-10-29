@@ -12,7 +12,7 @@
 
                 <div class="ds-about-photo {{ in_array($imageIndex, [0, 3], true) ? 'ds-about-photo--portrait' : 'ds-about-photo--square' }} {{ in_array($imageIndex, [1, 3], true) ? 'ds-about-photo--offset' : '' }}">
                     @if ($mediaItem)
-                        <img alt="{{ $mediaItem->alt_text ?: 'Foto SalamHaji' }}" class="ds-about-photo__image" decoding="async" loading="lazy" src="{{ $mediaItem->url() }}">
+                        <img alt="{{ $mediaItem->alt_text ?: 'Foto SalamHaji' }}" class="ds-about-photo__image" decoding="async" loading="lazy" src="{{ $mediaItem->url() }}" style="object-position: {{ $imageFocusPositions[$mediaItem->path] ?? '50% 50%' }}">
                     @else
                         <div class="ds-about-photo__placeholder">Slot gambar {{ $imageIndex + 1 }}<br>urus melalui Kandungan Homepage</div>
                     @endif

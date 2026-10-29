@@ -36,6 +36,7 @@ class WebsiteSetting extends Model
             'office_address' => '',
             'office_hours' => '',
             'registered_address' => '',
+            'company_address' => "SALAM HAJI TRAVEL & TOURS\nUnit G -2-50, Jalan SP 11/3\nSeri Pristana\n47000 Sungai Buloh\nSelangor",
             'public_contact_address' => "DARULSOFFI PUNCAK JALIL\n1-79, Jalan PUJ 3/9,\nTaman Puncak Jalil,\n43300 Seri Kembangan,\nSelangor.",
             'map_url' => 'https://www.google.com/maps/search/?api=1&query=1-79%20Jalan%20PUJ%203%2F9%2C%20Taman%20Puncak%20Jalil%2C%2043300%20Seri%20Kembangan%2C%20Selangor',
             'motac_license_number' => 'MOTAC L/N/10909',

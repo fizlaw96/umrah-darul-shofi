@@ -48,7 +48,7 @@
                     <a class="transition hover:text-dark-green {{ request()->routeIs('home') ? 'text-dark-green' : '' }}" href="{{ route('home') }}">Utama</a>
                     <a class="transition hover:text-dark-green {{ request()->routeIs('packages.*', 'bookings.*') ? 'text-dark-green' : '' }}" href="{{ route('packages.index') }}">Pakej</a>
                     <a class="transition hover:text-dark-green {{ request()->routeIs('about') ? 'text-dark-green' : '' }}" href="{{ route('about') }}">Tentang Kami</a>
-                    <a class="transition hover:text-dark-green" href="{{ route('home') }}#galeri-perjalanan">Galeri</a>
+                    <a class="transition hover:text-dark-green {{ request()->routeIs('gallery.*') ? 'text-dark-green' : '' }}" href="{{ route('gallery.index') }}">Galeri</a>
                     <a class="transition hover:text-dark-green {{ request()->routeIs('mutawifs.*') ? 'text-dark-green' : '' }}" href="{{ route('mutawifs.index') }}">Mutawif</a>
                 </nav>
 
@@ -67,7 +67,7 @@
                         <a class="rounded-lg px-3 py-2.5 text-sm font-bold hover:bg-[#f5f3ef]" href="{{ route('home') }}">Utama</a>
                         <a class="rounded-lg px-3 py-2.5 text-sm font-bold hover:bg-[#f5f3ef]" href="{{ route('packages.index') }}">Pakej</a>
                         <a class="rounded-lg px-3 py-2.5 text-sm font-bold hover:bg-[#f5f3ef]" href="{{ route('about') }}">Tentang Kami</a>
-                        <a class="rounded-lg px-3 py-2.5 text-sm font-bold hover:bg-[#f5f3ef]" href="{{ route('home') }}#galeri-perjalanan">Galeri</a>
+                        <a class="rounded-lg px-3 py-2.5 text-sm font-bold hover:bg-[#f5f3ef]" href="{{ route('gallery.index') }}">Galeri</a>
                         <a class="rounded-lg px-3 py-2.5 text-sm font-bold hover:bg-[#f5f3ef]" href="{{ route('mutawifs.index') }}">Mutawif</a>
                         <a class="rounded-lg px-3 py-2.5 text-sm font-bold hover:bg-[#f5f3ef]" href="{{ route('packages.index') }}">Lihat Semua Pakej</a>
                     </nav>

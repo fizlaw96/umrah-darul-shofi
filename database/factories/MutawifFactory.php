@@ -19,6 +19,7 @@ class MutawifFactory extends Factory
     {
         return [
             'full_name' => fake()->name(),
+            'qualification' => fake()->sentence(),
             'is_published' => true,
             'sort_order' => fake()->numberBetween(0, 20),
         ];

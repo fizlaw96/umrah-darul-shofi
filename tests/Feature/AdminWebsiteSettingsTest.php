@@ -208,7 +208,40 @@ it('renders the grouped website settings form', function () {
         ->assertDontSee('type="checkbox" name="remove_footer_logo"', false)
         ->assertSee('sehingga 8MB dan maksimum 4,096 × 4,096 piksel', false)
         ->assertSee('favicon (64px) dan ikon telefon Apple (180px)', false)
-        ->assertSee('Logo ini digunakan pada footer sahaja', false);
+        ->assertSee('Logo ini digunakan pada footer sahaja', false)
+        ->assertSee('Alamat Salam Haji')
+        ->assertSee('Alamat Darul Soffi / cawangan');
+});
+
+it('allows staff to manage separate Salam Haji and Darul Soffi footer addresses', function () {
+    $staff = User::factory()->staff()->create();
+    $companyAddress = "SALAM HAJI TRAVEL & TOURS\nUnit G -2-50, Jalan SP 11/3\nSeri Pristana\n47000 Sungai Buloh\nSelangor";
+    $publicContactAddress = "DARULSOFFI PUNCAK JALIL\n1-79, Jalan PUJ 3/9,\nTaman Puncak Jalil,\n43300 Seri Kembangan,\nSelangor.";
+    $mapUrl = 'https://www.google.com/maps/search/?api=1&query=1-79%20Jalan%20PUJ%203%2F9%2C%20Taman%20Puncak%20Jalil%2C%2043300%20Seri%20Kembangan%2C%20Selangor';
+
+    $this->actingAs($staff)
+        ->put(route('admin.settings.update'), [
+            'tab' => 'contact',
+            'company_name' => 'SalamHaji Travel & Tours',
+            'company_address' => $companyAddress,
+            'public_contact_address' => $publicContactAddress,
+            'map_url' => $mapUrl,
+        ])
+        ->assertRedirect(route('admin.settings.edit', ['tab' => 'contact']));
+
+    expect(WebsiteSetting::getValue('company_address'))->toBe($companyAddress)
+        ->and(WebsiteSetting::getValue('public_contact_address'))->toBe($publicContactAddress)
+        ->and(WebsiteSetting::getValue('map_url'))->toBe($mapUrl);
+
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertSee('SALAM HAJI TRAVEL &amp; TOURS', false)
+        ->assertSee('Unit G -2-50, Jalan SP 11/3')
+        ->assertSeeInOrder([
+            'Unit G -2-50, Jalan SP 11/3',
+            'DARULSOFFI PUNCAK JALIL',
+        ])
+        ->assertSee(e($mapUrl), false);
 });
 
 it('defaults the About CTA URL to the About page', function () {

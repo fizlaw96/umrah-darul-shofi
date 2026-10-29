@@ -552,13 +552,56 @@ it('accepts YouTube links but rejects other featured video links', function () {
 });
 
 it('renders only published mutawif profiles on the public page', function () {
-    $published = Mutawif::factory()->create(['full_name' => 'Ustaz Ahmad', 'is_published' => true]);
+    $published = Mutawif::factory()->create([
+        'full_name' => 'Ustaz Ahmad',
+        'qualification' => 'Bertauliah membimbing jemaah umrah.',
+        'is_published' => true,
+    ]);
     $draft = Mutawif::factory()->create(['full_name' => 'Ustaz Rahsia', 'is_published' => false]);
 
     $this->get(route('mutawifs.index'))
         ->assertOk()
         ->assertSee($published->full_name)
+        ->assertSee($published->qualification)
+        ->assertDontSee('Lihat lagi')
         ->assertDontSee($draft->full_name);
+});
+
+it('collapses long published mutawif qualifications on the current page', function () {
+    $qualification = 'Mempunyai pengalaman lebih daripada lima belas tahun dalam membimbing jemaah umrah dan haji. Bertauliah dalam pengurusan ibadah, keselamatan perjalanan, serta penyampaian kursus persediaan kepada kumpulan jemaah Malaysia.';
+
+    Mutawif::factory()->create([
+        'qualification' => $qualification,
+        'is_published' => true,
+    ]);
+
+    $this->get(route('mutawifs.index'))
+        ->assertOk()
+        ->assertSee('<details class="group mt-3">', false)
+        ->assertSee('Lihat lagi')
+        ->assertSee($qualification);
+});
+
+it('stores mutawif qualification data', function () {
+    $staff = User::factory()->staff()->create();
+
+    $this->actingAs($staff)
+        ->get(route('admin.mutawifs.create'))
+        ->assertOk()
+        ->assertSee('name="qualification"', false);
+
+    $this->post(route('admin.mutawifs.store'), [
+        'full_name' => 'Ustaz Ismail',
+        'qualification' => 'Pembimbing Umrah bertauliah.',
+        'is_published' => true,
+    ])
+        ->assertRedirect(route('admin.mutawifs.index'));
+
+    $this->assertDatabaseHas('mutawifs', [
+        'full_name' => 'Ustaz Ismail',
+        'qualification' => 'Pembimbing Umrah bertauliah.',
+        'is_published' => true,
+    ]);
 });
 
 it('shows and removes the current mutawif and testimonial photos from their edit forms', function () {

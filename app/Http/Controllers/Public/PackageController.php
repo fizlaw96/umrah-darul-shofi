@@ -54,6 +54,8 @@ class PackageController extends Controller
                 });
             });
 
+        $packages->orderByDesc('is_featured');
+
         match ($sort) {
             'price_asc' => $packages->orderBy('starting_price_sen'),
             'price_desc' => $packages->orderByDesc('starting_price_sen'),

@@ -120,7 +120,7 @@ class SettingsController extends Controller
             return 'legal';
         }
 
-        if (str_starts_with($key, 'contact_') || in_array($key, ['facebook_url', 'instagram_url', 'tiktok_url', 'threads_url', 'privacy_url', 'terms_url', 'public_contact_address', 'map_url', 'office_hours'], true)) {
+        if (str_starts_with($key, 'contact_') || in_array($key, ['company_address', 'facebook_url', 'instagram_url', 'tiktok_url', 'threads_url', 'privacy_url', 'terms_url', 'public_contact_address', 'map_url', 'office_hours'], true)) {
             return 'contact';
         }
 

@@ -147,6 +147,7 @@ class PackageRequest extends FormRequest
             'departure_rows.*.capacity' => ['nullable', 'integer', 'min:1', 'max:10000'],
             'departure_rows.*.status' => ['nullable', Rule::in(['draft', 'open', 'closed', 'cancelled'])],
             'is_featured' => ['nullable', 'boolean'],
+            'promotion_badge' => ['nullable', 'string', Rule::in(array_keys(Package::promotionBadges()))],
             'is_date_flexible' => ['nullable', 'boolean'],
             'intent' => ['nullable', Rule::in(['draft', 'publish'])],
             'status' => ['nullable', Rule::in(['draft', 'published', 'archived'])],
@@ -160,6 +161,10 @@ class PackageRequest extends FormRequest
     {
         return [
             function (Validator $validator): void {
+                if ($this->boolean('is_featured') && blank($this->input('promotion_badge'))) {
+                    $validator->errors()->add('promotion_badge', 'Pilih satu badge promosi untuk pakej pilihan.');
+                }
+
                 $this->requireCompleteRows($validator, 'room_prices', [
                     'room_type' => 'Jenis bilik',
                     'price' => 'Harga seorang',

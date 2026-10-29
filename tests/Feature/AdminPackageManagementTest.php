@@ -85,6 +85,43 @@ it('saves a package as a draft with its travel settings', function () {
     expect($package->display_order)->toBe(1);
 });
 
+it('requires a promotion badge when a package is marked as featured', function () {
+    $staff = User::factory()->staff()->create();
+    $category = PackageCategory::factory()->create();
+
+    $this->actingAs($staff)
+        ->post(route('admin.packages.store'), packagePayload($category, [
+            'is_featured' => '1',
+        ]))
+        ->assertRedirect()
+        ->assertSessionHasErrors([
+            'promotion_badge' => 'Pilih satu badge promosi untuk pakej pilihan.',
+        ]);
+
+    expect(Package::query()->count())->toBe(0);
+});
+
+it('removes a promotion badge when a package is no longer featured', function () {
+    $staff = User::factory()->staff()->create();
+    $category = PackageCategory::factory()->create();
+    $package = Package::factory()->for($category, 'category')->create([
+        'is_featured' => true,
+        'promotion_badge' => Package::RecommendationBadge,
+    ]);
+
+    $this->actingAs($staff)
+        ->put(route('admin.packages.update', $package), packagePayload($category, [
+            'promotion_badge' => Package::SuperDealBadge,
+        ]))
+        ->assertRedirect();
+
+    $package->refresh();
+
+    expect($package->is_featured)->toBeFalse()
+        ->and($package->promotion_badge)->toBeNull()
+        ->and($package->promotionBadge())->toBeNull();
+});
+
 it('generates the package code and URL from the package name', function () {
     $staff = User::factory()->staff()->create();
     $category = PackageCategory::factory()->create();
@@ -609,6 +646,62 @@ it('opens a package archive notification in the package editor and marks it as r
         ->assertRedirect(route('admin.packages.edit', $package));
 
     expect($notification->fresh()->read_at)->not->toBeNull();
+});
+
+it('prioritizes unread package archive notifications in the menu', function () {
+    $staff = User::factory()->staff()->create();
+    $readPackage = Package::factory()->create(['title' => 'Pakej Notifikasi Dibaca']);
+    $unreadPackage = Package::factory()->create(['title' => 'Pakej Notifikasi Baharu']);
+
+    $staff->notify(new PackageArchived($readPackage));
+    $staff->notifications()->sole()->markAsRead();
+    $staff->notify(new PackageArchived($unreadPackage));
+
+    $this->actingAs($staff)
+        ->get(route('admin.dashboard'))
+        ->assertOk()
+        ->assertSee('Tandakan semua dibaca')
+        ->assertSee('1 baharu')
+        ->assertSeeInOrder([
+            "Pakej {$unreadPackage->title} telah diarkibkan.",
+            "Pakej {$readPackage->title} telah diarkibkan.",
+        ]);
+});
+
+it('marks a staff member archive notifications as read and then shows only the latest notification', function () {
+    $staff = User::factory()->staff()->create();
+    $otherStaff = User::factory()->staff()->create();
+    $olderPackage = Package::factory()->create(['title' => 'Pakej Notifikasi Lama']);
+    $latestPackage = Package::factory()->create(['title' => 'Pakej Notifikasi Terkini']);
+    $otherStaffPackage = Package::factory()->create(['title' => 'Pakej Notifikasi Pentadbir Lain']);
+
+    $staff->notify(new PackageArchived($olderPackage));
+    $olderNotification = $staff->notifications()->sole();
+    $olderNotification->forceFill(['created_at' => now()->subMinute()])->save();
+
+    $staff->notify(new PackageArchived($latestPackage));
+    $latestNotification = $staff->notifications()->where('id', '!=', $olderNotification->id)->sole();
+
+    $otherStaff->notify(new PackageArchived($otherStaffPackage));
+    $otherStaffNotification = $otherStaff->notifications()->sole();
+
+    $this->actingAs($staff)
+        ->from(route('admin.dashboard'))
+        ->post(route('admin.package-notifications.mark-all-as-read'))
+        ->assertRedirect(route('admin.dashboard'))
+        ->assertSessionHas('success', 'Semua pemberitahuan telah ditandakan sebagai dibaca.');
+
+    expect($olderNotification->fresh()->read_at)->not->toBeNull()
+        ->and($latestNotification->fresh()->read_at)->not->toBeNull()
+        ->and($otherStaffNotification->fresh()->read_at)->toBeNull();
+
+    $this->actingAs($staff)
+        ->get(route('admin.dashboard'))
+        ->assertOk()
+        ->assertSee('Tiada baharu')
+        ->assertDontSee('Tandakan semua dibaca')
+        ->assertSee("Pakej {$latestPackage->title} telah diarkibkan.")
+        ->assertDontSee("Pakej {$olderPackage->title} telah diarkibkan.");
 });
 
 it('stores valid images and rejects invalid package uploads', function () {

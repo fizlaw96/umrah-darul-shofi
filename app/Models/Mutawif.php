@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-#[Fillable(['full_name', 'photo', 'is_published', 'sort_order'])]
+#[Fillable(['full_name', 'qualification', 'photo', 'is_published', 'sort_order'])]
 class Mutawif extends Model
 {
     /** @use HasFactory<MutawifFactory> */

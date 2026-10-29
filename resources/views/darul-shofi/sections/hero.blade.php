@@ -24,6 +24,7 @@
                 'cta_label' => $heroSlide?->cta_label ?: 'Terokai Pakej',
                 'cta_url' => $ctaUrl,
                 'poster' => $heroSlide?->imageUrl() ?: $fallbackPosters[$index % count($fallbackPosters)],
+                'image_position' => $heroSlide?->background_image ? ($imageFocusPositions[$heroSlide->background_image] ?? '50% 50%') : '50% 50%',
                 'video' => $heroSlide?->videoUrl() ?: '',
             ];
         });
@@ -41,6 +42,7 @@
                 'cta_label' => $heroSlide->cta_label ?: 'Lihat Pakej',
                 'cta_url' => $ctaUrl,
                 'poster' => $heroSlide->imageUrl() ?: $fallbackPosters[$index % count($fallbackPosters)],
+                'image_position' => $heroSlide->background_image ? ($imageFocusPositions[$heroSlide->background_image] ?? '50% 50%') : '50% 50%',
                 'video' => $heroSlide->videoUrl() ?: '',
             ];
         });
@@ -53,6 +55,7 @@
                 'cta_label' => 'Lihat Semua Pakej',
                 'cta_url' => route('packages.index'),
                 'poster' => $fallbackPoster,
+                'image_position' => '50% 50%',
                 'video' => '',
             ]]);
         }
@@ -63,7 +66,7 @@
 
 <section class="ds-cinematic-hero" data-hero-carousel>
     <div class="ds-cinematic-hero__media" aria-hidden="true">
-        <img class="ds-cinematic-hero__poster" data-hero-poster src="{{ $firstHeroItem['poster'] }}" alt="">
+        <img class="ds-cinematic-hero__poster" data-hero-poster src="{{ $firstHeroItem['poster'] }}" style="object-position: {{ $firstHeroItem['image_position'] }}" alt="">
         <video class="ds-cinematic-hero__video ds-cinematic-hero__video--unavailable" data-hero-video muted loop playsinline preload="metadata" poster="{{ $firstHeroItem['poster'] }}"></video>
         <div class="ds-cinematic-hero__overlay"></div>
     </div>
@@ -75,7 +78,7 @@
     </div>
     <div hidden aria-hidden="true">
         @foreach ($heroItems as $heroItem)
-            <span data-hero-slide data-hero-badge="{{ $siteSettings['company_name'] }}" data-hero-package-name="{{ $heroItem['title'] }}" data-hero-package-season="{{ $heroItem['subtitle'] }}" data-hero-package-price="{{ $heroItem['price'] }}" data-hero-cta-label="{{ $heroItem['cta_label'] }}" data-hero-cta-url="{{ $heroItem['cta_url'] }}" data-hero-poster="{{ $heroItem['poster'] }}" data-hero-video="{{ $heroItem['video'] }}" data-hero-video-position="center" data-hero-video-start="0"></span>
+            <span data-hero-slide data-hero-badge="{{ $siteSettings['company_name'] }}" data-hero-package-name="{{ $heroItem['title'] }}" data-hero-package-season="{{ $heroItem['subtitle'] }}" data-hero-package-price="{{ $heroItem['price'] }}" data-hero-cta-label="{{ $heroItem['cta_label'] }}" data-hero-cta-url="{{ $heroItem['cta_url'] }}" data-hero-poster="{{ $heroItem['poster'] }}" data-hero-image-position="{{ $heroItem['image_position'] }}" data-hero-video="{{ $heroItem['video'] }}" data-hero-video-position="center" data-hero-video-start="0"></span>
         @endforeach
     </div>
 </section>

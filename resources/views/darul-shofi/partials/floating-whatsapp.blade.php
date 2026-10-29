@@ -1,4 +1,11 @@
 {{-- Based on supplied Stitch HTML: partials/floating-whatsapp.blade.php --}}
+@php
+    $number ??= preg_replace('/\D+/', '', (string) ($siteSettings['contact_whatsapp'] ?: config('darul_shofi.whatsapp_number', '')));
+    $whatsappDisplay ??= $siteSettings['contact_whatsapp'] ?: config('darul_shofi.whatsapp_display', '');
+    $whatsappLink ??= static fn (string $message = ''): string => $number !== ''
+        ? 'https://wa.me/'.$number.($message !== '' ? '?text='.rawurlencode($message) : '')
+        : '#hubungi';
+@endphp
 <div class="fixed bottom-6 right-6 z-50 flex items-center group">
 <!-- Tooltip -->
 <div class="hidden sm:block mr-3 px-3.5 py-1.5 rounded-full bg-white text-brand-emerald text-xs font-semibold shadow-lg border border-brand-gold/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">

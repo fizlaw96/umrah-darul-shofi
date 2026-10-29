@@ -20,10 +20,17 @@
         @else
             <div class="ds-package-category-scroller" data-package-scroller>
                 @foreach ($packages as $package)
-                    <article class="ds-home-package-card">
+                    @php($promotionBadge = $package->promotionBadge())
+                    <article @class([
+                        'ds-home-package-card',
+                        'ds-home-package-card--super-deal' => $promotionBadge && $promotionBadge['type'] === \App\Models\Package::SuperDealBadge,
+                    ])>
+                        @if ($promotionBadge)
+                            <span class="ds-package-badge ds-package-badge--{{ str_replace('_', '-', $promotionBadge['type']) }}"><i class="fa-solid fa-{{ $promotionBadge['type'] === \App\Models\Package::RecommendationBadge ? 'star' : 'bolt' }}"></i><span>{{ $promotionBadge['label'] }}</span></span>
+                        @endif
                         <button type="button" class="ds-home-package-card__poster" data-home-package-poster data-poster-src="{{ $package->posterImageUrl() }}" data-poster-alt="{{ $package->title }}" aria-label="Lihat poster {{ $package->title }}">
                             @if ($package->posterImageUrl())
-                                <img src="{{ $package->posterImageUrl() }}" alt="{{ $package->title }}" loading="lazy">
+                                <img src="{{ $package->posterImageUrl() }}" alt="{{ $package->title }}" style="object-position: {{ $imageFocusPositions[$package->poster_image ?: $package->cover_image] ?? '50% 50%' }}" loading="lazy">
                             @else
                                 <span class="ds-home-package-card__empty-poster"><i class="fa-solid fa-kaaba"></i></span>
                             @endif
@@ -45,6 +52,7 @@
                     </article>
                 @endforeach
             </div>
+            <p class="ds-package-category-section__swipe-hint" data-package-swipe-hint aria-live="polite"><i class="fa-solid fa-arrow-left"></i><span data-package-swipe-hint-text>Leret untuk lihat pakej lain</span><i class="fa-solid fa-arrow-right"></i></p>
         @endif
     </div>
 </section>

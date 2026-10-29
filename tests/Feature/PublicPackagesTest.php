@@ -42,7 +42,7 @@ it('renders the mobile menu, cinematic package carousel, and gallery lightbox', 
         ->assertSee('id="darul-gallery-lightbox"', false);
 });
 
-it('includes every visible homepage category in the cinematic hero without requiring a package', function () {
+it('only includes homepage categories that have a public package', function () {
     $umrah = PackageCategory::factory()->create([
         'name' => 'Pakej Umrah',
         'slug' => 'pakej-umrah',
@@ -65,15 +65,16 @@ it('includes every visible homepage category in the cinematic hero without requi
         'is_published' => true,
         'sort_order' => 1,
     ]);
+    Package::factory()->published()->for($umrah, 'category')->create([
+        'starting_price_sen' => 650000,
+    ]);
 
     $response = $this->get(route('home'))
         ->assertOk()
         ->assertSee('data-hero-package-name="Pakej Umrah"', false)
-        ->assertSee('data-hero-package-name="Pakej Haji"', false)
-        ->assertSee(route('packages.index', ['category' => $haji->slug]), false)
-        ->assertSee('umrah-premium-makkah-hero.png', false);
+        ->assertDontSee('data-hero-package-name="Pakej Haji"', false);
 
-    expect(substr_count($response->getContent(), 'data-hero-slide'))->toBe(2);
+    expect(substr_count($response->getContent(), 'data-hero-slide'))->toBe(1);
 });
 
 it('falls back to the contact section when WhatsApp is not configured', function () {
@@ -103,6 +104,34 @@ it('shows published packages and hides drafts from the catalogue', function () {
         ->assertSee($published->title)
         ->assertSee('Logo Pusat Pendidikan dan Bimbingan Darul Soffi')
         ->assertDontSee($draft->title);
+});
+
+it('places recommended packages first and shows the selected promotion badge', function () {
+    $category = PackageCategory::factory()->create();
+    $recommendedPackage = Package::factory()->published()->for($category, 'category')->create([
+        'title' => 'Pakej Recommendation',
+        'is_featured' => true,
+        'promotion_badge' => Package::RecommendationBadge,
+        'published_at' => now(),
+    ]);
+    $superDealPackage = Package::factory()->published()->for($category, 'category')->create([
+        'title' => 'Pakej Super Deal',
+        'is_featured' => true,
+        'promotion_badge' => Package::SuperDealBadge,
+        'published_at' => now()->subWeek(),
+    ]);
+
+    $this->get(route('packages.index'))
+        ->assertOk()
+        ->assertSeeInOrder([$recommendedPackage->title, $superDealPackage->title])
+        ->assertSee('Recommendation')
+        ->assertSee('Super Deal')
+        ->assertSee('package-card__badge--recommendation', false)
+        ->assertSee('package-card__badge--super-deal', false);
+
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertSee('ds-package-badge--super-deal', false);
 });
 
 it('shows closed departures publicly but hides packages with draft-only departures', function () {

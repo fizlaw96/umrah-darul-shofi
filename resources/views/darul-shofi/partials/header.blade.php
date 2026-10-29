@@ -22,7 +22,7 @@
                 <a class="transition hover:text-brand-emerald" href="{{ route('home') }}">Utama</a>
                 <a class="transition hover:text-brand-emerald" href="{{ route('packages.index') }}">Pakej</a>
                 <a class="transition hover:text-brand-emerald" href="{{ route('about') }}">Tentang Kami</a>
-                <a class="transition hover:text-brand-emerald" href="{{ route('home') }}#galeri">Galeri</a>
+                <a class="transition hover:text-brand-emerald" href="{{ route('gallery.index') }}">Galeri</a>
                 <a class="transition hover:text-brand-emerald" href="{{ route('mutawifs.index') }}">Mutawif</a>
             </nav>
 
@@ -40,7 +40,7 @@
                 <a class="rounded-xl px-3 py-3 hover:bg-brand-cream" href="{{ route('packages.index') }}">Pakej</a>
                 <a class="rounded-xl px-3 py-3 hover:bg-brand-cream" href="{{ route('about') }}">Tentang Kami</a>
                 <a class="rounded-xl px-3 py-3 hover:bg-brand-cream" href="{{ route('mutawifs.index') }}">Mutawif</a>
-                <a class="rounded-xl px-3 py-3 hover:bg-brand-cream" href="{{ route('home') }}#galeri">Galeri</a>
+                <a class="rounded-xl px-3 py-3 hover:bg-brand-cream" href="{{ route('gallery.index') }}">Galeri</a>
                 <a class="rounded-xl px-3 py-3 hover:bg-brand-cream" href="{{ route('packages.index') }}">Lihat Semua Pakej</a>
             </div>
         </nav>

@@ -74,6 +74,7 @@
       ctaLabel: slide.dataset.heroCtaLabel || 'Lihat Pakej',
       ctaUrl: slide.dataset.heroCtaUrl || '#pakej',
       poster: slide.dataset.heroPoster || '',
+      imagePosition: slide.dataset.heroImagePosition || '50% 50%',
       video: slide.dataset.heroVideo || '',
       videoPosition: slide.dataset.heroVideoPosition || 'center',
       videoStart: Number(slide.dataset.heroVideoStart || 0),
@@ -157,7 +158,7 @@
 
       heroCarousel.dataset.activeSlide = String(active + 1);
       updatePoster(slide.poster);
-      poster.style.objectPosition = slide.videoPosition;
+      poster.style.objectPosition = slide.imagePosition;
       if (video) video.style.objectPosition = slide.videoPosition;
       badge.textContent = slide.badge;
       headline.setAttribute('aria-label', `${slide.name} ${slide.season}`);
@@ -234,6 +235,20 @@
     const scroller = carousel.querySelector('[data-package-scroller]');
     if (!scroller) return;
 
+    const swipeHint = carousel.querySelector('[data-package-swipe-hint]');
+    const swipeHintText = carousel.querySelector('[data-package-swipe-hint-text]');
+    const updateSwipeHint = () => {
+      if (!swipeHint) return;
+
+      const canScroll = scroller.scrollWidth > scroller.clientWidth + 8;
+      swipeHint.dataset.scrollable = String(canScroll);
+      if (!swipeHintText) return;
+
+      swipeHintText.textContent = canScroll && scroller.scrollLeft > 24
+        ? 'Leret untuk kembali atau lihat lagi'
+        : 'Leret untuk lihat pakej lain';
+    };
+
     const amount = () => Math.max(scroller.clientWidth * .78, 260);
     carousel.querySelector('[data-package-scroll="previous"]')?.addEventListener('click', () => {
       scroller.scrollBy({ left: -amount(), behavior: motion() });
@@ -241,6 +256,9 @@
     carousel.querySelector('[data-package-scroll="next"]')?.addEventListener('click', () => {
       scroller.scrollBy({ left: amount(), behavior: motion() });
     });
+    scroller.addEventListener('scroll', updateSwipeHint, { passive: true });
+    window.addEventListener('resize', updateSwipeHint);
+    updateSwipeHint();
   });
 
   // Functional gallery lightbox with native dialog + keyboard navigation.
@@ -281,6 +299,81 @@
       if (e.key === 'ArrowRight') { e.preventDefault(); show(active + 1); }
     });
     lightbox.addEventListener('close', resumeGallery);
+  }
+
+  // Full gallery: filter by package category, switch between visual and list grids, and open a shared lightbox.
+  const fullGallery = document.querySelector('[data-full-gallery]');
+  if (fullGallery) {
+    const grid = fullGallery.querySelector('[data-full-gallery-grid]');
+    const categoryButtons = Array.from(fullGallery.querySelectorAll('[data-full-gallery-filter]'));
+    const viewButtons = Array.from(fullGallery.querySelectorAll('[data-full-gallery-view]'));
+    const fullGalleryButtons = Array.from(fullGallery.querySelectorAll('[data-full-gallery-open]'));
+    const fullGalleryLightbox = fullGallery.querySelector('[data-full-gallery-lightbox]');
+    let activeCategory = 'all';
+    let activeImage = 0;
+
+    const visibleButtons = () => fullGalleryButtons.filter(button => !button.hidden);
+    const showImage = index => {
+      if (!(fullGalleryLightbox instanceof HTMLDialogElement)) return;
+
+      const slides = visibleButtons();
+      if (!slides.length) return;
+
+      activeImage = (index + slides.length) % slides.length;
+      const button = slides[activeImage];
+      const preview = fullGalleryLightbox.querySelector('[data-full-gallery-preview]');
+      const caption = fullGalleryLightbox.querySelector('[data-full-gallery-caption]');
+
+      if (preview instanceof HTMLImageElement) {
+        preview.src = button.dataset.fullGallerySrc || '';
+        preview.alt = button.dataset.fullGalleryAlt || '';
+      }
+      if (caption) {
+        caption.textContent = `${button.dataset.fullGalleryCaption || 'Galeri SalamHaji'} · ${activeImage + 1} / ${slides.length}`;
+      }
+    };
+    const filter = category => {
+      activeCategory = category;
+      fullGalleryButtons.forEach(button => {
+        button.hidden = category !== 'all' && button.dataset.fullGalleryCategory !== category;
+      });
+      categoryButtons.forEach(button => {
+        const selected = button.dataset.fullGalleryFilter === category;
+        button.classList.toggle('is-active', selected);
+        button.setAttribute('aria-pressed', String(selected));
+      });
+    };
+
+    categoryButtons.forEach(button => button.addEventListener('click', () => filter(button.dataset.fullGalleryFilter || 'all')));
+    viewButtons.forEach(button => button.addEventListener('click', () => {
+      const view = button.dataset.fullGalleryView || 'grid';
+
+      grid?.setAttribute('data-full-gallery-view', view);
+      viewButtons.forEach(viewButton => {
+        const selected = viewButton === button;
+        viewButton.classList.toggle('is-active', selected);
+        viewButton.setAttribute('aria-pressed', String(selected));
+      });
+    }));
+    fullGalleryButtons.forEach(button => button.addEventListener('click', () => {
+      const slides = visibleButtons();
+      activeImage = slides.indexOf(button);
+      showImage(activeImage);
+      fullGalleryLightbox?.showModal();
+    }));
+
+    if (fullGalleryLightbox instanceof HTMLDialogElement) {
+      fullGalleryLightbox.querySelector('[data-full-gallery-close]')?.addEventListener('click', () => fullGalleryLightbox.close());
+      fullGalleryLightbox.querySelector('[data-full-gallery-prev]')?.addEventListener('click', () => showImage(activeImage - 1));
+      fullGalleryLightbox.querySelector('[data-full-gallery-next]')?.addEventListener('click', () => showImage(activeImage + 1));
+      fullGalleryLightbox.addEventListener('click', event => { if (event.target === fullGalleryLightbox) fullGalleryLightbox.close(); });
+      fullGalleryLightbox.addEventListener('keydown', event => {
+        if (event.key === 'ArrowLeft') { event.preventDefault(); showImage(activeImage - 1); }
+        if (event.key === 'ArrowRight') { event.preventDefault(); showImage(activeImage + 1); }
+      });
+    }
+
+    filter(activeCategory);
   }
 
   // Progressive enhancement: content remains visible if script is unavailable.

@@ -6,14 +6,18 @@ use App\Actions\PackageMediaUsageReporter;
 use App\Actions\RenamePackageMediaAsset;
 use App\Actions\StorePackageMediaAsset;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\BulkMediaItemUpdateRequest;
 use App\Http\Requests\Admin\MediaItemRequest;
 use App\Http\Requests\Admin\RenamePackageMediaAssetRequest;
 use App\Models\MediaItem;
 use App\Models\Package;
+use App\Models\PackageCategory;
 use App\Models\PackageMediaAsset;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -37,12 +41,23 @@ class MediaController extends Controller
             ? $requestedSection
             : MediaItem::GallerySection;
 
-        $allMediaItems = MediaItem::query()
-            ->orderBy('section')
+        $aboutMediaItems = MediaItem::query()
+            ->forSection(MediaItem::AboutSection)
             ->orderBy('sort_order')
             ->latest('id')
             ->get();
-        $mediaItems = $allMediaItems->where('section', $selectedSection)->values();
+        $fullGalleryMediaItems = MediaItem::query()
+            ->forSection(MediaItem::FullGallerySection)
+            ->orderBy('sort_order')
+            ->latest('id')
+            ->get();
+        $mediaItems = match ($selectedSection) {
+            MediaItem::AboutSection => $aboutMediaItems,
+            MediaItem::GallerySection => $fullGalleryMediaItems
+                ->where('show_on_homepage', true)
+                ->values(),
+            default => $fullGalleryMediaItems,
+        };
         $this->packageMediaAssets->registerLegacyPackageAssets(
             Package::query()->with('images:id,package_id,path')->get(),
         );
@@ -60,14 +75,24 @@ class MediaController extends Controller
             'mediaItems' => $mediaItems,
             'selectedSection' => $selectedSection,
             'mediaSections' => collect($sections)
-                ->map(function (array $details, string $section) use ($allMediaItems): array {
-                    $items = $allMediaItems->where('section', $section);
+                ->map(function (array $details, string $section) use ($aboutMediaItems, $fullGalleryMediaItems): array {
+                    [$items, $count] = match ($section) {
+                        MediaItem::AboutSection => [
+                            $aboutMediaItems,
+                            $aboutMediaItems->where('show_on_homepage', true)->count(),
+                        ],
+                        MediaItem::GallerySection => [
+                            $fullGalleryMediaItems->where('show_on_homepage', true),
+                            $fullGalleryMediaItems->where('show_on_homepage', true)->count(),
+                        ],
+                        default => [$fullGalleryMediaItems, $fullGalleryMediaItems->count()],
+                    };
 
                     return [
                         ...$details,
                         'key' => $section,
                         'items' => $items,
-                        'count' => $items->count(),
+                        'count' => $count,
                     ];
                 }),
             'selectedTab' => $request->string('tab')->toString() === 'package-media' ? 'package-media' : 'gallery',
@@ -75,6 +100,7 @@ class MediaController extends Controller
             'selectedPackageFolder' => $selectedPackageFolder,
             'selectedPackageMediaAssets' => $packageMediaAssets->where('folder', $selectedPackageFolder)->values(),
             'packageMediaUsages' => $packageMediaUsages,
+            'packageCategories' => PackageCategory::query()->active()->orderBy('sort_order')->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -85,20 +111,38 @@ class MediaController extends Controller
     {
         $validated = $request->validated();
         $section = $validated['section'];
-        $sortOrder = ((int) MediaItem::query()->forSection($section)->max('sort_order')) + 1;
+        $storageSection = $this->storageSectionFor($section, $validated['gallery_destination'] ?? null);
+        $packageCategoryId = $this->packageCategoryIdFor($section, $validated);
+        $sortOrder = ((int) MediaItem::query()->forSection($storageSection)->max('sort_order')) + 1;
+        $showOnHomepage = in_array($section, [MediaItem::AboutSection, MediaItem::GallerySection], true);
+        $isPublished = $storageSection === MediaItem::FullGallerySection
+            || $showOnHomepage
+            || $request->boolean('is_published');
 
-        foreach ($request->file('images', []) as $image) {
-            MediaItem::query()->create([
-                'path' => $image->store('media/gallery', 'public'),
-                'section' => $section,
-                'alt_text' => $this->generatedAltText($image, $section, $sortOrder),
-                'is_published' => $request->boolean('is_published'),
-                'sort_order' => $sortOrder++,
-            ]);
-        }
+        DB::transaction(function () use ($request, $storageSection, $packageCategoryId, $section, $isPublished, $showOnHomepage, &$sortOrder): void {
+            foreach ($request->file('images', []) as $image) {
+                $mediaItem = MediaItem::query()->create([
+                    'path' => $image->store('media/gallery', 'public'),
+                    'section' => $storageSection,
+                    'package_category_id' => $packageCategoryId,
+                    'alt_text' => $this->generatedAltText($image, $section, $sortOrder),
+                    'is_published' => $isPublished,
+                    'show_on_homepage' => $showOnHomepage,
+                    'sort_order' => $sortOrder++,
+                ]);
+
+                if ($showOnHomepage) {
+                    $this->keepHomepageSelectionWithinLimit($mediaItem);
+                }
+            }
+        });
+
+        $returnSection = $section === MediaItem::FullGallerySection && $storageSection === MediaItem::AboutSection
+            ? MediaItem::AboutSection
+            : $section;
 
         return redirect()
-            ->route('admin.media.index', ['section' => $section])
+            ->route('admin.media.index', ['section' => $returnSection])
             ->with('success', 'Media berjaya dimuat naik.');
     }
 
@@ -108,36 +152,76 @@ class MediaController extends Controller
     public function update(MediaItemRequest $request, MediaItem $medium): RedirectResponse
     {
         $validated = $request->validated();
-        $previousPath = $medium->path;
+        $returnSection = $validated['return_section'] ?? ($medium->show_on_homepage
+            ? MediaItem::GallerySection
+            : $medium->section);
 
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $medium->path = $image->store('media/gallery', 'public');
-            $medium->alt_text = $this->generatedAltText($image, $medium->section, $medium->sort_order);
-        }
-
-        $medium->fill([
-            'caption' => null,
-            'is_published' => $request->boolean('is_published'),
-        ]);
-        $medium->save();
-
-        if ($previousPath !== $medium->path) {
-            $this->deleteStoredFile($previousPath);
-        }
+        $this->updateMediaItem(
+            medium: $medium,
+            packageCategoryId: $validated['package_category_id'] ?? null,
+            isPublished: $medium->section === MediaItem::FullGallerySection
+                || $request->boolean('is_published'),
+            showOnHomepage: in_array($medium->section, [MediaItem::AboutSection, MediaItem::FullGallerySection], true)
+                ? $request->boolean('show_on_homepage')
+                : null,
+            image: $request->file('image'),
+            altTextSection: $returnSection,
+        );
 
         return redirect()
-            ->route('admin.media.index', ['section' => $medium->section])
+            ->route('admin.media.index', ['section' => $returnSection])
             ->with('success', 'Media berjaya dikemas kini.');
+    }
+
+    public function bulkUpdate(BulkMediaItemUpdateRequest $request): RedirectResponse|JsonResponse
+    {
+        $validated = $request->validated();
+        $mediaItems = MediaItem::query()
+            ->whereKey(collect($validated['items'])->pluck('id'))
+            ->get()
+            ->keyBy('id');
+
+        foreach ($validated['items'] as $item) {
+            $medium = $mediaItems->get((int) $item['id']);
+
+            if (! $medium instanceof MediaItem) {
+                continue;
+            }
+
+            $this->updateMediaItem(
+                medium: $medium,
+                packageCategoryId: $item['package_category_id'] ?? null,
+                isPublished: $medium->section === MediaItem::FullGallerySection
+                    || filter_var($item['is_published'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                showOnHomepage: in_array($medium->section, [MediaItem::AboutSection, MediaItem::FullGallerySection], true)
+                    ? filter_var($item['show_on_homepage'] ?? false, FILTER_VALIDATE_BOOLEAN)
+                    : null,
+                image: $item['image'] ?? null,
+                altTextSection: $validated['section'],
+            );
+        }
+
+        $redirectUrl = route('admin.media.index', ['section' => $validated['section']]);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Semua perubahan media berjaya disimpan.',
+                'redirect_url' => $redirectUrl,
+            ]);
+        }
+
+        return redirect($redirectUrl)->with('success', 'Semua perubahan media berjaya disimpan.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(MediaItem $medium): RedirectResponse
+    public function destroy(Request $request, MediaItem $medium): RedirectResponse
     {
         $path = $medium->path;
-        $section = $medium->section;
+        $section = $request->string('return_section')->toString() ?: ($medium->show_on_homepage
+            ? MediaItem::GallerySection
+            : $medium->section);
         $medium->delete();
         $this->deleteStoredFile($path);
 
@@ -191,10 +275,103 @@ class MediaController extends Controller
             : "Foto {$label} {$position}";
     }
 
+    private function updateMediaItem(
+        MediaItem $medium,
+        ?int $packageCategoryId,
+        bool $isPublished,
+        ?bool $showOnHomepage,
+        ?UploadedFile $image,
+        string $altTextSection,
+    ): void {
+        $previousPath = $medium->path;
+
+        DB::transaction(function () use ($medium, $packageCategoryId, $isPublished, $showOnHomepage, $image, $altTextSection): void {
+            if ($image instanceof UploadedFile) {
+                $medium->path = $image->store('media/gallery', 'public');
+                $medium->alt_text = $this->generatedAltText($image, $altTextSection, $medium->sort_order);
+            }
+
+            $medium->fill([
+                'caption' => null,
+                'package_category_id' => $packageCategoryId,
+                'is_published' => $isPublished,
+            ]);
+
+            if ($showOnHomepage !== null) {
+                $medium->show_on_homepage = $showOnHomepage && $isPublished;
+            }
+
+            $medium->save();
+
+            if ($medium->show_on_homepage) {
+                $this->keepHomepageSelectionWithinLimit($medium);
+            }
+        });
+
+        if ($previousPath !== $medium->path) {
+            $this->deleteStoredFile($previousPath);
+        }
+    }
+
     private function deleteStoredFile(string $path): void
     {
         if (! Str::startsWith($path, ['http://', 'https://'])) {
             Storage::disk('public')->delete($path);
         }
+    }
+
+    /** @param array<string, mixed> $validated */
+    private function packageCategoryIdFor(string $section, array $validated): ?int
+    {
+        if ($section !== MediaItem::FullGallerySection || ($validated['gallery_destination'] ?? null) === MediaItem::AboutSection) {
+            return null;
+        }
+
+        return filled($validated['gallery_destination'] ?? null)
+            ? (int) $validated['gallery_destination']
+            : ($validated['package_category_id'] ?? null);
+    }
+
+    private function storageSectionFor(string $section, ?string $galleryDestination): string
+    {
+        if ($section === MediaItem::GallerySection) {
+            return MediaItem::FullGallerySection;
+        }
+
+        if ($section === MediaItem::FullGallerySection && $galleryDestination === MediaItem::AboutSection) {
+            return MediaItem::AboutSection;
+        }
+
+        return $section;
+    }
+
+    /** Keep the most recently chosen image when a homepage collection reaches its limit. */
+    private function keepHomepageSelectionWithinLimit(MediaItem $mediaItem): void
+    {
+        $limit = MediaItem::homepageLimitForStorageSection($mediaItem->section);
+
+        if ($limit === null) {
+            return;
+        }
+
+        $featuredMedia = MediaItem::query()
+            ->forSection($mediaItem->section)
+            ->visibleOnHomepage();
+        $overflow = $featuredMedia->count() - $limit;
+
+        if ($overflow < 1) {
+            return;
+        }
+
+        $mediaItemIds = $featuredMedia
+            ->where('id', '!=', $mediaItem->id)
+            ->oldest('created_at')
+            ->orderBy('id')
+            ->limit($overflow)
+            ->pluck('id');
+
+        MediaItem::query()
+            ->whereKey($mediaItemIds)
+            ->update(['show_on_homepage' => false]);
     }
 }

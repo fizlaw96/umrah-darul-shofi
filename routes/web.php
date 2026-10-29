@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DepartureController as AdminDepartureController;
 use App\Http\Controllers\Admin\FaqController as AdminFaqController;
 use App\Http\Controllers\Admin\HeroSlideController;
+use App\Http\Controllers\Admin\ImageFocusController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MediaSocialController;
 use App\Http\Controllers\Admin\MutawifController as AdminMutawifController;
@@ -43,6 +44,7 @@ Route::post('/tempahan', [BookingController::class, 'store'])->middleware('throt
 Route::get('/tempahan/sah/{booking}', [BookingController::class, 'confirmation'])->name('bookings.confirmation');
 
 Route::get('/tentang-kami', [PageController::class, 'about'])->name('about');
+Route::get('/galeri', [PageController::class, 'gallery'])->name('gallery.index');
 Route::get('/soalan-lazim', [PageController::class, 'faq'])->name('faq');
 Route::get('/mutawif', [PublicMutawifController::class, 'index'])->name('mutawifs.index');
 Route::get('/terma-syarat', [PageController::class, 'terms'])->name('terms');
@@ -77,8 +79,10 @@ Route::post('/admin/logout', [AdminLoginController::class, 'destroy'])->middlewa
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:access-admin'])->group(function (): void {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::put('/image-focus', [ImageFocusController::class, 'update'])->name('image-focus.update');
     Route::get('/profil', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profil', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/notifications/mark-all-as-read', [PackageNotificationController::class, 'markAllAsRead'])->name('package-notifications.mark-all-as-read');
     Route::get('/notifications/{notification}', [PackageNotificationController::class, 'show'])->name('package-notifications.show');
     Route::post('/packages/bulk', [AdminPackageController::class, 'bulk'])->name('packages.bulk');
     Route::post('/packages/{package}/autosave', [AdminPackageController::class, 'autosave'])->name('packages.autosave');
@@ -93,6 +97,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:access-admin'])
     Route::get('/packages/{package}', [PackageParticipantController::class, 'index'])->name('packages.show');
     Route::resource('package-categories', PackageCategoryController::class)->except(['show']);
     Route::resource('hero-slides', HeroSlideController::class)->only(['index', 'edit']);
+    Route::put('/media/bulk', [MediaController::class, 'bulkUpdate'])->name('media.bulk-update');
     Route::put('/media/package-assets/{packageMediaAsset}/rename', [MediaController::class, 'renamePackageAsset'])->name('media.package-assets.rename');
     Route::delete('/media/package-assets/{packageMediaAsset}', [MediaController::class, 'destroyPackageAsset'])->name('media.package-assets.destroy');
     Route::resource('media', MediaController::class)->only(['index', 'store', 'update', 'destroy']);
