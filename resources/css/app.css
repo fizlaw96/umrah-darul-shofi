@@ -479,6 +479,15 @@
         background: rgb(0 37 30 / 0.56);
     }
 
+    [data-media-edit-dialog] {
+        position: fixed;
+        inset: 50% auto auto 50%;
+        max-height: calc(100dvh - 2rem);
+        margin: 0;
+        overflow-y: auto;
+        transform: translate(-50%, -50%);
+    }
+
     @media (max-width: 639px) {
         [data-media-edit-grid][data-media-edit-view='list'] [data-media-edit-card] {
             display: block;

@@ -40,6 +40,7 @@ class MediaItemRequest extends FormRequest
 
         return [
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'gallery_destination' => ['nullable', 'string', 'max:32'],
             'package_category_id' => ['nullable', 'integer', Rule::exists('package_categories', 'id')],
             'is_published' => ['nullable', 'boolean'],
             'show_on_homepage' => ['nullable', 'boolean'],
@@ -58,7 +59,7 @@ class MediaItemRequest extends FormRequest
                     ? $this->string('section')->toString()
                     : $this->route('medium')?->section;
 
-                if ($this->isMethod('post') && $section === MediaItem::FullGallerySection) {
+                if ($section === MediaItem::FullGallerySection && ($this->isMethod('post') || $this->filled('gallery_destination'))) {
                     $destination = $this->string('gallery_destination')->toString();
 
                     if ($destination === MediaItem::AboutSection) {

@@ -152,20 +152,24 @@ class MediaController extends Controller
     public function update(MediaItemRequest $request, MediaItem $medium): RedirectResponse
     {
         $validated = $request->validated();
-        $returnSection = $validated['return_section'] ?? ($medium->show_on_homepage
+        $storageSection = $this->storageSectionFor($medium->section, $validated['gallery_destination'] ?? null);
+        $returnSection = $storageSection === MediaItem::AboutSection && $medium->section !== MediaItem::AboutSection
+            ? MediaItem::AboutSection
+            : ($validated['return_section'] ?? ($medium->show_on_homepage
             ? MediaItem::GallerySection
-            : $medium->section);
+            : $medium->section));
 
         $this->updateMediaItem(
             medium: $medium,
-            packageCategoryId: $validated['package_category_id'] ?? null,
-            isPublished: $medium->section === MediaItem::FullGallerySection
+            storageSection: $storageSection,
+            packageCategoryId: $this->packageCategoryIdFor($medium->section, $validated),
+            isPublished: $storageSection === MediaItem::FullGallerySection
                 || $request->boolean('is_published'),
-            showOnHomepage: in_array($medium->section, [MediaItem::AboutSection, MediaItem::FullGallerySection], true)
+            showOnHomepage: in_array($storageSection, [MediaItem::AboutSection, MediaItem::FullGallerySection], true)
                 ? $request->boolean('show_on_homepage')
                 : null,
             image: $request->file('image'),
-            altTextSection: $returnSection,
+            altTextSection: $storageSection,
         );
 
         return redirect()
@@ -190,6 +194,7 @@ class MediaController extends Controller
 
             $this->updateMediaItem(
                 medium: $medium,
+                storageSection: $medium->section,
                 packageCategoryId: $item['package_category_id'] ?? null,
                 isPublished: $medium->section === MediaItem::FullGallerySection
                     || filter_var($item['is_published'] ?? false, FILTER_VALIDATE_BOOLEAN),
@@ -277,6 +282,7 @@ class MediaController extends Controller
 
     private function updateMediaItem(
         MediaItem $medium,
+        string $storageSection,
         ?int $packageCategoryId,
         bool $isPublished,
         ?bool $showOnHomepage,
@@ -285,7 +291,12 @@ class MediaController extends Controller
     ): void {
         $previousPath = $medium->path;
 
-        DB::transaction(function () use ($medium, $packageCategoryId, $isPublished, $showOnHomepage, $image, $altTextSection): void {
+        DB::transaction(function () use ($medium, $storageSection, $packageCategoryId, $isPublished, $showOnHomepage, $image, $altTextSection): void {
+            if ($medium->section !== $storageSection) {
+                $medium->section = $storageSection;
+                $medium->sort_order = ((int) MediaItem::query()->forSection($storageSection)->max('sort_order')) + 1;
+            }
+
             if ($image instanceof UploadedFile) {
                 $medium->path = $image->store('media/gallery', 'public');
                 $medium->alt_text = $this->generatedAltText($image, $altTextSection, $medium->sort_order);

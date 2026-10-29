@@ -214,6 +214,40 @@ it('stores the About category separately from the public full gallery', function
         ->and($mediaItem->show_on_homepage)->toBeFalse();
 });
 
+it('moves a full gallery image to the About collection when selected during editing', function () {
+    $staff = User::factory()->staff()->create();
+    $category = PackageCategory::factory()->create();
+    $mediaItem = MediaItem::factory()->create([
+        'section' => MediaItem::FullGallerySection,
+        'package_category_id' => $category->id,
+        'is_published' => true,
+        'show_on_homepage' => false,
+    ]);
+
+    $this->actingAs($staff)
+        ->get(route('admin.media.index', ['section' => MediaItem::FullGallerySection]))
+        ->assertOk()
+        ->assertSee('name="gallery_destination"', false)
+        ->assertSee('Tentang Kami');
+
+    $this->actingAs($staff)
+        ->put(route('admin.media.update', $mediaItem), [
+            'gallery_destination' => MediaItem::AboutSection,
+            'is_published' => true,
+            'show_on_homepage' => false,
+            'return_section' => MediaItem::FullGallerySection,
+        ])
+        ->assertRedirect(route('admin.media.index', ['section' => MediaItem::AboutSection]));
+
+    $this->assertDatabaseHas('media_items', [
+        'id' => $mediaItem->id,
+        'section' => MediaItem::AboutSection,
+        'package_category_id' => null,
+        'is_published' => true,
+        'show_on_homepage' => false,
+    ]);
+});
+
 it('saves changes to all gallery cards in one request', function () {
     $staff = User::factory()->staff()->create();
     $firstCategory = PackageCategory::factory()->create();
