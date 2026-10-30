@@ -19,7 +19,7 @@
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,transparent_0,rgba(247,248,245,.18)_44%,rgba(247,248,245,.96)_100%)]"></div>
         </div>
 
-        <main class="relative z-10 mx-auto flex min-h-screen max-w-[1380px] items-center px-5 py-5 sm:px-8 lg:h-dvh lg:min-h-0">
+        <main class="relative z-10 mx-auto flex min-h-screen max-w-[1380px] items-center px-4 py-3 sm:px-8 sm:py-5 lg:h-dvh lg:min-h-0">
             <section class="mx-auto grid w-full max-w-[1316px] overflow-hidden rounded-[30px] bg-white shadow-[0_32px_80px_-38px_rgba(0,37,30,.40)] lg:h-[min(740px,calc(100dvh-2.5rem))] lg:grid-cols-[1.3fr_1fr]">
                 <aside class="relative hidden min-h-[740px] overflow-hidden bg-[#003d32] px-11 py-8 text-white lg:flex lg:min-h-0 lg:flex-col xl:px-[60px]">
                     <img src="{{ asset('darul-shofi/images/hero/umrah-premium-makkah-hero.png') }}" alt="" class="absolute inset-0 size-full object-cover object-[58%_center] opacity-80" aria-hidden="true">
@@ -68,17 +68,17 @@
                     </div>
                 </aside>
 
-                <div class="flex min-h-[620px] items-center bg-white px-7 py-7 sm:px-12 sm:py-8 lg:min-h-0 lg:px-11 xl:px-[70px]">
-                    <form method="POST" action="{{ route('admin.login.store') }}" class="mx-auto w-full max-w-[450px] space-y-4">
+                <div class="flex min-h-[620px] items-center bg-white px-5 py-5 sm:px-12 sm:py-8 lg:min-h-0 lg:px-11 xl:px-[70px]">
+                    <form method="POST" action="{{ route('admin.login.store') }}" class="mx-auto w-full max-w-[450px] space-y-3 sm:space-y-4">
                         @csrf
 
                         <div>
-                            <span class="inline-flex items-center gap-3 rounded-full bg-[#eaf7ef] px-5 py-3 text-sm font-bold text-[#096541]">
+                            <span class="inline-flex items-center gap-2.5 rounded-full bg-[#eaf7ef] px-4 py-2.5 text-[13px] font-bold text-[#096541] sm:gap-3 sm:px-5 sm:py-3 sm:text-sm">
                                 <span class="material-symbols-outlined text-[22px]">admin_panel_settings</span>
                                 Pengesahan Pentadbir
                             </span>
-                            <h2 class="mt-8 font-display text-[48px] leading-[.98] tracking-[-.04em] text-[#002f28] sm:text-[54px]">Selamat Kembali</h2>
-                            <p class="mt-4 max-w-[25rem] text-[17px] leading-7 text-[#697a82]">Sila log masuk untuk mengurus website {{ $siteSettings['company_name'] }}.</p>
+                            <h2 class="mt-6 font-display text-[44px] leading-[.98] tracking-[-.04em] text-[#002f28] sm:mt-8 sm:text-[54px]">Selamat Kembali</h2>
+                            <p class="mt-3 max-w-[25rem] text-[16px] leading-6 text-[#697a82] sm:mt-4 sm:text-[17px] sm:leading-7">Sila log masuk untuk mengurus website {{ $siteSettings['company_name'] }}.</p>
                         </div>
 
                         <x-errors />

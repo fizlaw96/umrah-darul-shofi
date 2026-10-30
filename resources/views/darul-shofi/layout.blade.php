@@ -24,10 +24,12 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     {{-- Compiled, standalone utilities: no Tailwind CDN, no change to host Vite setup. --}}
     <link rel="stylesheet" href="{{ asset('darul-shofi/css/site.css') }}?v={{ filemtime(public_path('darul-shofi/css/site.css')) }}">
+    <link rel="stylesheet" href="{{ asset('darul-shofi/css/header.css') }}?v={{ filemtime(public_path('darul-shofi/css/header.css')) }}">
     <link rel="stylesheet" href="{{ asset('darul-shofi/css/footer.css') }}?v={{ filemtime(public_path('darul-shofi/css/footer.css')) }}">
 </head>
 <body class="antialiased selection:bg-brand-gold selection:text-white">
     @yield('content')
+    <script src="{{ asset('darul-shofi/js/header.js') }}?v={{ filemtime(public_path('darul-shofi/js/header.js')) }}" defer></script>
     <script src="{{ asset('darul-shofi/js/site.js') }}?v={{ filemtime(public_path('darul-shofi/js/site.js')) }}" defer></script>
 </body>
 </html>

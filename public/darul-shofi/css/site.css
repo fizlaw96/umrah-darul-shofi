@@ -2176,14 +2176,6 @@ body { font-family:'Plus Jakarta Sans',Arial,sans-serif; background:#FAF8F5; col
 @media(max-width:640px){.ds-lightbox-inner {padding:2.5rem 2.6rem 1rem;}.ds-lightbox-close{top:0;right:0;}.ds-lightbox-step--prev{left:0;}.ds-lightbox-step--next{right:0;}}
 @media(max-width:640px){header > .max-w-7xl > .flex{gap:.5rem;}header > .max-w-7xl > .flex > .flex{gap:.5rem;}header > .max-w-7xl > .flex > .flex > a{padding-inline:.75rem;}}
 
-/* Shared public-header sizing; this landing page ships its own compiled stylesheet. */
-.ds-site-brand-logo{height:3.5rem;width:7.5rem;}
-.ds-site-brand-logo img{height:100%;max-width:100%;object-fit:contain;width:100%;}
-.ds-site-tagline{max-width:17rem;}
-.ds-site-desktop-nav,.ds-site-desktop-cta{display:none;}
-.ds-site-menu-toggle{display:inline-flex;}
-@media(min-width:1280px){.ds-site-desktop-nav{display:flex;}.ds-site-desktop-cta{display:inline-flex;}.ds-site-menu-toggle{display:none;}}
-@media(max-width:640px){.ds-site-brand-logo{height:3rem;width:5.75rem;}.ds-site-tagline{max-width:12rem;}.ds-site-header-inner{gap:.5rem;}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important;}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}.ds-reveal{opacity:1;transform:none;}.ds-cinematic-hero__video{display:none;}}
 
 /* Homepage package catalogue: fixed card proportions and alternating category sections. */

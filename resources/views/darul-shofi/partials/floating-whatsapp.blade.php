@@ -12,7 +12,7 @@
         : '#hubungi';
     $whatsAppMessage ??= 'Salam SalamHaji, saya ingin bertanya tentang pakej perjalanan.';
 @endphp
-<div class="fixed bottom-6 right-6 z-50 flex items-center group">
+<div class="fixed bottom-6 right-6 z-50 flex items-center group" data-floating-whatsapp>
 <!-- Tooltip -->
 <div class="hidden sm:block mr-3 px-3.5 py-1.5 rounded-full bg-white text-brand-emerald text-xs font-semibold shadow-lg border border-brand-gold/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
       {{ $number === '' ? 'Sila hubungi kami' : 'Perlukan Bantuan? WhatsApp Kami' }}

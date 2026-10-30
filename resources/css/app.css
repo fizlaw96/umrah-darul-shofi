@@ -235,6 +235,10 @@
         @apply font-display text-4xl leading-tight text-dark-green sm:text-5xl;
     }
 
+    .gallery-tone-page-hero {
+        background: radial-gradient(circle at 78% 15%, rgb(231 200 117 / 0.24), transparent 24rem), #0f382c;
+    }
+
     .no-scrollbar {
         scrollbar-width: none;
     }

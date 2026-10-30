@@ -1,9 +1,9 @@
 <x-layouts.app title="Semua Pakej" :show-floating-whats-app="false">
-    <section class="bg-mint py-14 sm:py-20">
+    <section class="gallery-tone-page-hero py-14 text-white sm:py-20">
         <div class="container-page">
-            <p class="text-sm font-extrabold uppercase tracking-[0.18em] text-brand">Katalog pakej</p>
-            <h1 class="mt-2 font-display text-5xl text-dark-green sm:text-6xl">Cari pakej perjalanan anda</h1>
-            <p class="mt-4 max-w-2xl leading-7 text-slate-600">Gunakan penapis untuk mencari pilihan yang bersesuaian dengan rancangan perjalanan anda.</p>
+            <p class="text-sm font-extrabold uppercase tracking-[0.18em] text-[#e7c875]">Katalog pakej</p>
+            <h1 class="mt-2 font-display text-5xl text-white sm:text-6xl">Cari pakej perjalanan anda</h1>
+            <p class="mt-4 max-w-2xl leading-7 text-[#e2eae5]">Gunakan penapis untuk mencari pilihan yang bersesuaian dengan rancangan perjalanan anda.</p>
         </div>
     </section>
 

@@ -37,23 +37,6 @@
     packageLightbox.addEventListener('close', () => { if (image instanceof HTMLImageElement) image.removeAttribute('src'); });
   }
 
-  // Mobile navigation.
-  const menuButton = document.querySelector('[data-mobile-menu-toggle]');
-  const mobileMenu = document.querySelector('[data-mobile-menu]');
-  if (menuButton && mobileMenu) {
-    const setOpen = (open) => {
-      mobileMenu.classList.toggle('hidden', !open);
-      menuButton.setAttribute('aria-expanded', String(open));
-      menuButton.setAttribute('aria-label', open ? 'Tutup menu navigasi' : 'Buka menu navigasi');
-      const icon = menuButton.querySelector('i');
-      if (icon) icon.className = open ? 'fa-solid fa-xmark' : 'fa-solid fa-bars';
-    };
-    menuButton.addEventListener('click', () => setOpen(menuButton.getAttribute('aria-expanded') !== 'true'));
-    mobileMenu.querySelectorAll('a').forEach(link => link.addEventListener('click', () => setOpen(false)));
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
-    window.addEventListener('resize', () => { if (window.innerWidth >= 1024) setOpen(false); });
-  }
-
   // Three-slide cinematic hero. Each package changes the active video moment and fallback poster.
   const heroCarousel = document.querySelector('[data-hero-carousel]');
   if (heroCarousel) {

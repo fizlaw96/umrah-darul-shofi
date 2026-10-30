@@ -21,18 +21,31 @@ it('renders the SalamHaji homepage with its standalone assets', function () {
         ->assertSee('Buka dalam Google Maps', false);
 });
 
-it('renders the shared footer on catalogue pages', function () {
+it('renders the shared global navigation and footer on catalogue pages', function () {
     $this->get(route('packages.index'))
         ->assertOk()
+        ->assertSee('darul-shofi/css/header.css', false)
+        ->assertSee('darul-shofi/js/header.js', false)
+        ->assertSee('data-mobile-menu-toggle', false)
+        ->assertSee('class="ds-mobile-menu hidden"', false)
+        ->assertDontSee('>Utama<', false)
         ->assertSee('darul-shofi/css/footer.css', false)
         ->assertSee('ds-global-footer--spaced', false)
         ->assertSee('Kami komited membimbing perjalanan ibadah anda ke Tanah Suci', false);
 });
 
-it('renders the mobile menu, cinematic package carousel, and gallery lightbox', function () {
-    $this->get(route('home'))
+it('renders the icon mobile menu without a redundant home link, cinematic package carousel, and gallery lightbox', function () {
+    $response = $this->get(route('home'))
         ->assertOk()
         ->assertSee('data-mobile-menu-toggle', false)
+        ->assertSee('class="ds-mobile-menu hidden"', false)
+        ->assertSee('fa-solid fa-arrow-right', false)
+        ->assertDontSee('fa-solid fa-suitcase', false)
+        ->assertDontSee('<span>Pakej</span>', false)
+        ->assertSee('fa-solid fa-user-shield', false)
+        ->assertSee('Log Masuk Admin')
+        ->assertDontSee('>Utama<', false)
+        ->assertDontSee('role="dialog"', false)
         ->assertSee('data-hero-carousel', false)
         ->assertSee('data-hero-video', false)
         ->assertSee('data-hero-slide', false)
@@ -41,6 +54,9 @@ it('renders the mobile menu, cinematic package carousel, and gallery lightbox', 
         ->assertDontSee('data-hero-prev', false)
         ->assertSee('id="darul-gallery-lightbox"', false)
         ->assertDontSee('data-gallery-caption', false);
+
+    expect(substr_count($response->getContent(), '<span>Lihat Semua Pakej</span>'))->toBe(1);
+    expect(substr_count($response->getContent(), '<span>Log Masuk Admin</span>'))->toBe(1);
 });
 
 it('only includes homepage categories that have a public package', function () {

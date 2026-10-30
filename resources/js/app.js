@@ -1466,6 +1466,7 @@ const initializeMediaEditDialogs = () => {
 const initializePackageAiImport = () => {
     const form = document.querySelector('[data-package-form]');
     const assistant = form?.querySelector('[data-ai-import-assistant]');
+    const assistantDisclosure = assistant?.closest('[data-ai-assistant-collapse]');
     const dialog = assistant?.querySelector('[data-ai-import-dialog]');
     const openButton = assistant?.querySelector('[data-ai-import-open]');
     const prompt = dialog?.querySelector('[data-ai-import-prompt]');
@@ -1475,6 +1476,10 @@ const initializePackageAiImport = () => {
     const status = dialog?.querySelector('[data-ai-import-status]');
     const errors = dialog?.querySelector('[data-ai-import-errors]');
     const errorList = dialog?.querySelector('[data-ai-import-error-list]');
+
+    if (assistantDisclosure instanceof HTMLDetailsElement && window.matchMedia('(max-width: 639px)').matches) {
+        assistantDisclosure.open = true;
+    }
 
     if (!(form instanceof HTMLFormElement)
         || !(dialog instanceof HTMLDialogElement)
@@ -2791,29 +2796,33 @@ const initializePackageMediaPicker = () => {
         target.dataset.mediaMultiple = String(multiple);
         target.className = 'mt-2';
         const controls = document.createElement('div');
-        controls.className = 'flex flex-col gap-2 sm:flex-row sm:items-center';
+        controls.className = 'flex min-w-0 items-center gap-2';
         input.classList.remove('mt-2');
         input.classList.add('min-w-0', 'flex-1');
-        const divider = document.createElement('span');
-        divider.className = 'hidden shrink-0 text-[11px] font-bold uppercase tracking-[.1em] text-[#718078] sm:block';
-        divider.textContent = 'atau';
+        const mobileDivider = document.createElement('span');
+        mobileDivider.className = 'shrink-0 text-sm font-bold text-[#718078] sm:hidden';
+        mobileDivider.textContent = '|';
+        const desktopDivider = document.createElement('span');
+        desktopDivider.className = 'hidden shrink-0 text-[11px] font-bold uppercase tracking-[.1em] text-[#718078] sm:block';
+        desktopDivider.textContent = 'atau';
         const trigger = document.createElement('button');
         trigger.type = 'button';
         trigger.dataset.packageMediaPickerTrigger = 'true';
         trigger.dataset.mediaFolder = folder;
-        trigger.className = 'admin-button-secondary shrink-0 !px-3 !py-2 text-xs';
+        trigger.className = 'admin-button-secondary grid size-10 shrink-0 place-items-center !p-0 text-xs sm:inline-flex sm:size-auto sm:!px-3 sm:!py-2';
         trigger.setAttribute('aria-label', 'Pilih dari pustaka media');
         const icon = document.createElement('span');
         icon.className = 'material-symbols-outlined text-[18px]';
         icon.textContent = 'folder';
         const label = document.createElement('span');
+        label.className = 'hidden sm:inline';
         label.textContent = 'Pilih dari pustaka media';
         trigger.append(icon, label);
         const selected = document.createElement('div');
         selected.dataset.packageMediaSelected = 'true';
         selected.className = 'mt-2 grid grid-cols-4 gap-2';
         input.before(target);
-        controls.append(input, divider, trigger);
+        controls.append(input, mobileDivider, desktopDivider, trigger);
         target.append(controls, selected);
     };
 
