@@ -40,3 +40,13 @@ it('does not allow a focus position to be saved for a missing image', function (
         ->assertUnprocessable()
         ->assertJsonValidationErrors('path');
 });
+
+it('renders the image focus preview at the homepage gallery ratio', function () {
+    $staff = User::factory()->staff()->create();
+
+    $this->actingAs($staff)
+        ->get(route('admin.media.index'))
+        ->assertOk()
+        ->assertSee('aspect-[8/5]', false)
+        ->assertSee('Pratonton ini mengikut nisbah Galeri Perjalanan di halaman utama.', false);
+});

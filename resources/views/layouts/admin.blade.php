@@ -120,13 +120,13 @@
                 <div>
                     <p class="text-[10px] font-bold uppercase tracking-[.14em] text-[#00705b]">Paparan imej</p>
                     <h2 class="mt-1 text-lg font-bold text-[#00251e]">Laraskan fokus gambar</h2>
-                    <p class="mt-1 text-xs leading-5 text-[#718078]">Tarik titik fokus pada gambar atau gunakan pelaras. Fail asal tidak dipotong.</p>
+                    <p class="mt-1 text-xs leading-5 text-[#718078]">Tarik titik fokus pada gambar atau gunakan pelaras. Pratonton ini mengikut nisbah Galeri Perjalanan di halaman utama. Fail asal tidak dipotong.</p>
                 </div>
                 <button type="button" data-image-focus-close class="grid size-9 place-items-center rounded-lg text-[#506058] transition hover:bg-[#f2f5f2]" aria-label="Tutup pelaras fokus gambar"><span class="material-symbols-outlined">close</span></button>
             </div>
             <div class="min-h-0 flex-1 overflow-y-auto p-5 sm:p-6">
                 <div class="space-y-5">
-                    <div data-image-focus-stage class="relative aspect-[4/3] cursor-crosshair overflow-hidden rounded-xl bg-[#e9f2eb] touch-none">
+                    <div data-image-focus-stage class="relative aspect-[8/5] cursor-crosshair overflow-hidden rounded-xl bg-[#e9f2eb] touch-none">
                         <img data-image-focus-preview src="" alt="Paparan fokus gambar" class="size-full select-none object-cover" draggable="false">
                         <span data-image-focus-marker class="pointer-events-none absolute grid size-9 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-2 border-white bg-[#006b57]/80 text-white shadow-lg"><span class="material-symbols-outlined text-[19px]">center_focus_strong</span></span>
                     </div>
