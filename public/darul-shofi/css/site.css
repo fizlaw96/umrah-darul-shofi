@@ -2158,6 +2158,7 @@ body { font-family:'Plus Jakarta Sans',Arial,sans-serif; background:#FAF8F5; col
 .ds-airline-logo {display:block;flex:none;height:3rem;object-fit:contain;width:6.5rem;}
 .ds-airline-partners {padding-block:2rem;}
 .ds-gallery-open {appearance:none;display:block;text-align:inherit;transition:transform .25s ease,filter .25s ease;}
+.ds-gallery-open>img {display:block;height:100%;object-fit:cover;width:100%;}
 .ds-gallery-open:hover {filter:brightness(1.07);transform:translateY(-2px);}
 .ds-gallery-open:focus-visible,button:focus-visible,a:focus-visible {outline:3px solid #C5A059;outline-offset:3px;}
 .ds-reveal {opacity:0;transform:translateY(18px);transition:opacity .65s ease,transform .65s ease;}
