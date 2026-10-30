@@ -1,24 +1,23 @@
 <!DOCTYPE html>
 <html lang="ms">
     <head>
+        @php
+            $pageTitle = $title ?? $siteSettings['company_name'];
+            $documentTitle = $pageTitle.' · '.$siteSettings['company_name'];
+        @endphp
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="{{ $metaDescription ?? 'Cari pakej Umrah yang sesuai dengan bajet dan tarikh perjalanan anda.' }}">
-        <link rel="canonical" href="{{ url()->current() }}">
-        <meta property="og:type" content="website">
-        <meta property="og:site_name" content="{{ $siteSettings['company_name'] }}">
-        <meta property="og:title" content="{{ $title ?? $siteSettings['company_name'] }}">
-        <meta property="og:description" content="{{ $metaDescription ?? 'Cari pakej Umrah yang sesuai dengan bajet dan tarikh perjalanan anda.' }}">
-        <meta property="og:url" content="{{ url()->current() }}">
-        @if (filled($metaImage))
-            <meta property="og:image" content="{{ url($metaImage) }}">
-            <meta name="twitter:card" content="summary_large_image">
-        @endif
+        <x-seo-meta
+            :title="$pageTitle"
+            :description="$metaDescription ?? 'Cari pakej Umrah yang sesuai dengan bajet dan tarikh perjalanan anda.'"
+            :image="$metaImage"
+            :site-settings="$siteSettings"
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Serif+Display:ital@0;1&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-        <title>{{ $title ?? $siteSettings['company_name'] }} · {{ $siteSettings['company_name'] }}</title>
+        <title>{{ $documentTitle }}</title>
         @if (filled($siteSettings['company_favicon_url']))
             <link rel="icon" type="image/png" sizes="64x64" href="{{ $siteSettings['company_favicon_url'] }}">
         @endif

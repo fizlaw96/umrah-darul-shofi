@@ -1,6 +1,7 @@
 @extends('darul-shofi.layout')
 
 @section('title', 'Galeri Jemaah | SalamHaji Travel & Tours')
+@section('meta_description', 'Lihat galeri kenangan perjalanan dan ibadah jemaah bersama SalamHaji Travel & Tours.')
 
 @section('content')
     @include('darul-shofi.partials.header')

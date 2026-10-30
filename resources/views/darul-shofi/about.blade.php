@@ -1,6 +1,7 @@
 @extends('darul-shofi.layout')
 
 @section('title', 'Tentang Kami | SalamHaji Travel & Tours')
+@section('meta_description', 'Kenali SalamHaji Travel & Tours, agensi yang membantu bakal jemaah merancang perjalanan Umrah dan Haji dengan maklumat yang jelas.')
 
 @section('content')
     @php

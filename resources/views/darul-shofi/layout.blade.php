@@ -1,11 +1,17 @@
 <!doctype html>
 <html lang="ms" class="scroll-smooth">
 <head>
+    @php
+        $defaultTitle = 'SalamHaji Travel & Tours | Umrahku & Hajimu Yang Teristimewa';
+        $defaultDescription = 'Pakej Umrah, Haji, Badal Haji dan pelancongan SalamHaji Travel & Tours.';
+        $pageTitle = trim($__env->yieldContent('title', $defaultTitle));
+        $pageDescription = trim($__env->yieldContent('meta_description', $defaultDescription));
+    @endphp
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#0F382C">
-    <meta name="description" content="Pakej Umrah, Haji, Badal Haji dan pelancongan SalamHaji Travel & Tours.">
-    <title>@yield('title', 'SalamHaji Travel & Tours | Umrahku & Hajimu Yang Teristimewa')</title>
+    <x-seo-meta :title="$pageTitle" :description="$pageDescription" :site-settings="$siteSettings" />
+    <title>{{ $pageTitle }}</title>
     @if (filled($siteSettings['company_favicon_url']))
         <link rel="icon" type="image/png" sizes="64x64" href="{{ $siteSettings['company_favicon_url'] }}">
     @endif

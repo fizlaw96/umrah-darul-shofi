@@ -1,6 +1,7 @@
 @extends('darul-shofi.layout')
 
 @section('title', 'SalamHaji Travel & Tours | Umrahku & Hajimu Yang Teristimewa')
+@section('meta_description', 'Pakej Umrah, Haji, Badal Haji dan pelancongan bersama SalamHaji Travel & Tours. Semak pilihan perjalanan anda dan hubungi pasukan kami untuk maklumat lanjut.')
 
 @section('content')
     @php

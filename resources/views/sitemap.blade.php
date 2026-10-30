@@ -3,6 +3,10 @@
     <url><loc>{{ route('home') }}</loc></url>
     <url><loc>{{ route('packages.index') }}</loc></url>
     <url><loc>{{ route('about') }}</loc></url>
+    <url><loc>{{ route('gallery.index') }}</loc></url>
+    <url><loc>{{ route('faq') }}</loc></url>
+    <url><loc>{{ route('mutawifs.index') }}</loc></url>
+    <url><loc>{{ route('terms') }}</loc></url>
     @foreach ($packages as $package)
         <url><loc>{{ route('packages.show', $package->slug) }}</loc><lastmod>{{ $package->updated_at->toAtomString() }}</lastmod></url>
     @endforeach
