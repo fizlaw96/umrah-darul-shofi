@@ -17,6 +17,7 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Serif+Display:ital@0;1&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
         <title>{{ $title ?? $siteSettings['company_name'] }} · {{ $siteSettings['company_name'] }}</title>
         @if (filled($siteSettings['company_favicon_url']))
             <link rel="icon" type="image/png" sizes="64x64" href="{{ $siteSettings['company_favicon_url'] }}">
@@ -92,19 +93,10 @@
             $floatingWhatsAppMessage = $whatsAppMessage ?: 'Assalamualaikum, saya ingin bertanya tentang pakej Umrah.';
         @endphp
         @if ($showFloatingWhatsApp && filled($floatingWhatsAppNumber))
-            <div class="group fixed bottom-6 right-5 z-50 flex items-center md:right-7">
-                <span class="pointer-events-none mr-3 hidden whitespace-nowrap rounded-full border border-[#e7c875]/40 bg-white px-3.5 py-1.5 text-xs font-semibold text-dark-green opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100 sm:block">Perlukan bantuan? WhatsApp kami</span>
-                <x-whats-app-link
-                    :number="$floatingWhatsAppNumber"
-                    :message="$floatingWhatsAppMessage"
-                    class="relative grid size-14 place-items-center rounded-full bg-[#25D366] text-white shadow-xl transition-transform duration-200 hover:scale-110"
-                    aria-label="Hubungi kami melalui WhatsApp"
-                >
-                    <span class="absolute -right-1 -top-1 size-4 rounded-full border-2 border-white bg-[#e7c875] animate-ping"></span>
-                    <span class="absolute -right-1 -top-1 size-4 rounded-full border-2 border-white bg-[#e7c875]"></span>
-                    <svg class="size-7" viewBox="0 0 32 32" aria-hidden="true" fill="currentColor"><path d="M19.1 17.5c-.3-.2-1.8-.9-2.1-1s-.5-.2-.7.2-.8 1-.9 1.2-.3.3-.6.1a8.6 8.6 0 0 1-2.5-1.5 9.4 9.4 0 0 1-1.8-2.3c-.2-.3 0-.5.1-.6l.5-.6c.2-.2.2-.4.3-.6.1-.2 0-.5 0-.6l-1-2.3c-.2-.5-.5-.4-.7-.4h-.6c-.2 0-.6.1-.9.5s-1.2 1.2-1.2 3 .1 3.1 1.3 4.8a11.6 11.6 0 0 0 4.4 4c.6.3 1.1.5 1.5.6.6.2 1.2.2 1.6.1.5-.1 1.8-.7 2.1-1.4s.3-1.3.2-1.4-.3-.2-.6-.4Z"/><path d="M16 3.1a12.8 12.8 0 0 0-11 19.3L3.5 28.9l6.7-1.7A12.9 12.9 0 1 0 16 3.1Zm0 23.5a10.6 10.6 0 0 1-5.4-1.5l-.4-.2-4 .9.9-3.9-.3-.4a10.6 10.6 0 1 1 9.2 5.1Z"/></svg>
-                </x-whats-app-link>
-            </div>
+            @include('darul-shofi.partials.floating-whatsapp', [
+                'number' => $floatingWhatsAppNumber,
+                'whatsAppMessage' => $floatingWhatsAppMessage,
+            ])
         @endif
     </body>
 </html>

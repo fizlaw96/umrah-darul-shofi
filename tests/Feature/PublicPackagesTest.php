@@ -246,7 +246,9 @@ it('renders the floating WhatsApp button without a mobile bottom navigation bar'
 
     $this->get(route('packages.show', $package))
         ->assertOk()
-        ->assertSee('fixed bottom-6 right-5', false)
+        ->assertSee('fixed bottom-6 right-6', false)
+        ->assertSee('fa-brands fa-whatsapp', false)
+        ->assertSee('font-awesome/6.5.1/css/all.min.css', false)
         ->assertDontSee('aria-label="Navigasi bawah"', false);
 });
 
