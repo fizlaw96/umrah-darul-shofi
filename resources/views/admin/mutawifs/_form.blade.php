@@ -7,8 +7,10 @@
         <label><span class="admin-label">Nama penuh</span><input class="admin-field" name="full_name" value="{{ old('full_name', $mutawif->full_name) }}" required></label>
         <div><span class="admin-label">Foto profil</span>
             @if ($isEdit && $mutawif->photoUrl())
-                <div data-current-image class="relative mb-3 w-fit"><img data-image-focus-path="{{ $mutawif->photo }}" src="{{ $mutawif->photoUrl() }}" alt="Foto {{ $mutawif->full_name }}" class="size-24 rounded-xl object-cover" style="object-position: {{ $imageFocusPositions[$mutawif->photo] ?? '50% 50%' }}"><button data-current-image-remove data-remove-input="remove-mutawif-photo" class="absolute -right-2 -top-2 grid size-7 place-items-center rounded-full bg-[#b33129] text-white shadow" type="button" aria-label="Buang foto semasa"><span class="material-symbols-outlined text-[16px]">close</span></button></div>
-                <x-admin.image-focus-button :path="$mutawif->photo" :url="$mutawif->photoUrl()" label="Laraskan fokus foto" />
+                <div class="mb-3 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+                    <div data-current-image class="relative w-fit"><img data-image-focus-path="{{ $mutawif->photo }}" src="{{ $mutawif->photoUrl() }}" alt="Foto {{ $mutawif->full_name }}" class="size-24 rounded-xl object-cover" style="object-position: {{ $imageFocusPositions[$mutawif->photo] ?? '50% 50%' }}"><button data-current-image-remove data-remove-input="remove-mutawif-photo" class="absolute -right-2 -top-2 grid size-7 place-items-center rounded-full bg-[#b33129] text-white shadow" type="button" aria-label="Buang foto semasa"><span class="material-symbols-outlined text-[16px]">close</span></button></div>
+                    <x-admin.image-focus-button :path="$mutawif->photo" :url="$mutawif->photoUrl()" label="Laraskan fokus foto" />
+                </div>
                 <input id="remove-mutawif-photo" data-current-image-remove-input type="hidden" name="remove_photo" value="{{ old('remove_photo') ? '1' : '' }}">
             @endif
             <input class="admin-field text-xs" type="file" name="photo" accept="image/jpeg,image/png,image/webp"><span class="mt-2 block text-xs text-[#718078]">Muat naik fail baharu untuk menggantikan foto semasa.</span>

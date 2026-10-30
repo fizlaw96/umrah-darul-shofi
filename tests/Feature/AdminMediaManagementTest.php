@@ -214,6 +214,94 @@ it('stores the About category separately from the public full gallery', function
         ->and($mediaItem->show_on_homepage)->toBeFalse();
 });
 
+it('filters the full gallery by package category, About collection, and unassigned media', function () {
+    $staff = User::factory()->staff()->create();
+    $category = PackageCategory::factory()->create(['name' => 'Pakej Turkiye']);
+    $inactiveCategory = PackageCategory::factory()->create([
+        'name' => 'Pakej Lama',
+        'is_active' => false,
+    ]);
+    MediaItem::factory()->create([
+        'section' => MediaItem::AboutSection,
+        'alt_text' => 'Foto Baitullah Ditapis',
+    ]);
+    MediaItem::factory()->create([
+        'section' => MediaItem::FullGallerySection,
+        'alt_text' => 'Foto Umum Ditapis',
+        'package_category_id' => null,
+    ]);
+    MediaItem::factory()->create([
+        'section' => MediaItem::FullGallerySection,
+        'alt_text' => 'Foto Turkiye Ditapis',
+        'package_category_id' => $category->id,
+    ]);
+    MediaItem::factory()->create([
+        'section' => MediaItem::FullGallerySection,
+        'alt_text' => 'Foto Lama Ditapis',
+        'package_category_id' => $inactiveCategory->id,
+    ]);
+
+    $this->actingAs($staff)
+        ->get(route('admin.media.index', [
+            'section' => MediaItem::FullGallerySection,
+            'gallery_filter' => 'all',
+        ]))
+        ->assertOk()
+        ->assertSee('Tapis Galeri Keseluruhan')
+        ->assertSee('data-gallery-filter="about"', false)
+        ->assertSee('data-gallery-filter="general"', false)
+        ->assertSee("data-gallery-filter=\"category-{$category->id}\"", false)
+        ->assertSee("data-gallery-filter=\"category-{$inactiveCategory->id}\"", false)
+        ->assertSee('Foto Baitullah Ditapis')
+        ->assertSee('Foto Umum Ditapis')
+        ->assertSee('Foto Turkiye Ditapis')
+        ->assertSee('Foto Lama Ditapis');
+
+    $this->actingAs($staff)
+        ->get(route('admin.media.index', [
+            'section' => MediaItem::FullGallerySection,
+            'gallery_filter' => 'about',
+        ]))
+        ->assertOk()
+        ->assertSee('Foto Baitullah Ditapis')
+        ->assertDontSee('Foto Umum Ditapis')
+        ->assertDontSee('Foto Turkiye Ditapis')
+        ->assertDontSee('Foto Lama Ditapis');
+
+    $this->actingAs($staff)
+        ->get(route('admin.media.index', [
+            'section' => MediaItem::FullGallerySection,
+            'gallery_filter' => 'general',
+        ]))
+        ->assertOk()
+        ->assertDontSee('Foto Baitullah Ditapis')
+        ->assertSee('Foto Umum Ditapis')
+        ->assertDontSee('Foto Turkiye Ditapis')
+        ->assertDontSee('Foto Lama Ditapis');
+
+    $this->actingAs($staff)
+        ->get(route('admin.media.index', [
+            'section' => MediaItem::FullGallerySection,
+            'gallery_filter' => "category-{$category->id}",
+        ]))
+        ->assertOk()
+        ->assertDontSee('Foto Baitullah Ditapis')
+        ->assertDontSee('Foto Umum Ditapis')
+        ->assertSee('Foto Turkiye Ditapis')
+        ->assertDontSee('Foto Lama Ditapis');
+
+    $this->actingAs($staff)
+        ->get(route('admin.media.index', [
+            'section' => MediaItem::FullGallerySection,
+            'gallery_filter' => "category-{$inactiveCategory->id}",
+        ]))
+        ->assertOk()
+        ->assertDontSee('Foto Baitullah Ditapis')
+        ->assertDontSee('Foto Umum Ditapis')
+        ->assertDontSee('Foto Turkiye Ditapis')
+        ->assertSee('Foto Lama Ditapis');
+});
+
 it('moves a full gallery image to the About collection when selected during editing', function () {
     $staff = User::factory()->staff()->create();
     $category = PackageCategory::factory()->create();

@@ -51,12 +51,53 @@ class MediaController extends Controller
             ->orderBy('sort_order')
             ->latest('id')
             ->get();
+        $allGalleryMediaItems = $aboutMediaItems
+            ->concat($fullGalleryMediaItems)
+            ->sortBy('sort_order')
+            ->values();
+        $galleryFilterCategories = PackageCategory::query()
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get(['id', 'name', 'is_active']);
+        $packageCategories = $galleryFilterCategories
+            ->where('is_active', true)
+            ->values();
+        $galleryFilters = collect([
+            'all' => [
+                'label' => 'Semua',
+                'count' => $allGalleryMediaItems->count(),
+            ],
+            'about' => [
+                'label' => 'Tentang Kami',
+                'count' => $aboutMediaItems->count(),
+            ],
+            'general' => [
+                'label' => 'Umum',
+                'count' => $fullGalleryMediaItems->whereNull('package_category_id')->count(),
+            ],
+        ])->merge($galleryFilterCategories->mapWithKeys(fn (PackageCategory $packageCategory): array => [
+            "category-{$packageCategory->id}" => [
+                'label' => $packageCategory->name,
+                'count' => $fullGalleryMediaItems->where('package_category_id', $packageCategory->id)->count(),
+            ],
+        ]));
+        $requestedGalleryFilter = $request->string('gallery_filter')->toString();
+        $selectedGalleryFilter = $galleryFilters->has($requestedGalleryFilter)
+            ? $requestedGalleryFilter
+            : 'all';
         $mediaItems = match ($selectedSection) {
             MediaItem::AboutSection => $aboutMediaItems,
             MediaItem::GallerySection => $fullGalleryMediaItems
                 ->where('show_on_homepage', true)
                 ->values(),
-            default => $fullGalleryMediaItems,
+            MediaItem::FullGallerySection => match ($selectedGalleryFilter) {
+                'about' => $aboutMediaItems,
+                'general' => $fullGalleryMediaItems->whereNull('package_category_id')->values(),
+                'all' => $allGalleryMediaItems,
+                default => $fullGalleryMediaItems
+                    ->where('package_category_id', (int) Str::after($selectedGalleryFilter, 'category-'))
+                    ->values(),
+            },
         };
         $this->packageMediaAssets->registerLegacyPackageAssets(
             Package::query()->with('images:id,package_id,path')->get(),
@@ -74,8 +115,11 @@ class MediaController extends Controller
         return view('admin.media.index', [
             'mediaItems' => $mediaItems,
             'selectedSection' => $selectedSection,
+            'galleryFilters' => $galleryFilters,
+            'selectedGalleryFilter' => $selectedGalleryFilter,
+            'galleryFilterCategories' => $galleryFilterCategories,
             'mediaSections' => collect($sections)
-                ->map(function (array $details, string $section) use ($aboutMediaItems, $fullGalleryMediaItems): array {
+                ->map(function (array $details, string $section) use ($aboutMediaItems, $allGalleryMediaItems, $fullGalleryMediaItems): array {
                     [$items, $count] = match ($section) {
                         MediaItem::AboutSection => [
                             $aboutMediaItems,
@@ -85,7 +129,7 @@ class MediaController extends Controller
                             $fullGalleryMediaItems->where('show_on_homepage', true),
                             $fullGalleryMediaItems->where('show_on_homepage', true)->count(),
                         ],
-                        default => [$fullGalleryMediaItems, $fullGalleryMediaItems->count()],
+                        default => [$allGalleryMediaItems, $allGalleryMediaItems->count()],
                     };
 
                     return [
@@ -100,7 +144,7 @@ class MediaController extends Controller
             'selectedPackageFolder' => $selectedPackageFolder,
             'selectedPackageMediaAssets' => $packageMediaAssets->where('folder', $selectedPackageFolder)->values(),
             'packageMediaUsages' => $packageMediaUsages,
-            'packageCategories' => PackageCategory::query()->active()->orderBy('sort_order')->orderBy('name')->get(['id', 'name']),
+            'packageCategories' => $packageCategories,
         ]);
     }
 
@@ -202,7 +246,7 @@ class MediaController extends Controller
                     ? filter_var($item['show_on_homepage'] ?? false, FILTER_VALIDATE_BOOLEAN)
                     : null,
                 image: $item['image'] ?? null,
-                altTextSection: $validated['section'],
+                altTextSection: $medium->section,
             );
         }
 

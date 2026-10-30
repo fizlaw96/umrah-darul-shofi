@@ -12,7 +12,6 @@ it('uses visible package categories as the hero fallback and limits the homepage
             'name' => "Kategori {$index}",
             'slug' => "kategori-{$index}",
             'sort_order' => $index,
-            'show_on_homepage' => true,
         ]);
 
         Package::factory()->published()->for($category, 'category')->create([
@@ -27,26 +26,26 @@ it('uses visible package categories as the hero fallback and limits the homepage
         ->assertDontSee('id="pakej-kategori-5"', false);
 });
 
-it('does not show an active homepage category when it has no public packages', function () {
-    PackageCategory::factory()->create([
-        'name' => 'Pakej Menanti',
-        'slug' => 'pakej-menanti',
-        'description' => 'Pakej baharu akan diumumkan.',
+it('uses the active status as the only homepage visibility control', function () {
+    $activeCategory = PackageCategory::factory()->create([
+        'name' => 'Pakej Aktif',
+        'slug' => 'pakej-aktif',
         'sort_order' => 1,
         'is_active' => true,
-        'show_on_homepage' => true,
+    ]);
+    $activeCategory->forceFill(['show_on_homepage' => false])->save();
+    $inactiveCategory = PackageCategory::factory()->create([
+        'name' => 'Pakej Tidak Aktif',
+        'slug' => 'pakej-tidak-aktif',
+        'sort_order' => 2,
+        'is_active' => false,
     ]);
 
-    PackageCategory::factory()->create([
-        'name' => 'Kategori Tersembunyi',
-        'slug' => 'kategori-tersembunyi',
-        'sort_order' => 2,
-        'is_active' => true,
-        'show_on_homepage' => false,
-    ]);
+    Package::factory()->published()->for($activeCategory, 'category')->create();
+    Package::factory()->published()->for($inactiveCategory, 'category')->create();
 
     $this->get(route('home'))
         ->assertOk()
-        ->assertDontSee('id="pakej-pakej-menanti"', false)
-        ->assertDontSee('id="pakej-kategori-tersembunyi"', false);
+        ->assertSee('id="pakej-pakej-aktif"', false)
+        ->assertDontSee('id="pakej-pakej-tidak-aktif"', false);
 });

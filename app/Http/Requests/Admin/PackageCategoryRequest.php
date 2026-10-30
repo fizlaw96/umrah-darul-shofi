@@ -41,7 +41,6 @@ class PackageCategoryRequest extends FormRequest
             'slug' => ['required', 'string', 'max:255', Rule::unique('package_categories', 'slug')->ignore($category instanceof PackageCategory ? $category->id : null)],
             'description' => ['nullable', 'string', 'max:255'],
             'is_active' => ['nullable', 'boolean'],
-            'show_on_homepage' => ['nullable', 'boolean'],
             'background_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'background_video' => ['nullable', 'file', 'mimes:mp4,webm', 'max:'.config('darul_shofi.hero_video_max_kilobytes', 102400)],
             'remove_background_image' => ['nullable', 'boolean'],

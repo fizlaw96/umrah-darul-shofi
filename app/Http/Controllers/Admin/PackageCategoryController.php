@@ -82,7 +82,7 @@ class PackageCategoryController extends Controller
         return redirect()->route('admin.package-categories.index')->with('success', 'Kategori pakej berjaya dipadamkan.');
     }
 
-    /** @return array{name: string, slug: string, description: ?string, is_active: bool, show_on_homepage: bool} */
+    /** @return array{name: string, slug: string, description: ?string, is_active: bool} */
     private function values(PackageCategoryRequest $request): array
     {
         $validated = $request->validated();
@@ -92,7 +92,6 @@ class PackageCategoryController extends Controller
             'slug' => $validated['slug'],
             'description' => $validated['description'] ?? null,
             'is_active' => $request->boolean('is_active'),
-            'show_on_homepage' => $request->boolean('show_on_homepage'),
         ];
     }
 
@@ -105,7 +104,7 @@ class PackageCategoryController extends Controller
             'subtitle' => $category->description,
             'cta_label' => 'Terokai Pakej',
             'cta_url' => null,
-            'is_published' => $category->is_active && $category->show_on_homepage,
+            'is_published' => $category->is_active,
             'sort_order' => $category->sort_order,
         ];
 

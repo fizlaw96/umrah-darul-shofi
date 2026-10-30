@@ -4,6 +4,7 @@
 
 @php($nextDeparture = $package->departures->first())
 @php($promotionBadge = $package->promotionBadge())
+@php($isRecommendation = $promotionBadge && $promotionBadge['type'] === \App\Models\Package::RecommendationBadge)
 @php($isSuperDeal = $promotionBadge && $promotionBadge['type'] === \App\Models\Package::SuperDealBadge)
 
 <article @class([
@@ -15,7 +16,7 @@
     @if ($promotionBadge)
         <span @class([
             'package-card__badge',
-            'package-card__badge--recommendation' => $promotionBadge['type'] === \App\Models\Package::RecommendationBadge,
+            'package-card__badge--recommendation' => $isRecommendation,
             'package-card__badge--super-deal' => $isSuperDeal,
         ])>
             @if ($isSuperDeal)
@@ -37,6 +38,7 @@
 
     <div @class([
         'package-card__body flex min-w-0 flex-1 flex-col p-3.5 sm:p-4',
+        '!pt-12' => $isRecommendation,
         '!pt-16' => $isSuperDeal,
     ])>
         <div>

@@ -16,17 +16,14 @@ class HomeController extends Controller
     {
         return view('darul-shofi.home', [
             'heroSlides' => HeroSlide::query()
-                ->published()
                 ->whereHas('category', fn ($categoryQuery) => $categoryQuery
                     ->active()
-                    ->visibleOnHomepage()
                     ->whereHas('packages', fn ($packageQuery) => $packageQuery->publiclyVisible()))
                 ->with(['category', 'package'])
                 ->orderBy('sort_order')
                 ->get(),
             'homepageCategories' => PackageCategory::query()
                 ->active()
-                ->visibleOnHomepage()
                 ->whereHas('packages', fn ($packageQuery) => $packageQuery->publiclyVisible())
                 ->with(['packages' => fn ($query) => $query
                     ->publiclyVisible()

@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Storage;
 
 uses(LazilyRefreshDatabase::class);
 
-it('lets staff manage a category that controls homepage visibility', function () {
+it('lets staff manage a category with one active homepage status', function () {
     $staff = User::factory()->staff()->create();
 
     $this->actingAs($staff)
@@ -24,7 +24,6 @@ it('lets staff manage a category that controls homepage visibility', function ()
             'slug' => 'slug-yang-diabaikan',
             'description' => 'Perjalanan umrah.',
             'is_active' => true,
-            'show_on_homepage' => true,
         ])
         ->assertRedirect();
 
@@ -32,7 +31,6 @@ it('lets staff manage a category that controls homepage visibility', function ()
         'name' => 'Pakej Umrah',
         'slug' => 'pakej-umrah',
         'is_active' => true,
-        'show_on_homepage' => true,
         'sort_order' => 1,
     ]);
     $this->assertDatabaseHas('hero_slides', [
@@ -41,6 +39,25 @@ it('lets staff manage a category that controls homepage visibility', function ()
         'subtitle' => 'Perjalanan umrah.',
         'is_published' => true,
         'sort_order' => 1,
+    ]);
+
+    $category = PackageCategory::query()->where('slug', 'pakej-umrah')->firstOrFail();
+
+    $this->actingAs($staff)
+        ->put(route('admin.package-categories.update', $category), [
+            'name' => $category->name,
+            'description' => $category->description,
+            'is_active' => false,
+        ])
+        ->assertRedirect(route('admin.package-categories.index'));
+
+    $this->assertDatabaseHas('package_categories', [
+        'id' => $category->id,
+        'is_active' => false,
+    ]);
+    $this->assertDatabaseHas('hero_slides', [
+        'package_category_id' => $category->id,
+        'is_published' => false,
     ]);
 });
 
@@ -51,7 +68,6 @@ it('lets staff manage category hero media while deriving its content from the ca
         'name' => 'Pakej Umrah Asas',
         'description' => '1448H',
         'is_active' => true,
-        'show_on_homepage' => true,
     ]);
 
     $this->actingAs($staff)
@@ -61,7 +77,6 @@ it('lets staff manage category hero media while deriving its content from the ca
             'description' => $category->description,
             'background_image' => UploadedFile::fake()->image('hero.jpg', 1600, 900),
             'is_active' => true,
-            'show_on_homepage' => true,
         ])
         ->assertRedirect(route('admin.package-categories.index'));
 
@@ -85,6 +100,8 @@ it('lets staff manage category hero media while deriving its content from the ca
         ->assertSee('Subtajuk / tahun')
         ->assertSee('Slug dijana secara automatik daripada nama.')
         ->assertSee('Butang CTA: Terokai Pakej')
+        ->assertSee('Kategori aktif dipaparkan di homepage.')
+        ->assertDontSee('Paparkan di homepage')
         ->assertSee('aria-label="Keluarkan poster imej"', false)
         ->assertSee($heroSlide->imageUrl(), false)
         ->assertDontSee('Buang imej')
@@ -107,7 +124,6 @@ it('lets staff manage category hero media while deriving its content from the ca
             'slug' => $category->slug,
             'description' => $category->description,
             'is_active' => true,
-            'show_on_homepage' => true,
             'background_video' => UploadedFile::fake()->create('hero.mp4', 512, 'video/mp4'),
         ])
         ->assertSessionHasErrors('background_image');
@@ -120,7 +136,6 @@ it('lets staff manage category hero media while deriving its content from the ca
             'slug' => $category->slug,
             'description' => $category->description,
             'is_active' => true,
-            'show_on_homepage' => true,
             'background_video' => UploadedFile::fake()->create('hero.mp4', 512, 'video/mp4'),
             'remove_background_image' => true,
         ])
@@ -153,7 +168,6 @@ it('rejects a hero video longer than ten seconds', function () {
             'description' => $category->description,
             'background_video' => UploadedFile::fake()->create('hero.mp4', 512, 'video/mp4'),
             'is_active' => true,
-            'show_on_homepage' => true,
         ])
         ->assertSessionHasErrors('background_video');
 
@@ -185,7 +199,6 @@ it('stores a hero video when duration inspection is unavailable on the host', fu
             'description' => $category->description,
             'background_video' => UploadedFile::fake()->create('hero.mp4', 512, 'video/mp4'),
             'is_active' => true,
-            'show_on_homepage' => true,
         ])
         ->assertRedirect(route('admin.package-categories.index'));
 

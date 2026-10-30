@@ -20,7 +20,6 @@ class DefaultContentSeeder extends Seeder
                 'description' => 'Pilihan perjalanan Umrah dengan susunan yang jelas.',
                 'sort_order' => 1,
                 'is_active' => true,
-                'show_on_homepage' => true,
             ],
             [
                 'name' => 'Pakej Haji',
@@ -28,7 +27,6 @@ class DefaultContentSeeder extends Seeder
                 'description' => 'Pilihan perjalanan Haji dengan bimbingan menyeluruh.',
                 'sort_order' => 2,
                 'is_active' => true,
-                'show_on_homepage' => true,
             ],
             [
                 'name' => 'Pakej Badal Haji',
@@ -36,7 +34,6 @@ class DefaultContentSeeder extends Seeder
                 'description' => 'Pilihan perkhidmatan Badal Haji yang diurus dengan amanah.',
                 'sort_order' => 3,
                 'is_active' => true,
-                'show_on_homepage' => true,
             ],
             [
                 'name' => 'Pakej Pelancongan',
@@ -44,7 +41,6 @@ class DefaultContentSeeder extends Seeder
                 'description' => 'Pilihan pelancongan Muslim ke destinasi terpilih.',
                 'sort_order' => 4,
                 'is_active' => true,
-                'show_on_homepage' => true,
             ],
         ] as $category) {
             PackageCategory::query()->updateOrCreate(

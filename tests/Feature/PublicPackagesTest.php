@@ -50,7 +50,6 @@ it('only includes homepage categories that have a public package', function () {
         'description' => 'Pilihan perjalanan Umrah.',
         'sort_order' => 1,
         'is_active' => true,
-        'show_on_homepage' => true,
     ]);
     $haji = PackageCategory::factory()->create([
         'name' => 'Pakej Haji',
@@ -58,7 +57,6 @@ it('only includes homepage categories that have a public package', function () {
         'description' => 'Pilihan perjalanan Haji.',
         'sort_order' => 2,
         'is_active' => true,
-        'show_on_homepage' => true,
     ]);
     HeroSlide::factory()->for($umrah, 'category')->create([
         'title' => $umrah->name,
