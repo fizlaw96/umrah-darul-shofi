@@ -71,7 +71,7 @@ class Package extends Model
     {
         return [
             self::RecommendationBadge => [
-                'label' => 'Recommendation',
+                'label' => 'Recommended',
                 'icon' => 'star',
             ],
             self::SuperDealBadge => [

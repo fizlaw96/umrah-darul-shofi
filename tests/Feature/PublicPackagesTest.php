@@ -108,7 +108,7 @@ it('shows published packages and hides drafts from the catalogue', function () {
 it('places recommended packages first and shows the selected promotion badge', function () {
     $category = PackageCategory::factory()->create();
     $recommendedPackage = Package::factory()->published()->for($category, 'category')->create([
-        'title' => 'Pakej Recommendation',
+        'title' => 'Pakej Disyorkan',
         'is_featured' => true,
         'promotion_badge' => Package::RecommendationBadge,
         'published_at' => now(),
@@ -123,13 +123,14 @@ it('places recommended packages first and shows the selected promotion badge', f
     $this->get(route('packages.index'))
         ->assertOk()
         ->assertSeeInOrder([$recommendedPackage->title, $superDealPackage->title])
-        ->assertSee('Recommendation')
+        ->assertSee('Recommended')
         ->assertSee('Super Deal')
         ->assertSee('package-card__badge--recommendation', false)
         ->assertSee('package-card__badge--super-deal', false);
 
     $this->get(route('home'))
         ->assertOk()
+        ->assertSee('Recommended')
         ->assertSee('ds-package-badge--super-deal', false);
 });
 

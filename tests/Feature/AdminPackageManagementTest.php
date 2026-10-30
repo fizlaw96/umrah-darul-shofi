@@ -101,6 +101,16 @@ it('requires a promotion badge when a package is marked as featured', function (
     expect(Package::query()->count())->toBe(0);
 });
 
+it('renders the promotion badge labels in the admin package form', function () {
+    $staff = User::factory()->staff()->create();
+
+    $this->actingAs($staff)
+        ->get(route('admin.packages.create'))
+        ->assertOk()
+        ->assertSee('Recommended')
+        ->assertSee('Super Deal');
+});
+
 it('removes a promotion badge when a package is no longer featured', function () {
     $staff = User::factory()->staff()->create();
     $category = PackageCategory::factory()->create();
