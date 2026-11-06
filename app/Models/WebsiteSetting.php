@@ -60,7 +60,158 @@ class WebsiteSetting extends Model
             'featured_video_title' => '',
             'featured_video_url' => '',
             'terms_content' => '',
+            'transport_enabled' => '1',
+            'transport_whatsapp' => '',
+            'transport_intro' => 'Perjalanan anda, kami bantu uruskan. Kongsi lokasi dan keperluan perjalanan untuk semakan operator.',
+            'transport_coverage_info' => '',
+            'transport_operating_notes' => '',
+            'transport_banner_path' => '',
+            'transport_vehicle_options' => json_encode(static::transportVehicleDefaults()),
+            'aqiqah_korban_whatsapp' => '',
+            'aqiqah_korban_use_general_whatsapp' => '1',
         ];
+    }
+
+    public const MaximumTransportVehicleOptions = 8;
+
+    /**
+     * Site defaults merged with every stored value that overrides them.
+     *
+     * @return array<string, string|null>
+     */
+    public static function siteSettings(): array
+    {
+        $defaults = static::siteDefaults();
+
+        return array_merge(
+            $defaults,
+            static::query()
+                ->whereIn('key', array_keys($defaults))
+                ->pluck('value', 'key')
+                ->all(),
+        );
+    }
+
+    /**
+     * @return array<int, array{key: string, name: string, description: string, image: string, capacity: int|null, enabled: bool}>
+     */
+    public static function transportVehicleDefaults(): array
+    {
+        return [
+            [
+                'key' => 'sedan',
+                'name' => 'Kereta Sedan',
+                'description' => 'Sesuai untuk 1–3 penumpang',
+                'image' => 'darul-shofi/images/transport/sedan-v1.png',
+                'capacity' => 3,
+                'enabled' => true,
+            ],
+            [
+                'key' => 'mpv',
+                'name' => 'MPV',
+                'description' => 'Sesuai untuk keluarga kecil',
+                'image' => 'darul-shofi/images/transport/mpv-v1.png',
+                'capacity' => 6,
+                'enabled' => true,
+            ],
+            [
+                'key' => 'van',
+                'name' => 'Van Penumpang',
+                'description' => 'Sesuai untuk keluarga dan bagasi',
+                'image' => 'darul-shofi/images/transport/van-v1.png',
+                'capacity' => 12,
+                'enabled' => true,
+            ],
+            [
+                'key' => 'minibus',
+                'name' => 'Bas Mini',
+                'description' => 'Sesuai untuk kumpulan kecil',
+                'image' => 'darul-shofi/images/transport/minibus-v1.png',
+                'capacity' => 25,
+                'enabled' => true,
+            ],
+        ];
+    }
+
+    /**
+     * Preset vehicle images staff can attach to a vehicle option.
+     *
+     * @return array<string, string>
+     */
+    public static function transportVehicleImages(): array
+    {
+        return collect(static::transportVehicleDefaults())
+            ->mapWithKeys(fn (array $vehicle): array => [$vehicle['image'] => $vehicle['name']])
+            ->all();
+    }
+
+    /**
+     * @return array<int, array{key: string, name: string, description: string, image: string, capacity: int|null, enabled: bool}>
+     */
+    public static function transportVehicleOptions(?string $encodedOptions): array
+    {
+        $options = json_decode((string) $encodedOptions, true);
+        $normalizedOptions = is_array($options) ? static::normalizeTransportVehicleOptions($options) : [];
+
+        return $normalizedOptions === [] ? static::transportVehicleDefaults() : $normalizedOptions;
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $options
+     */
+    public static function encodeTransportVehicleOptions(array $options): string
+    {
+        return json_encode(static::normalizeTransportVehicleOptions($options), JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * Drops removed or unnamed rows, keeps keys unique and fills capacities for options saved before capacity existed.
+     *
+     * @param  array<int|string, mixed>  $options
+     * @return array<int, array{key: string, name: string, description: string, image: string, capacity: int|null, enabled: bool}>
+     */
+    public static function normalizeTransportVehicleOptions(array $options): array
+    {
+        $defaults = collect(static::transportVehicleDefaults())->keyBy('key');
+        $allowedImages = array_keys(static::transportVehicleImages());
+        $usedKeys = [];
+        $normalized = [];
+
+        foreach ($options as $option) {
+            if (! is_array($option) || filter_var($option['remove'] ?? false, FILTER_VALIDATE_BOOLEAN) || blank($option['name'] ?? null)) {
+                continue;
+            }
+
+            $name = trim((string) $option['name']);
+            $key = Str::slug((string) ($option['key'] ?? '')) ?: (Str::slug($name) ?: 'kenderaan');
+            $baseKey = $key;
+            $suffix = 2;
+
+            while (in_array($key, $usedKeys, true)) {
+                $key = $baseKey.'-'.$suffix++;
+            }
+
+            $usedKeys[] = $key;
+            $image = $option['image'] ?? null;
+            $capacity = array_key_exists('capacity', $option)
+                ? $option['capacity']
+                : ($defaults->get($key)['capacity'] ?? null);
+
+            $normalized[] = [
+                'key' => $key,
+                'name' => $name,
+                'description' => trim((string) ($option['description'] ?? '')),
+                'image' => in_array($image, $allowedImages, true) ? $image : $allowedImages[0],
+                'capacity' => filled($capacity) && (int) $capacity > 0 ? (int) $capacity : null,
+                'enabled' => filter_var($option['enabled'] ?? false, FILTER_VALIDATE_BOOLEAN),
+            ];
+
+            if (count($normalized) === static::MaximumTransportVehicleOptions) {
+                break;
+            }
+        }
+
+        return $normalized;
     }
 
     public static function getValue(string $key, ?string $default = null): ?string
@@ -74,6 +225,32 @@ class WebsiteSetting extends Model
             ['key' => $key],
             ['value' => $value, 'group' => $group],
         );
+    }
+
+    public static function normalizedWhatsAppNumber(?string $number): ?string
+    {
+        $normalized = preg_replace('/\D+/', '', (string) $number) ?? '';
+
+        if (str_starts_with($normalized, '00')) {
+            $normalized = substr($normalized, 2);
+        }
+
+        if (str_starts_with($normalized, '0')) {
+            $normalized = '60'.ltrim($normalized, '0');
+        }
+
+        return preg_match('/^[1-9]\d{7,14}$/', $normalized) === 1 ? $normalized : null;
+    }
+
+    public static function whatsAppUrl(?string $number, string $message): ?string
+    {
+        $normalizedNumber = static::normalizedWhatsAppNumber($number);
+
+        if ($normalizedNumber === null) {
+            return null;
+        }
+
+        return 'https://wa.me/'.$normalizedNumber.'?text='.rawurlencode($message);
     }
 
     public static function publicUrl(?string $path): ?string

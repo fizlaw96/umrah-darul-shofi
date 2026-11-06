@@ -47,6 +47,10 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(5)->by($request->ip());
         });
 
+        RateLimiter::for('service-enquiry', function (Request $request): Limit {
+            return Limit::perMinute(5)->by($request->ip());
+        });
+
         ResetPassword::createUrlUsing(function (User $user, string $token): string {
             return route('admin.password.reset', [
                 'token' => $token,

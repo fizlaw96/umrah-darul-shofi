@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\DeletePackageMediaAsset;
 use App\Actions\PackageMediaUsageReporter;
 use App\Actions\RenamePackageMediaAsset;
 use App\Actions\StorePackageMediaAsset;
@@ -28,6 +29,7 @@ class MediaController extends Controller
         private readonly StorePackageMediaAsset $packageMediaAssets,
         private readonly PackageMediaUsageReporter $packageMediaUsageReporter,
         private readonly RenamePackageMediaAsset $renamePackageMediaAsset,
+        private readonly DeletePackageMediaAsset $deletePackageMediaAsset,
     ) {}
 
     /**
@@ -281,16 +283,8 @@ class MediaController extends Controller
 
     public function destroyPackageAsset(PackageMediaAsset $packageMediaAsset): RedirectResponse
     {
-        $usages = $this->packageMediaUsageReporter->usagesFor(collect([$packageMediaAsset]));
-
-        if (($usages->get($packageMediaAsset->path)?->isNotEmpty()) === true) {
-            return back()->with('error', 'Media ini masih digunakan oleh pakej dan tidak boleh dipadamkan.');
-        }
-
-        $path = $packageMediaAsset->path;
         $folder = $packageMediaAsset->folder;
-        $packageMediaAsset->delete();
-        $this->deleteStoredFile($path);
+        $this->deletePackageMediaAsset->handle($packageMediaAsset);
 
         return redirect()->route('admin.media.index', [
             'tab' => 'package-media',

@@ -7,6 +7,8 @@
     <url><loc>{{ route('faq') }}</loc></url>
     <url><loc>{{ route('mutawifs.index') }}</loc></url>
     <url><loc>{{ route('terms') }}</loc></url>
+    <url><loc>{{ route('transport.show') }}</loc></url>
+    <url><loc>{{ route('aqiqah-korban.show') }}</loc></url>
     @foreach ($packages as $package)
         <url><loc>{{ route('packages.show', $package->slug) }}</loc><lastmod>{{ $package->updated_at->toAtomString() }}</lastmod></url>
     @endforeach

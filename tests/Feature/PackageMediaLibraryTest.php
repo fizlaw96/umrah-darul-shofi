@@ -76,6 +76,7 @@ it('reports where package media is used and exposes the package media tab to sta
         ->assertSee('digunakan 11 kali')
         ->assertSee('Lihat penggunaan')
         ->assertSee('Penggunaan media')
+        ->assertSee('aria-label="Padam media"', false)
         ->assertSee('data-package-media-usage-pagination', false);
 
     expect(substr_count($response->getContent(), 'data-package-media-usage-row'))->toBe(11);
@@ -123,4 +124,47 @@ it('renames package media and keeps every current package reference intact', fun
         ->and($package->images()->sole()->path)->toBe($asset->path);
     Storage::disk('public')->assertMissing($oldPath);
     Storage::disk('public')->assertExists($asset->path);
+});
+
+it('deletes a package media asset and removes every package reference', function () {
+    Storage::fake('public');
+
+    $staff = User::factory()->staff()->create();
+    $path = 'packages/media/penginapan-hotel/hotel-lama.jpg';
+    $asset = PackageMediaAsset::factory()->create([
+        'folder' => PackageMediaAsset::HotelFolder,
+        'path' => $path,
+    ]);
+    Storage::disk('public')->put($path, 'hotel-image');
+    $package = Package::factory()->create([
+        'cover_image' => $path,
+        'poster_image' => $path,
+        'flight_options' => [['images' => [$path]]],
+        'hotel_options' => [['images' => [$path]]],
+        'room_prices' => [['image' => $path]],
+        'ziarah_places' => [['image' => $path]],
+        'gifts' => [['image' => $path]],
+    ]);
+    $package->images()->create(['path' => $path, 'sort_order' => 1]);
+
+    $this->actingAs($staff)
+        ->delete(route('admin.media.package-assets.destroy', $asset))
+        ->assertRedirect(route('admin.media.index', [
+            'tab' => 'package-media',
+            'folder' => PackageMediaAsset::HotelFolder,
+        ]));
+
+    $this->assertModelMissing($asset);
+    Storage::disk('public')->assertMissing($path);
+
+    $package->refresh();
+
+    expect($package->cover_image)->toBeNull()
+        ->and($package->poster_image)->toBeNull()
+        ->and($package->flight_options[0]['images'])->toBe([])
+        ->and($package->hotel_options[0]['images'])->toBe([])
+        ->and($package->room_prices[0]['image'])->toBeNull()
+        ->and($package->ziarah_places[0]['image'])->toBeNull()
+        ->and($package->gifts[0]['image'])->toBeNull()
+        ->and($package->images()->count())->toBe(0);
 });

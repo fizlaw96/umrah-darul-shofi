@@ -20,6 +20,7 @@
 
             <nav class="ds-site-desktop-nav" aria-label="Navigasi utama">
                 <a href="{{ route('packages.index') }}">Pakej</a>
+                <details class="ds-site-services-menu"><summary>Perkhidmatan <i aria-hidden="true" class="fa-solid fa-chevron-down"></i></summary><div class="ds-site-services-menu__panel"><a href="{{ route('transport.show') }}">Transport</a><a href="{{ route('aqiqah-korban.show') }}">Aqiqah &amp; Korban</a></div></details>
                 <a href="{{ route('about') }}">Tentang Kami</a>
                 <a href="{{ route('gallery.index') }}">Galeri</a>
                 <a href="{{ route('mutawifs.index') }}">Mutawif</a>
@@ -44,6 +45,14 @@
         <a class="ds-mobile-menu__link" href="{{ route('packages.index') }}">
             <i aria-hidden="true" class="fa-solid fa-arrow-right"></i>
             <span>Lihat Semua Pakej</span>
+        </a>
+        <a class="ds-mobile-menu__link" href="{{ route('transport.show') }}">
+            <i aria-hidden="true" class="fa-solid fa-van-shuttle"></i>
+            <span>Transport</span>
+        </a>
+        <a class="ds-mobile-menu__link" href="{{ route('aqiqah-korban.show') }}">
+            <i aria-hidden="true" class="fa-solid fa-hand-holding-heart"></i>
+            <span>Aqiqah &amp; Korban</span>
         </a>
         <a class="ds-mobile-menu__link" href="{{ route('about') }}">
             <i aria-hidden="true" class="fa-solid fa-circle-info"></i>

@@ -74,6 +74,8 @@
                     <li><a href="{{ route('faq') }}">Soalan Lazim</a></li>
                     <li><a href="{{ route('mutawifs.index') }}">Mutawif</a></li>
                     <li><a href="{{ route('about') }}">Tentang Kami</a></li>
+                    <li><a href="{{ route('transport.show') }}">Transport</a></li>
+                    <li><a href="{{ route('aqiqah-korban.show') }}">Aqiqah &amp; Korban</a></li>
                     <li><a href="{{ route('terms') }}">Terma &amp; Syarat</a></li>
                 </ul>
             </section>

@@ -55,6 +55,11 @@
                 <a href="{{ route('admin.mutawifs.index') }}" class="admin-sidebar-link {{ request()->routeIs('admin.mutawifs.*') ? 'is-active' : '' }}"><span class="material-symbols-outlined text-[19px]">groups</span>Mutawif</a>
                 <a href="{{ route('admin.airline-companies.index') }}" class="admin-sidebar-link {{ request()->routeIs('admin.airline-companies.*') ? 'is-active' : '' }}"><span class="material-symbols-outlined text-[19px]">flight</span>Syarikat Penerbangan</a>
 
+                <p class="mb-2 mt-7 px-2 text-[10px] font-bold tracking-[0.1em] text-[#69746f]">PERKHIDMATAN</p>
+                <a href="{{ route('admin.transport-settings.edit') }}" class="admin-sidebar-link {{ request()->routeIs('admin.transport-settings.*') ? 'is-active' : '' }}"><span class="material-symbols-outlined text-[19px]">airport_shuttle</span>Transport</a>
+                <a href="{{ route('admin.aqiqah-korban-services.index') }}" class="admin-sidebar-link {{ request()->routeIs('admin.aqiqah-korban-services.*') ? 'is-active' : '' }}"><span class="material-symbols-outlined text-[19px]">volunteer_activism</span>Aqiqah &amp; Korban</a>
+                <a href="{{ route('admin.service-enquiries.index') }}" class="admin-sidebar-link {{ request()->routeIs('admin.service-enquiries.*') ? 'is-active' : '' }}"><span class="material-symbols-outlined text-[19px]">inbox</span>Permintaan Servis</a>
+
                 <p class="mb-2 mt-7 px-2 text-[10px] font-bold tracking-[0.1em] text-[#69746f]">TETAPAN</p>
                 <a href="{{ route('admin.settings.edit') }}" class="admin-sidebar-link {{ request()->routeIs('admin.settings.*') ? 'is-active' : '' }}"><span class="material-symbols-outlined text-[19px]">tune</span>Tetapan Website</a>
             </nav>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AirlineCompanyController;
+use App\Http\Controllers\Admin\AqiqahKorbanServiceController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DepartureController as AdminDepartureController;
 use App\Http\Controllers\Admin\FaqController as AdminFaqController;
@@ -14,8 +15,10 @@ use App\Http\Controllers\Admin\PackageController as AdminPackageController;
 use App\Http\Controllers\Admin\PackageNotificationController;
 use App\Http\Controllers\Admin\PackageParticipantController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\ServiceEnquiryController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TestimonialController;
+use App\Http\Controllers\Admin\TransportSettingsController;
 use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
@@ -25,6 +28,8 @@ use App\Http\Controllers\Public\MediaFileController;
 use App\Http\Controllers\Public\MutawifController as PublicMutawifController;
 use App\Http\Controllers\Public\PackageController;
 use App\Http\Controllers\Public\PageController;
+use App\Http\Controllers\Public\ServiceController;
+use App\Http\Controllers\Public\TransportController;
 use App\Models\Package;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
@@ -48,6 +53,14 @@ Route::get('/galeri', [PageController::class, 'gallery'])->name('gallery.index')
 Route::get('/soalan-lazim', [PageController::class, 'faq'])->name('faq');
 Route::get('/mutawif', [PublicMutawifController::class, 'index'])->name('mutawifs.index');
 Route::get('/terma-syarat', [PageController::class, 'terms'])->name('terms');
+Route::get('/transport', [TransportController::class, 'show'])->name('transport.show');
+Route::post('/transport/sedia-dihantar', [TransportController::class, 'prepare'])
+    ->middleware('throttle:service-enquiry')
+    ->name('transport.prepare');
+Route::get('/aqiqah-korban', [ServiceController::class, 'aqiqahKorban'])->name('aqiqah-korban.show');
+Route::post('/aqiqah-korban/sedia-dihantar', [ServiceController::class, 'prepareAqiqahKorban'])
+    ->middleware('throttle:service-enquiry')
+    ->name('aqiqah-korban.prepare');
 
 Route::get('/robots.txt', function (): Response {
     return response("User-agent: *\nAllow: /\nSitemap: ".route('sitemap'), 200, ['Content-Type' => 'text/plain']);
@@ -108,6 +121,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:access-admin'])
     Route::resource('mutawifs', AdminMutawifController::class);
     Route::resource('departures', AdminDepartureController::class);
     Route::resource('faqs', AdminFaqController::class);
+    Route::get('/transport', [TransportSettingsController::class, 'edit'])->name('transport-settings.edit');
+    Route::put('/transport', [TransportSettingsController::class, 'update'])->name('transport-settings.update');
+    Route::put('/aqiqah-korban-services/contact', [AqiqahKorbanServiceController::class, 'updateContact'])->name('aqiqah-korban-services.contact.update');
+    Route::resource('aqiqah-korban-services', AqiqahKorbanServiceController::class);
+    Route::resource('service-enquiries', ServiceEnquiryController::class)->only(['index', 'show', 'update', 'destroy']);
     Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
 });

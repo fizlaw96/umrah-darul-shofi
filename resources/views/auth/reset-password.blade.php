@@ -1,6 +1,3 @@
-<div>
-    <!-- When there is no desire, all things are at peace. - Laozi -->
-</div>
 <x-layouts.app title="Tetapkan Semula Kata Laluan">
     <section class="container-page flex min-h-[70vh] max-w-lg items-center py-12">
         <form method="POST" action="{{ route('admin.password.update') }}" class="admin-card w-full space-y-6 p-7 sm:p-9">@csrf
