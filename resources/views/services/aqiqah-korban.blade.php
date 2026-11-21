@@ -6,7 +6,7 @@
     <div class="aqiqah-korban-page pb-14 sm:pb-20">
         <section class="service-hero-fluid aqiqah-korban-hero-fluid">
             <div class="aqiqah-korban-hero">
-                <img src="{{ $aqiqahKorbanHeroUrl }}" alt="Kaabah di Masjidil Haram" class="aqiqah-korban-hero__image">
+                <x-responsive-image :src="$aqiqahKorbanHeroUrl" sizes="100vw" alt="Kaabah di Masjidil Haram" class="aqiqah-korban-hero__image" />
                 <div class="aqiqah-korban-hero__shade"></div>
 
                 <div class="relative flex min-h-[calc(100svh-4.25rem)] flex-col px-5 py-6 sm:min-h-[calc(100svh-5rem)] sm:px-10 sm:py-8 lg:px-14 lg:py-10">
@@ -121,7 +121,7 @@
                         <div class="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3" data-aqiqah-korban-service-options>
                             @foreach ($wizardServices as $service)
                                 <button class="aqiqah-korban-service-option" type="button" data-aqiqah-korban-service-option data-category="{{ $service->category }}" data-service-id="{{ $service->id }}" data-service-name="{{ $service->name }}" data-service-animal="{{ $service->animal_type }}" data-service-quantity="{{ $service->quantity_description }}" data-service-location="{{ $service->service_location }}" data-service-price="{{ $service->priceLabel() }}" data-service-price-value="{{ $service->price }}" data-service-slots="{{ $service->participantSlotsPerUnit() }}">
-                                    @if ($service->imageUrl())<img src="{{ $service->imageUrl() }}" alt="">@else<span class="material-symbols-outlined">{{ $service->category === \App\Models\AqiqahKorbanService::Aqiqah ? 'pets' : 'agriculture' }}</span>@endif
+                                    @if ($service->imageUrl())<x-responsive-image :src="$service->imageUrl()" sizes="(min-width: 1024px) 33vw, 100vw" alt="" />@else<span class="material-symbols-outlined">{{ $service->category === \App\Models\AqiqahKorbanService::Aqiqah ? 'pets' : 'agriculture' }}</span>@endif
                                     <span><strong>{{ $service->name }}</strong><small>{{ $service->animal_type }} · {{ $service->quantity_description }}</small><em>{{ $service->price === null ? 'Harga atas pengesahan' : $service->priceLabel() }}</em></span>
                                 </button>
                             @endforeach

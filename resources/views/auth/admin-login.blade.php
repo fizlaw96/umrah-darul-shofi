@@ -10,11 +10,15 @@
         @if (filled($siteSettings['company_apple_touch_icon_url']))
             <link rel="apple-touch-icon" sizes="180x180" href="{{ $siteSettings['company_apple_touch_icon_url'] }}">
         @endif
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0,0&icon_names=add,admin_panel_settings,agriculture,arrow_forward,article,assignment,bed,block,bolt,calendar_month,call,cancel,chat,check,check_circle,chevron_left,chevron_right,close,directions_car,download,east,edit_location_alt,event,event_note,expand_more,explore,fact_check,fiber_new,flight,flight_takeoff,forum,grid_view,group,groups,hotel,info,inventory_2,key,local_fire_department,location_city,location_on,lock,lock_reset,mail,map,menu_book,mosque,my_location,nights_stay,open_in_new,pause,person,pets,photo_library,play_arrow,redeem,remove,restart_alt,schedule,search,send,shield,star,stars,support_agent,target,task_alt,verified,verified_user,visibility,visibility_off,volunteer_activism,west&display=block" rel="stylesheet">
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="admin-shell min-h-screen overflow-x-hidden bg-[#f7f8f5] text-[#163a30]">
         <div class="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
-            <img src="{{ asset('darul-shofi/images/hero/umrah-premium-makkah-hero.png') }}" alt="" class="size-full object-cover object-center opacity-[0.10] grayscale">
+            <x-responsive-image :src="asset('darul-shofi/images/hero/umrah-premium-makkah-hero.png')" sizes="100vw" alt="" class="size-full object-cover object-center opacity-[0.10] grayscale" />
             <div class="absolute inset-0 bg-[#f7f8f5]/85"></div>
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,transparent_0,rgba(247,248,245,.18)_44%,rgba(247,248,245,.96)_100%)]"></div>
         </div>
@@ -22,7 +26,7 @@
         <main class="relative z-10 mx-auto flex min-h-screen max-w-[1380px] items-center px-4 py-3 sm:px-8 sm:py-5 lg:h-dvh lg:min-h-0">
             <section class="mx-auto grid w-full max-w-[1316px] overflow-hidden rounded-[30px] bg-white shadow-[0_32px_80px_-38px_rgba(0,37,30,.40)] lg:h-[min(740px,calc(100dvh-2.5rem))] lg:grid-cols-[1.3fr_1fr]">
                 <aside class="relative hidden min-h-[740px] overflow-hidden bg-[#003d32] px-11 py-8 text-white lg:flex lg:min-h-0 lg:flex-col xl:px-[60px]">
-                    <img src="{{ asset('darul-shofi/images/hero/umrah-premium-makkah-hero.png') }}" alt="" class="absolute inset-0 size-full object-cover object-[58%_center] opacity-80" aria-hidden="true">
+                    <x-responsive-image :src="asset('darul-shofi/images/hero/umrah-premium-makkah-hero.png')" sizes="50vw" alt="" class="absolute inset-0 size-full object-cover object-[58%_center] opacity-80" aria-hidden="true" />
                     <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,58,47,.97)_0%,rgba(0,59,48,.90)_50%,rgba(0,54,43,.42)_100%)]"></div>
                     <div class="absolute inset-0 opacity-25 [background-image:radial-gradient(rgba(122,223,184,.58)_1px,transparent_1px)] [background-size:24px_24px]"></div>
                     <div class="absolute bottom-[-152px] right-[-156px] h-[530px] w-[430px] rounded-t-[245px] border-[3px] border-[#d9ad49]/75"></div>
@@ -31,7 +35,7 @@
                     <div class="relative flex items-center gap-4">
                         <span class="grid size-[86px] shrink-0 place-items-center overflow-hidden rounded-2xl bg-white p-2 shadow-[0_12px_28px_rgba(0,0,0,.18)]">
                             @if (filled($siteSettings['company_logo_url']))
-                                <img src="{{ $siteSettings['company_logo_url'] }}" alt="" class="size-full object-contain">
+                                <x-responsive-image :src="$siteSettings['company_logo_url']" sizes="120px" alt="" class="size-full object-contain" />
                             @else
                                 <span class="material-symbols-outlined text-[38px] text-[#007c68]">mosque</span>
                             @endif

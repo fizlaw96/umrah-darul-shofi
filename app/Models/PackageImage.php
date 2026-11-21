@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasImageDerivatives;
 use Database\Factories\PackageImageFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,6 +17,8 @@ class PackageImage extends Model
     /** @use HasFactory<PackageImageFactory> */
     use HasFactory;
 
+    use HasImageDerivatives;
+
     public function package(): BelongsTo
     {
         return $this->belongsTo(Package::class);
@@ -28,5 +31,13 @@ class PackageImage extends Model
         }
 
         return Storage::disk('public')->url($this->path);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function imageDerivativeAttributes(): array
+    {
+        return ['path'];
     }
 }

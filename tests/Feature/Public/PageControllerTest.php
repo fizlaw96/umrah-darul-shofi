@@ -22,6 +22,15 @@ it('renders all published FAQs in latest insertion order', function () {
         ->assertDontSee('Soalan FAQ Draf');
 });
 
+it('renders the FAQ page with a WhatsApp link when no FAQs are published', function () {
+    WebsiteSetting::factory()->create(['key' => 'contact_whatsapp', 'value' => '60123456789']);
+
+    $this->get(route('faq'))
+        ->assertOk()
+        ->assertSee('Soalan lazim akan dikemas kini tidak lama lagi.')
+        ->assertSee('wa.me/60123456789', false);
+});
+
 it('renders the About page with managed copy in its hero and its own gallery', function () {
     WebsiteSetting::setValue('about_eyebrow', 'Bersama Menuju Baitullah', 'homepage');
     WebsiteSetting::setValue('about_heading', 'Amanah dalam setiap perjalanan', 'homepage');

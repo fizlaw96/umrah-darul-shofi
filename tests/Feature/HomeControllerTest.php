@@ -2,7 +2,9 @@
 
 use App\Models\Faq;
 use App\Models\Testimonial;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Facades\DB;
 
 uses(LazilyRefreshDatabase::class);
 
@@ -79,4 +81,24 @@ it('renders the five latest published FAQs with a link to the full FAQ page', fu
         ->assertDontSee('Soalan FAQ 1')
         ->assertDontSee('Soalan FAQ Draf')
         ->assertSee(route('faq'), false);
+});
+
+it('loads site settings and footer categories once per homepage request', function () {
+    $settingsQueries = 0;
+    $footerCategoryQueries = 0;
+
+    DB::listen(function (QueryExecuted $query) use (&$settingsQueries, &$footerCategoryQueries): void {
+        if (str_contains($query->sql, 'from "website_settings"')) {
+            $settingsQueries++;
+        }
+
+        if (str_contains($query->sql, 'select "name", "slug" from "package_categories"')) {
+            $footerCategoryQueries++;
+        }
+    });
+
+    $this->get(route('home'))->assertOk();
+
+    expect($settingsQueries)->toBe(1)
+        ->and($footerCategoryQueries)->toBe(1);
 });

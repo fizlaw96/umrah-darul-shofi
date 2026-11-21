@@ -57,6 +57,8 @@
       ctaLabel: slide.dataset.heroCtaLabel || 'Lihat Pakej',
       ctaUrl: slide.dataset.heroCtaUrl || '#pakej',
       poster: slide.dataset.heroPoster || '',
+      posterSrcset: slide.dataset.heroPosterSrcset || '',
+      videoPoster: slide.dataset.heroVideoPoster || slide.dataset.heroPoster || '',
       imagePosition: slide.dataset.heroImagePosition || '50% 50%',
       video: slide.dataset.heroVideo || '',
       videoPosition: slide.dataset.heroVideoPosition || 'center',
@@ -104,10 +106,13 @@
         }
       });
     };
-    const updatePoster = source => {
+    const updatePoster = (source, srcset) => {
       if (!source || poster.getAttribute('src') === source) return;
 
       poster.classList.add('ds-cinematic-hero__poster--changing');
+      // srcset wins over src, so it must change with it or the old slide stays visible.
+      if (srcset) poster.srcset = srcset;
+      else poster.removeAttribute('srcset');
       poster.src = source;
       poster.addEventListener('load', () => poster.classList.remove('ds-cinematic-hero__poster--changing'), { once: true });
     };
@@ -128,7 +133,7 @@
 
       if (video.getAttribute('src') !== slide.video) {
         video.src = slide.video;
-        video.poster = slide.poster;
+        video.poster = slide.videoPoster;
         video.load();
       }
 
@@ -140,7 +145,7 @@
       const slide = slides[active];
 
       heroCarousel.dataset.activeSlide = String(active + 1);
-      updatePoster(slide.poster);
+      updatePoster(slide.poster, slide.posterSrcset);
       poster.style.objectPosition = slide.imagePosition;
       if (video) video.style.objectPosition = slide.videoPosition;
       badge.textContent = slide.badge;

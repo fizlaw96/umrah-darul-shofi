@@ -9,7 +9,7 @@
     <div class="transport-page pb-14 sm:pb-20">
         <section class="service-hero-fluid transport-hero-fluid">
             <div class="transport-hero">
-                <img src="{{ $transportVisualUrl }}" alt="Van pengangkutan di Masjidil Haram" class="transport-hero__image">
+                <x-responsive-image :src="$transportVisualUrl" sizes="100vw" alt="Van pengangkutan di Masjidil Haram" class="transport-hero__image" />
                 <div class="transport-hero__shade"></div>
 
                 <div class="relative flex min-h-[calc(100svh-4.25rem)] flex-col px-5 py-6 sm:min-h-[calc(100svh-5rem)] sm:px-10 sm:py-8 lg:px-14 lg:py-10">
@@ -229,7 +229,7 @@
                                                 <button class="transport-vehicle-picker__trigger" type="button" data-transport-vehicle-trigger aria-expanded="false">
                                                     <span class="transport-vehicle-picker__preview" data-transport-vehicle-preview>
                                                         @if ($selectedVehicle)
-                                                            <img src="{{ asset($selectedVehicle['image']) }}" alt="">
+                                                            <x-responsive-image :src="asset($selectedVehicle['image'])" sizes="(min-width: 1024px) 25vw, 50vw" alt="" />
                                                         @else
                                                             <span class="material-symbols-outlined">directions_car</span>
                                                         @endif
@@ -241,7 +241,7 @@
                                                     @foreach ($availableVehicleOptions as $vehicle)
                                                         @php($vehicleDescription = collect([$vehicle['description'], $vehicle['capacity'] ? 'Maks. '.$vehicle['capacity'].' penumpang' : null])->filter()->implode(' · '))
                                                         <button type="button" data-transport-vehicle-option data-value="{{ $vehicle['name'] }}" data-label="{{ $vehicle['name'] }}" data-description="{{ $vehicleDescription }}" data-capacity="{{ $vehicle['capacity'] }}" data-image="{{ asset($vehicle['image']) }}" aria-selected="{{ $selectedVehicle === $vehicle ? 'true' : 'false' }}">
-                                                            <img src="{{ asset($vehicle['image']) }}" alt="">
+                                                            <x-responsive-image :src="asset($vehicle['image'])" sizes="(min-width: 1024px) 25vw, 50vw" alt="" />
                                                             <span><strong>{{ $vehicle['name'] }}</strong><small>{{ $vehicleDescription }}</small></span>
                                                         </button>
                                                     @endforeach

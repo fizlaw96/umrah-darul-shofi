@@ -59,7 +59,7 @@
                     <div class="ds-marquee-sequence ds-marquee-sequence--gallery">
                         @foreach ($rowItems as $galleryItem)
                             <button type="button" data-gallery-open="{{ ($loop->parent->index * $rowItems->count()) + $loop->index }}" class="ds-gallery-open h-40 w-64 shrink-0 overflow-hidden rounded-xl border border-brand-gold/20 bg-brand-cream shadow-sm" aria-label="Buka {{ $galleryItem['alt'] }}">
-                                <img src="{{ $galleryItem['url'] }}" alt="{{ $galleryItem['alt'] }}" class="size-full object-cover" style="object-position: {{ $galleryItem['path'] ? ($imageFocusPositions[$galleryItem['path']] ?? '50% 50%') : '50% 50%' }}" decoding="async" loading="lazy">
+                                <x-responsive-image :src="$galleryItem['url']" sizes="(min-width: 1024px) 25vw, 50vw" alt="{{ $galleryItem['alt'] }}" class="size-full object-cover" style="object-position: {{ $galleryItem['path'] ? ($imageFocusPositions[$galleryItem['path']] ?? '50% 50%') : '50% 50%' }}" decoding="async" loading="lazy" />
                             </button>
                         @endforeach
                     </div>
@@ -67,7 +67,7 @@
                     <div aria-hidden="true" class="ds-marquee-sequence ds-marquee-sequence--gallery">
                         @foreach ($rowItems as $galleryItem)
                             <div class="h-40 w-64 shrink-0 overflow-hidden rounded-xl border border-brand-gold/20 bg-brand-cream shadow-sm">
-                                <img src="{{ $galleryItem['url'] }}" alt="" class="size-full object-cover" style="object-position: {{ $galleryItem['path'] ? ($imageFocusPositions[$galleryItem['path']] ?? '50% 50%') : '50% 50%' }}" decoding="async" loading="lazy">
+                                <x-responsive-image :src="$galleryItem['url']" sizes="(min-width: 1024px) 25vw, 50vw" alt="" class="size-full object-cover" style="object-position: {{ $galleryItem['path'] ? ($imageFocusPositions[$galleryItem['path']] ?? '50% 50%') : '50% 50%' }}" decoding="async" loading="lazy" />
                             </div>
                         @endforeach
                     </div>

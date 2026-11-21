@@ -28,7 +28,7 @@
     @endif
     @if ($package->posterImageUrl())
         <button type="button" class="grid w-28 shrink-0 cursor-zoom-in place-items-center bg-[#f2f0e9] p-1.5 sm:w-32" data-package-poster data-package-poster-src="{{ $package->posterImageUrl() }}" data-package-poster-alt="{{ $package->title }}" aria-label="Lihat poster {{ $package->title }}">
-            <img src="{{ $package->posterImageUrl() }}" alt="{{ $package->title }}" class="max-h-full max-w-full object-contain" loading="lazy">
+            <x-responsive-image :src="$package->posterImageUrl()" sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" alt="{{ $package->title }}" class="max-h-full max-w-full object-contain" loading="lazy" />
         </button>
     @else
         <div class="grid w-28 shrink-0 place-items-center bg-gradient-to-br from-[#073e34] to-[#00271f] text-[#ffdf9a] sm:w-32">

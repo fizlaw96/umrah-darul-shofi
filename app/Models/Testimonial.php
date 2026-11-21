@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasImageDerivatives;
 use Database\Factories\TestimonialFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,6 +17,8 @@ class Testimonial extends Model
 {
     /** @use HasFactory<TestimonialFactory> */
     use HasFactory;
+
+    use HasImageDerivatives;
 
     public const MaximumPublished = 3;
 
@@ -47,5 +50,13 @@ class Testimonial extends Model
         return [
             'is_published' => 'boolean',
         ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function imageDerivativeAttributes(): array
+    {
+        return ['photo'];
     }
 }

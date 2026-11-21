@@ -38,7 +38,7 @@
                     <div class="ds-full-gallery-grid" data-full-gallery-grid data-full-gallery-view="grid">
                         @foreach ($aboutMedia as $mediaItem)
                             <button type="button" class="ds-full-gallery-item" data-full-gallery-open data-full-gallery-category="about" data-full-gallery-src="{{ $mediaItem->url() }}" data-full-gallery-alt="{{ $mediaItem->alt_text ?: 'Foto Tentang Kami SalamHaji' }}" data-full-gallery-caption="Tentang Kami" aria-label="Buka {{ $mediaItem->alt_text ?: 'foto Tentang Kami SalamHaji' }}">
-                                <span class="ds-full-gallery-item__image"><img src="{{ $mediaItem->url() }}" alt="{{ $mediaItem->alt_text ?: 'Foto Tentang Kami SalamHaji' }}" style="object-position: {{ $imageFocusPositions[$mediaItem->path] ?? '50% 50%' }}" loading="lazy" decoding="async"></span>
+                                <span class="ds-full-gallery-item__image"><x-responsive-image :src="$mediaItem->url()" sizes="(min-width: 1024px) 33vw, 50vw" alt="{{ $mediaItem->alt_text ?: 'Foto Tentang Kami SalamHaji' }}" style="object-position: {{ $imageFocusPositions[$mediaItem->path] ?? '50% 50%' }}" loading="lazy" decoding="async" /></span>
                             </button>
                         @endforeach
                     </div>

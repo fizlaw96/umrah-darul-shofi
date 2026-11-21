@@ -61,13 +61,22 @@
         }
     }
 
+    $heroItems = $heroItems->map(function (array $heroItem): array {
+        $responsivePoster = \App\Models\ImageDerivative::responsiveAttributesFor($heroItem['poster']);
+
+        return $heroItem + [
+            'poster_srcset' => $responsivePoster['srcset'] ?? '',
+            'video_poster' => $responsivePoster['largest'] ?? $heroItem['poster'],
+        ];
+    });
+
     $firstHeroItem = $heroItems->first();
 @endphp
 
 <section class="ds-cinematic-hero" data-hero-carousel>
     <div class="ds-cinematic-hero__media" aria-hidden="true">
-        <img class="ds-cinematic-hero__poster" data-hero-poster src="{{ $firstHeroItem['poster'] }}" style="object-position: {{ $firstHeroItem['image_position'] }}" alt="">
-        <video class="ds-cinematic-hero__video ds-cinematic-hero__video--unavailable" data-hero-video muted loop playsinline preload="metadata" poster="{{ $firstHeroItem['poster'] }}"></video>
+        <x-responsive-image :src="$firstHeroItem['poster']" sizes="100vw" :priority="true" class="ds-cinematic-hero__poster" data-hero-poster style="object-position: {{ $firstHeroItem['image_position'] }}" alt="" />
+        <video class="ds-cinematic-hero__video ds-cinematic-hero__video--unavailable" data-hero-video muted loop playsinline preload="metadata" poster="{{ $firstHeroItem['video_poster'] }}"></video>
         <div class="ds-cinematic-hero__overlay"></div>
     </div>
     <div class="ds-cinematic-hero__content">
@@ -78,7 +87,7 @@
     </div>
     <div hidden aria-hidden="true">
         @foreach ($heroItems as $heroItem)
-            <span data-hero-slide data-hero-badge="{{ $siteSettings['company_name'] }}" data-hero-package-name="{{ $heroItem['title'] }}" data-hero-package-season="{{ $heroItem['subtitle'] }}" data-hero-package-price="{{ $heroItem['price'] }}" data-hero-cta-label="{{ $heroItem['cta_label'] }}" data-hero-cta-url="{{ $heroItem['cta_url'] }}" data-hero-poster="{{ $heroItem['poster'] }}" data-hero-image-position="{{ $heroItem['image_position'] }}" data-hero-video="{{ $heroItem['video'] }}" data-hero-video-position="center" data-hero-video-start="0"></span>
+            <span data-hero-slide data-hero-badge="{{ $siteSettings['company_name'] }}" data-hero-package-name="{{ $heroItem['title'] }}" data-hero-package-season="{{ $heroItem['subtitle'] }}" data-hero-package-price="{{ $heroItem['price'] }}" data-hero-cta-label="{{ $heroItem['cta_label'] }}" data-hero-cta-url="{{ $heroItem['cta_url'] }}" data-hero-poster="{{ $heroItem['poster'] }}" data-hero-poster-srcset="{{ $heroItem['poster_srcset'] }}" data-hero-video-poster="{{ $heroItem['video_poster'] }}" data-hero-image-position="{{ $heroItem['image_position'] }}" data-hero-video="{{ $heroItem['video'] }}" data-hero-video-position="center" data-hero-video-start="0"></span>
         @endforeach
     </div>
 </section>

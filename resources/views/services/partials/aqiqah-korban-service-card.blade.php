@@ -1,7 +1,7 @@
 <article class="aqiqah-korban-service-card">
     <div class="aqiqah-korban-service-card__visual">
         @if ($service->imageUrl())
-            <img src="{{ $service->imageUrl() }}" alt="{{ $service->name }}">
+            <x-responsive-image :src="$service->imageUrl()" sizes="(min-width: 1024px) 33vw, 100vw" alt="{{ $service->name }}" />
         @else
             <span class="material-symbols-outlined">{{ $service->category === \App\Models\AqiqahKorbanService::Aqiqah ? 'pets' : 'agriculture' }}</span>
         @endif

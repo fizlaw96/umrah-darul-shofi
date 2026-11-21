@@ -14,8 +14,8 @@ it('uses the Salam Haji logo for site icons when no favicon is stored', function
 
     $this->get(route('home'))
         ->assertOk()
-        ->assertSee('rel="icon" type="image/png" sizes="64x64" href="'.asset('darul-shofi/images/branding/salam-haji-logo.png').'"', false)
-        ->assertSee('rel="apple-touch-icon" sizes="180x180" href="'.asset('darul-shofi/images/branding/salam-haji-logo.png').'"', false);
+        ->assertSee('rel="icon" type="image/png" sizes="64x64" href="'.asset('darul-shofi/images/branding/salam-haji-favicon-64.png').'"', false)
+        ->assertSee('rel="apple-touch-icon" sizes="180x180" href="'.asset('darul-shofi/images/branding/salam-haji-apple-touch-icon-180.png').'"', false);
 });
 
 it('stores an uploaded company logo and uses it on the public website', function () {

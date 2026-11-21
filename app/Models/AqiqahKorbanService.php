@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasImageDerivatives;
 use Carbon\CarbonInterface;
 use Database\Factories\AqiqahKorbanServiceFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -30,6 +31,8 @@ class AqiqahKorbanService extends Model
 
     /** @use HasFactory<AqiqahKorbanServiceFactory> */
     use HasFactory;
+
+    use HasImageDerivatives;
 
     /**
      * @return array<int, string>
@@ -196,5 +199,13 @@ class AqiqahKorbanService extends Model
             'registration_opens_on' => 'date',
             'registration_closes_on' => 'date',
         ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function imageDerivativeAttributes(): array
+    {
+        return ['featured_image'];
     }
 }
