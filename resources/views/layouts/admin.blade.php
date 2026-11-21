@@ -11,7 +11,11 @@
         @if (filled($siteSettings['company_apple_touch_icon_url']))
             <link rel="apple-touch-icon" sizes="180x180" href="{{ $siteSettings['company_apple_touch_icon_url'] }}">
         @endif
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0,0&display=block" rel="stylesheet">
+        @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/admin.js'])
     </head>
     <body class="admin-shell bg-[#f7f8f6] text-[#163a30]">
         @php
@@ -28,7 +32,7 @@
             <div class="flex items-center justify-between px-6 pb-6 pt-7">
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3">
                     @if (filled($siteSettings['company_logo_url']))
-                        <span class="grid size-10 place-items-center overflow-hidden rounded-xl border border-[#d8e6dc] bg-white"><img src="{{ $siteSettings['company_logo_url'] }}" alt="" class="size-full object-contain p-1"></span>
+                        <span class="grid size-10 place-items-center overflow-hidden rounded-xl border border-[#d8e6dc] bg-white"><x-responsive-image :src="$siteSettings['company_logo_url']" sizes="40px" alt="" class="size-full object-contain p-1" /></span>
                     @else
                         <span class="grid size-10 place-items-center rounded-xl bg-[#003d32] text-[#f7d687]"><span class="material-symbols-outlined text-[22px]">mosque</span></span>
                     @endif

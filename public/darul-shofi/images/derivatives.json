@@ -1,0 +1,153 @@
+{
+    "darul-shofi/images/about/dua-di-kaabah.jpg": {
+        "width": 1280,
+        "height": 853,
+        "variants": {
+            "640": "darul-shofi/images/about/dua-di-kaabah.jpg.640.webp",
+            "1280": "darul-shofi/images/about/dua-di-kaabah.jpg.1280.webp"
+        }
+    },
+    "darul-shofi/images/about/jemaah-menuju-kaabah.jpg": {
+        "width": 1280,
+        "height": 853,
+        "variants": {
+            "640": "darul-shofi/images/about/jemaah-menuju-kaabah.jpg.640.webp",
+            "1280": "darul-shofi/images/about/jemaah-menuju-kaabah.jpg.1280.webp"
+        }
+    },
+    "darul-shofi/images/about/tawaf-di-makkah.jpg": {
+        "width": 1280,
+        "height": 853,
+        "variants": {
+            "640": "darul-shofi/images/about/tawaf-di-makkah.jpg.640.webp",
+            "1280": "darul-shofi/images/about/tawaf-di-makkah.jpg.1280.webp"
+        }
+    },
+    "darul-shofi/images/about/tilawah-di-makkah.jpg": {
+        "width": 1280,
+        "height": 853,
+        "variants": {
+            "640": "darul-shofi/images/about/tilawah-di-makkah.jpg.640.webp",
+            "1280": "darul-shofi/images/about/tilawah-di-makkah.jpg.1280.webp"
+        }
+    },
+    "darul-shofi/images/branding/darul-soffi-logo.jpg": {
+        "width": 593,
+        "height": 355,
+        "variants": {
+            "593": "darul-shofi/images/branding/darul-soffi-logo.jpg.593.webp"
+        }
+    },
+    "darul-shofi/images/branding/salam-haji-logo.png": {
+        "width": 7493,
+        "height": 4502,
+        "variants": {
+            "640": "darul-shofi/images/branding/salam-haji-logo.png.640.webp",
+            "1280": "darul-shofi/images/branding/salam-haji-logo.png.1280.webp"
+        }
+    },
+    "darul-shofi/images/hero/umrah-ekonomi-madinah-hero.png": {
+        "width": 1672,
+        "height": 941,
+        "variants": {
+            "640": "darul-shofi/images/hero/umrah-ekonomi-madinah-hero.png.640.webp",
+            "1280": "darul-shofi/images/hero/umrah-ekonomi-madinah-hero.png.1280.webp"
+        }
+    },
+    "darul-shofi/images/hero/umrah-premium-makkah-hero.png": {
+        "width": 1672,
+        "height": 941,
+        "variants": {
+            "640": "darul-shofi/images/hero/umrah-premium-makkah-hero.png.640.webp",
+            "1280": "darul-shofi/images/hero/umrah-premium-makkah-hero.png.1280.webp"
+        }
+    },
+    "darul-shofi/images/hero/umrah-ramadan-makkah-hero.png": {
+        "width": 1672,
+        "height": 941,
+        "variants": {
+            "640": "darul-shofi/images/hero/umrah-ramadan-makkah-hero.png.640.webp",
+            "1280": "darul-shofi/images/hero/umrah-ramadan-makkah-hero.png.1280.webp"
+        }
+    },
+    "darul-shofi/images/hotels/madinah-arrival.jpg": {
+        "width": 1586,
+        "height": 992,
+        "variants": {
+            "640": "darul-shofi/images/hotels/madinah-arrival.jpg.640.webp",
+            "1280": "darul-shofi/images/hotels/madinah-arrival.jpg.1280.webp"
+        }
+    },
+    "darul-shofi/images/hotels/makkah-arrival.jpg": {
+        "width": 1586,
+        "height": 992,
+        "variants": {
+            "640": "darul-shofi/images/hotels/makkah-arrival.jpg.640.webp",
+            "1280": "darul-shofi/images/hotels/makkah-arrival.jpg.1280.webp"
+        }
+    },
+    "darul-shofi/images/hotels/saudi-lobby.jpg": {
+        "width": 1586,
+        "height": 992,
+        "variants": {
+            "640": "darul-shofi/images/hotels/saudi-lobby.jpg.640.webp",
+            "1280": "darul-shofi/images/hotels/saudi-lobby.jpg.1280.webp"
+        }
+    },
+    "darul-shofi/images/packages/badal-haji-poster.jpg": {
+        "width": 1024,
+        "height": 1536,
+        "variants": {
+            "640": "darul-shofi/images/packages/badal-haji-poster.jpg.640.webp",
+            "1024": "darul-shofi/images/packages/badal-haji-poster.jpg.1024.webp"
+        }
+    },
+    "darul-shofi/images/packages/haji-poster.jpg": {
+        "width": 1024,
+        "height": 1536,
+        "variants": {
+            "640": "darul-shofi/images/packages/haji-poster.jpg.640.webp",
+            "1024": "darul-shofi/images/packages/haji-poster.jpg.1024.webp"
+        }
+    },
+    "darul-shofi/images/packages/pelancongan-poster.jpg": {
+        "width": 1024,
+        "height": 1536,
+        "variants": {
+            "640": "darul-shofi/images/packages/pelancongan-poster.jpg.640.webp",
+            "1024": "darul-shofi/images/packages/pelancongan-poster.jpg.1024.webp"
+        }
+    },
+    "darul-shofi/images/packages/umrah-poster.jpg": {
+        "width": 1024,
+        "height": 1536,
+        "variants": {
+            "640": "darul-shofi/images/packages/umrah-poster.jpg.640.webp",
+            "1024": "darul-shofi/images/packages/umrah-poster.jpg.1024.webp"
+        }
+    },
+    "darul-shofi/images/rooms/double.jpg": {
+        "width": 1586,
+        "height": 992,
+        "variants": {
+            "640": "darul-shofi/images/rooms/double.jpg.640.webp",
+            "1280": "darul-shofi/images/rooms/double.jpg.1280.webp"
+        }
+    },
+    "darul-shofi/images/rooms/quad.jpg": {
+        "width": 1586,
+        "height": 992,
+        "variants": {
+            "640": "darul-shofi/images/rooms/quad.jpg.640.webp",
+            "1280": "darul-shofi/images/rooms/quad.jpg.1280.webp"
+        }
+    },
+    "darul-shofi/images/rooms/triple.jpg": {
+        "width": 1586,
+        "height": 992,
+        "variants": {
+            "640": "darul-shofi/images/rooms/triple.jpg.640.webp",
+            "1280": "darul-shofi/images/rooms/triple.jpg.1280.webp"
+        }
+    }
+}

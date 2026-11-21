@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\WebsiteSetting;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -54,37 +55,16 @@ class AppServiceProvider extends ServiceProvider
             ]);
         });
 
-        view()->composer(['layouts.app', 'layouts.admin', 'darul-shofi.layout', 'darul-shofi.home', 'darul-shofi.about', 'darul-shofi.gallery', 'auth.admin-login'], function (View $view): void {
-            $defaults = WebsiteSetting::siteDefaults();
+        view()->composer(['layouts.app', 'layouts.admin', 'darul-shofi.layout', 'darul-shofi.home', 'darul-shofi.about', 'darul-shofi.gallery', 'auth.admin-login', 'faq'], function (View $view): void {
+            $request = request();
+            $sharedSiteViewData = $request->attributes->get('shared_site_view_data');
 
-            $settings = WebsiteSetting::query()
-                ->whereIn('key', array_keys($defaults))
-                ->pluck('value', 'key')
-                ->all();
+            if ($sharedSiteViewData === null) {
+                $sharedSiteViewData = $this->sharedSiteViewData();
+                $request->attributes->set('shared_site_view_data', $sharedSiteViewData);
+            }
 
-            $siteSettings = array_merge($defaults, $settings);
-            $siteSettings['company_logo_url'] = WebsiteSetting::publicUrl($siteSettings['company_logo_path'])
-                ?? $siteSettings['company_logo_url'];
-            $faviconUrl = WebsiteSetting::publicUrl($siteSettings['company_favicon_path'])
-                ?? $siteSettings['company_favicon_url'];
-            $siteSettings['company_favicon_url'] = filled($faviconUrl)
-                ? $faviconUrl
-                : $defaults['company_favicon_url'];
-
-            $appleTouchIconUrl = WebsiteSetting::publicUrl($siteSettings['company_apple_touch_icon_path'])
-                ?? $siteSettings['company_apple_touch_icon_url'];
-            $siteSettings['company_apple_touch_icon_url'] = filled($appleTouchIconUrl)
-                ? $appleTouchIconUrl
-                : $defaults['company_apple_touch_icon_url'];
-            $siteSettings['footer_logo_url'] = WebsiteSetting::publicUrl($siteSettings['footer_logo_path']);
-            $siteSettings['featured_video_upload_url'] = WebsiteSetting::publicUrl($siteSettings['featured_video_path']);
-            $siteSettings['featured_video_embed_url'] = WebsiteSetting::featuredVideoEmbedUrl($siteSettings['featured_video_url']);
-            $siteSettings['threads_url'] = WebsiteSetting::threadsComUrl($siteSettings['threads_url']);
-
-            $view->with([
-                'siteSettings' => $siteSettings,
-                'footerCategories' => PackageCategory::query()->active()->orderBy('sort_order')->get(['name', 'slug']),
-            ]);
+            $view->with($sharedSiteViewData);
         });
 
         view()->composer('*', function (View $view): void {
@@ -100,5 +80,45 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with('imageFocusPositions', $imageFocusPositions);
         });
+    }
+
+    /**
+     * Site settings and footer categories shared by the public and admin layouts.
+     *
+     * Memoised for the request because several composed views on one page need the same data.
+     *
+     * @return array{siteSettings: array<string, string|null>, footerCategories: Collection<int, PackageCategory>}
+     */
+    private function sharedSiteViewData(): array
+    {
+        $defaults = WebsiteSetting::siteDefaults();
+        $settings = WebsiteSetting::query()
+            ->whereIn('key', array_keys($defaults))
+            ->pluck('value', 'key')
+            ->all();
+
+        $siteSettings = array_merge($defaults, $settings);
+        $siteSettings['company_logo_url'] = WebsiteSetting::publicUrl($siteSettings['company_logo_path'])
+            ?? $siteSettings['company_logo_url'];
+        $faviconUrl = WebsiteSetting::publicUrl($siteSettings['company_favicon_path'])
+            ?? $siteSettings['company_favicon_url'];
+        $siteSettings['company_favicon_url'] = filled($faviconUrl)
+            ? $faviconUrl
+            : $defaults['company_favicon_url'];
+
+        $appleTouchIconUrl = WebsiteSetting::publicUrl($siteSettings['company_apple_touch_icon_path'])
+            ?? $siteSettings['company_apple_touch_icon_url'];
+        $siteSettings['company_apple_touch_icon_url'] = filled($appleTouchIconUrl)
+            ? $appleTouchIconUrl
+            : $defaults['company_apple_touch_icon_url'];
+        $siteSettings['footer_logo_url'] = WebsiteSetting::publicUrl($siteSettings['footer_logo_path']);
+        $siteSettings['featured_video_upload_url'] = WebsiteSetting::publicUrl($siteSettings['featured_video_path']);
+        $siteSettings['featured_video_embed_url'] = WebsiteSetting::featuredVideoEmbedUrl($siteSettings['featured_video_url']);
+        $siteSettings['threads_url'] = WebsiteSetting::threadsComUrl($siteSettings['threads_url']);
+
+        return [
+            'siteSettings' => $siteSettings,
+            'footerCategories' => PackageCategory::query()->active()->orderBy('sort_order')->get(['name', 'slug']),
+        ];
     }
 }

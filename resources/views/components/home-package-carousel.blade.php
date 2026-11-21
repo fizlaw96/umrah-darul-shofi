@@ -30,7 +30,7 @@
                         @endif
                         <button type="button" class="ds-home-package-card__poster" data-home-package-poster data-poster-src="{{ $package->posterImageUrl() }}" data-poster-alt="{{ $package->title }}" aria-label="Lihat poster {{ $package->title }}">
                             @if ($package->posterImageUrl())
-                                <img src="{{ $package->posterImageUrl() }}" alt="{{ $package->title }}" style="object-position: {{ $imageFocusPositions[$package->poster_image ?: $package->cover_image] ?? '50% 50%' }}" loading="lazy">
+                                <x-responsive-image :src="$package->posterImageUrl()" sizes="144px" alt="{{ $package->title }}" style="object-position: {{ $imageFocusPositions[$package->poster_image ?: $package->cover_image] ?? '50% 50%' }}" loading="lazy" />
                             @else
                                 <span class="ds-home-package-card__empty-poster"><i class="fa-solid fa-kaaba"></i></span>
                             @endif

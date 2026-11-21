@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasImageDerivatives;
 use Database\Factories\WebsiteSettingFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,6 +16,8 @@ class WebsiteSetting extends Model
     /** @use HasFactory<WebsiteSettingFactory> */
     use HasFactory;
 
+    use HasImageDerivatives;
+
     /**
      * @return array<string, string>
      */
@@ -26,9 +29,9 @@ class WebsiteSetting extends Model
             'company_tagline' => 'Salam Haji Umrahku & Hajimu Yang Teristimewa',
             'company_logo_url' => asset('darul-shofi/images/branding/salam-haji-logo.png'),
             'company_logo_path' => '',
-            'company_favicon_url' => asset('darul-shofi/images/branding/salam-haji-logo.png'),
+            'company_favicon_url' => asset('darul-shofi/images/branding/salam-haji-favicon-64.png'),
             'company_favicon_path' => '',
-            'company_apple_touch_icon_url' => asset('darul-shofi/images/branding/salam-haji-logo.png'),
+            'company_apple_touch_icon_url' => asset('darul-shofi/images/branding/salam-haji-apple-touch-icon-180.png'),
             'company_apple_touch_icon_path' => '',
             'contact_phone' => '',
             'contact_email' => '',
@@ -151,5 +154,16 @@ class WebsiteSetting extends Model
         }
 
         return $videoId;
+    }
+
+    /** @var array<int, string> */
+    public const ImageSettingKeys = ['company_logo_path', 'footer_logo_path'];
+
+    /**
+     * @return array<int, string>
+     */
+    public function imageDerivativeAttributes(): array
+    {
+        return in_array($this->key, self::ImageSettingKeys, true) ? ['value'] : [];
     }
 }

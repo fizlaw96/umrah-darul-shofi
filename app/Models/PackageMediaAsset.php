@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasImageDerivatives;
 use Database\Factories\PackageMediaAssetFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -28,6 +29,8 @@ class PackageMediaAsset extends Model
 
     /** @use HasFactory<PackageMediaAssetFactory> */
     use HasFactory;
+
+    use HasImageDerivatives;
 
     /**
      * @return array<string, array{label: string, storage_directory: string}>
@@ -62,5 +65,13 @@ class PackageMediaAsset extends Model
     public function isLandscape(): bool
     {
         return $this->width !== null && $this->height !== null && $this->width > $this->height;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function imageDerivativeAttributes(): array
+    {
+        return ['path'];
     }
 }

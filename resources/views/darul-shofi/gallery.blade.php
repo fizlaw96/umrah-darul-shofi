@@ -34,7 +34,7 @@
                         @php($categoryKey = $mediaItem->package_category_id ?: 'general')
                         @php($categoryLabel = $mediaItem->category?->name ?: 'Kenangan Umum')
                         <button type="button" class="ds-full-gallery-item" data-full-gallery-open data-full-gallery-category="{{ $categoryKey }}" data-full-gallery-src="{{ $mediaItem->url() }}" data-full-gallery-alt="{{ $mediaItem->alt_text ?: 'Foto galeri SalamHaji' }}" data-full-gallery-caption="{{ $categoryLabel }}" aria-label="Buka {{ $mediaItem->alt_text ?: 'foto galeri SalamHaji' }}">
-                            <span class="ds-full-gallery-item__image"><img src="{{ $mediaItem->url() }}" alt="{{ $mediaItem->alt_text ?: 'Foto galeri SalamHaji' }}" style="object-position: {{ $imageFocusPositions[$mediaItem->path] ?? '50% 50%' }}" loading="lazy" decoding="async"></span>
+                            <span class="ds-full-gallery-item__image"><x-responsive-image :src="$mediaItem->url()" sizes="(min-width: 1024px) 33vw, 50vw" alt="{{ $mediaItem->alt_text ?: 'Foto galeri SalamHaji' }}" style="object-position: {{ $imageFocusPositions[$mediaItem->path] ?? '50% 50%' }}" loading="lazy" decoding="async" /></span>
                         </button>
                     @endforeach
                 </div>

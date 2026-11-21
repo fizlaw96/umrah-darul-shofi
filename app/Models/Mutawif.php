@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasImageDerivatives;
 use Database\Factories\MutawifFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,6 +16,8 @@ class Mutawif extends Model
 {
     /** @use HasFactory<MutawifFactory> */
     use HasFactory;
+
+    use HasImageDerivatives;
 
     public function scopePublished(Builder $query): Builder
     {
@@ -39,5 +42,13 @@ class Mutawif extends Model
         return [
             'is_published' => 'boolean',
         ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function imageDerivativeAttributes(): array
+    {
+        return ['photo'];
     }
 }

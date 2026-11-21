@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasImageDerivatives;
 use Database\Factories\MediaItemFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,6 +17,8 @@ class MediaItem extends Model
 {
     /** @use HasFactory<MediaItemFactory> */
     use HasFactory;
+
+    use HasImageDerivatives;
 
     public const AboutSection = 'about';
 
@@ -100,5 +103,13 @@ class MediaItem extends Model
             'is_published' => 'boolean',
             'show_on_homepage' => 'boolean',
         ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function imageDerivativeAttributes(): array
+    {
+        return ['path'];
     }
 }

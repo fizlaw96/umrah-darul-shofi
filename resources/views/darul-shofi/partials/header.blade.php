@@ -4,7 +4,7 @@
             <a class="ds-site-brand" href="{{ route('home') }}">
                 @if ($siteSettings['company_logo_url'])
                     <span class="ds-site-brand-logo">
-                        <img src="{{ $siteSettings['company_logo_url'] }}" alt="Logo {{ $siteSettings['company_name'] }}">
+                        <x-responsive-image :src="$siteSettings['company_logo_url']" sizes="120px" alt="Logo {{ $siteSettings['company_name'] }}" />
                     </span>
                 @else
                     <span class="ds-site-brand-logo ds-site-brand-logo--fallback">

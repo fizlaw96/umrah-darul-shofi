@@ -26,14 +26,26 @@ use App\Http\Controllers\Public\MutawifController as PublicMutawifController;
 use App\Http\Controllers\Public\PackageController;
 use App\Http\Controllers\Public\PageController;
 use App\Models\Package;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Cookie\Middleware\EncryptCookies;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 Route::get('/', HomeController::class)->name('home');
 
 Route::get('/media/{path}', MediaFileController::class)
     ->where('path', '.*')
+    ->withoutMiddleware([
+        EncryptCookies::class,
+        AddQueuedCookiesToResponse::class,
+        StartSession::class,
+        ShareErrorsFromSession::class,
+        PreventRequestForgery::class,
+    ])
     ->name('media.show');
 
 Route::get('/pakej-umrah', [PackageController::class, 'index'])->name('packages.index');

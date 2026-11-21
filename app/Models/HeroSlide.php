@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasImageDerivatives;
 use Database\Factories\HeroSlideFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -27,6 +28,8 @@ class HeroSlide extends Model
 {
     /** @use HasFactory<HeroSlideFactory> */
     use HasFactory;
+
+    use HasImageDerivatives;
 
     public function category(): BelongsTo
     {
@@ -75,5 +78,13 @@ class HeroSlide extends Model
         return [
             'is_published' => 'boolean',
         ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function imageDerivativeAttributes(): array
+    {
+        return ['background_image'];
     }
 }

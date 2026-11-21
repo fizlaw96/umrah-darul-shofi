@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasImageDerivatives;
 use Database\Factories\AirlineCompanyFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -17,6 +18,8 @@ class AirlineCompany extends Model
 
     /** @use HasFactory<AirlineCompanyFactory> */
     use HasFactory;
+
+    use HasImageDerivatives;
 
     public function scopePublished(Builder $query): Builder
     {
@@ -37,5 +40,13 @@ class AirlineCompany extends Model
         return [
             'is_published' => 'boolean',
         ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function imageDerivativeAttributes(): array
+    {
+        return ['logo'];
     }
 }

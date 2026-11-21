@@ -13,7 +13,7 @@
             <section class="ds-global-footer__brand" aria-label="{{ $siteSettings['company_name'] }}">
                 <a class="ds-global-footer__company-logo" href="{{ route('home') }}" aria-label="{{ $siteSettings['company_name'] }}">
                     @if (filled($siteSettings['company_logo_url']))
-                        <img src="{{ $siteSettings['company_logo_url'] }}" alt="Logo {{ $siteSettings['company_name'] }}">
+                        <x-responsive-image :src="$siteSettings['company_logo_url']" sizes="190px" alt="Logo {{ $siteSettings['company_name'] }}" />
                     @else
                         <svg aria-hidden="true" focusable="false" viewBox="0 0 48 48">
                             <path d="M29.5 7.5a16.5 16.5 0 1 0 10.9 27.1A15.5 15.5 0 1 1 29.5 7.5Z" fill="currentColor"/>
@@ -88,7 +88,7 @@
 
                 <div class="ds-global-footer__contact-card">
                     <div class="ds-global-footer__darul-logo">
-                        <img src="{{ $darulSoffiLogoUrl }}" alt="Logo Pusat Pendidikan dan Bimbingan Darul Soffi">
+                        <x-responsive-image :src="$darulSoffiLogoUrl" sizes="208px" alt="Logo Pusat Pendidikan dan Bimbingan Darul Soffi" />
                     </div>
 
                     @if (filled($publicAddress))
